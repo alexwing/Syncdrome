@@ -48,7 +48,11 @@ This is a simple Express.js server that serves as a tool to create a catalog of 
 
 ## Batch File Description
 
-The `list_files.bat` batch file is used to generate text files with the content of the hard drives. The batch file description is as follows:
+The `ContentDrive.bat` batch file is used to generate text files with the content of the hard drives. The batch file description is as follows:
+
+Copy file to hard drive and run it. The file will create a text file with the list of all files on the drive. The text file will be saved in the Google drive folder. The file name will be the drive name with the extension `.txt`. For example, if the drive name is `My Passport`, the file name will be `My Passport.txt`.
+
+replace "drive" with the path of the Google drive folder or other folder where you want to save the text files.
 
 ```batch
 @rem  Batch file to create a list of all files on a drive. 
