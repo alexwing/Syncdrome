@@ -9,13 +9,13 @@ This is a simple Express.js server that serves as a tool to create a catalog of 
 2. Clone this repository:
 
    ```bash
-   git clone https://github.com/your_username/your_repository.git
+   git clone https://github.com/alexwing/content-drives-finder.git
    ```
 
 3. Navigate to the project directory:
 
    ```bash
-   cd your_repository
+   cd content-drives-finder
    ```
 
 4. Install the dependencies:
