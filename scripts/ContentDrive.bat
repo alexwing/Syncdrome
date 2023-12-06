@@ -10,12 +10,13 @@ for /f "tokens=1-5*" %%1 in ('vol') do (
 )
 :done
 set vol=%vol:~0,-1%
+
+chcp 65001 >nul
 dir . /s /b > %drive%%vol:~5%".txt" 
 
 @echo on
 @echo List of files on %vol% saved in %drive%%vol:~5%".txt"
 @pause
-
 
 
 
