@@ -1,9 +1,18 @@
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
+const express = require('express');
+const path = require('path');
+const bodyParser = require('body-parser');
 
 const app = express();
-const port = 3000;
+const fs = require("fs");
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+
+
+const port = 5000;
 
 app.get("/find/:searchParam", (req, res) => {
   //const folder = process.cwd() + '\\res';
