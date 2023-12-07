@@ -1,17 +1,37 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { useHistory } from "react-router-dom";
+import { NavBar, NavBarThemeSwitch, NavBarLink } from "react-windows-ui";
 
-const Navbar = () => (
-    <div className="container">
-        <div className="centered">
-            <img src="./logo.png" alt="logo" className="logo" />
-            <h1>Hard Drive Content Finder</h1>
+const Navbar = () => {
+  const history = useHistory();
+
+  return (
+    <NavBar
+      title="Hard Drive Content Finder"
+      shadowOnScroll={true}
+      titleBarMobile={
+        <div>
+          <span className="app-navbar-name">Hard Drive Content Finder</span>
         </div>
-        <nav className="nav">
-            <Link to="/">Home</Link>
-            <Link to="about">About</Link>
-        </nav>
-    </div>
-);
+      }
+    >
+      <NavBarThemeSwitch />
+      <NavBarLink
+        text="Home"
+          icon={<i className="icons10-home"></i>}
+          onClick={() => {
+            history.push("/");
+          }}
+        />
+        <NavBarLink
+          text="About"
+          icon={<i className="icons10-info"></i>}
+          onClick={() => {
+            history.push("/about");
+          }}
+        />
+      </NavBar>
+  );
+};
 
 export default Navbar;

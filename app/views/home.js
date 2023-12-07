@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import Api from "../helpers/api";
-import { json } from "body-parser";
+import { Button } from "react-windows-ui";
+
+import { NavPageContainer } from "react-windows-ui";
 
 class Home extends Component {
   constructor(props) {
@@ -34,7 +36,11 @@ class Home extends Component {
     const { name } = this.state;
 
     return (
-      <div>
+      <NavPageContainer>
+        <div className="centered">
+          <img src="./logo.png" alt="logo" className="logo" />
+          <h1>Hard Drive Content Finder</h1>
+        </div>
         <div className="container text-center">
           <form className="search" onSubmit={this.handleSearch}>
             <input
@@ -46,6 +52,12 @@ class Home extends Component {
             <button type="submit" className="btn">
               Search
             </button>
+            <Button
+              type="primary"
+              icon={<i className="icons10-search color-primary"></i>}
+              value="Search"
+              onClick={this.handleSearch}
+            />
           </form>
           <ul style={{ textAlign: "left" }}>
             {Object.keys(this.state.files).map((key) => (
@@ -67,7 +79,7 @@ class Home extends Component {
             ))}
           </ul>
         </div>
-      </div>
+      </NavPageContainer>
     );
   }
 }
