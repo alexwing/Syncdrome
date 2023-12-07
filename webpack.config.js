@@ -5,7 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
     mode: 'development',
     entry: {
-        app: './app/index.js'
+        app: './app/index.tsx'
     },
     output: {
         filename: 'app.bundle.js',
@@ -14,7 +14,7 @@ module.exports = {
     },
     module: {
         rules: [{
-            test: /\.(js|jsx)$/,
+            test: /\.(js|jsx|ts|tsx)$/,
             exclude: /node_modules/,
             loader: 'babel-loader',
         }, {
@@ -24,6 +24,9 @@ module.exports = {
             test: /\.(png|jpg|jpeg|gif|svg)$/,
             loader: 'file-loader?limit=8192&name=assets/[name].[ext]?[hash]'
         }]
+    },
+    resolve: {
+        extensions: ['.tsx', '.ts', '.js', '.jsx'],
     },
     plugins: [
         new HtmlWebpackPlugin({

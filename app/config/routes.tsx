@@ -15,7 +15,6 @@ const history = createBrowserHistory();
 
 const Routes = (
 
-
   <Router history={history}>
     <AppContainer>
       <AppTheme
