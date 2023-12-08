@@ -1,9 +1,24 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useHistory } from "react-router-dom";
-import { NavBar, NavBarThemeSwitch, NavBarLink } from "react-windows-ui";
+import {
+  NavBar,
+  NavBarThemeSwitch,
+  NavBarLink,
+} from "react-windows-ui";
+import { ThemeContext } from '../context/themeContext';
 
 const Navbar = () => {
   const history = useHistory();
+  const { theme, setLightTheme, setDarkTheme } = useContext(ThemeContext);
+
+  const setTheme = () => {
+    if (theme === 'light') {
+      setDarkTheme();
+    } else {
+      setLightTheme();
+    }
+  }
+
 
   return (
     <NavBar
@@ -15,22 +30,23 @@ const Navbar = () => {
         </div>
       }
     >
-      <NavBarThemeSwitch />
+
+      <NavBarThemeSwitch onChange={(e) => setTheme()} />
       <NavBarLink
         text="Home"
-          icon={<i className="icons10-home"></i>}
-          onClick={() => {
-            history.push("/");
-          }}
-        />
-        <NavBarLink
-          text="About"
-          icon={<i className="icons10-info"></i>}
-          onClick={() => {
-            history.push("/about");
-          }}
-        />
-      </NavBar>
+        icon={<i className="icons10-home"></i>}
+        onClick={() => {
+          history.push("/");
+        }}
+      />
+      <NavBarLink
+        text="About"
+        icon={<i className="icons10-info"></i>}
+        onClick={() => {
+          history.push("/about");
+        }}
+      />
+    </NavBar>
   );
 };
 

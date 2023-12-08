@@ -9,16 +9,15 @@
     "windows": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=app/assets/icon.png --prune=true --out=release-builds",
     "linux": "electron-packager . --overwrite --platform=linux --arch=x64 --icon=app/assets/icon.png --prune=true --out=release-builds"
   },
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "https://github.com/alexwing/content-drives-finder",
   "keywords": [
     "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "catalog",
+    "hard drive",
+    "files"
   ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "author": "Alejandro Aranda",
+  "license": "MIT",
   "devDependencies": {
     "@babel/core": "7.12.9",
     "@babel/plugin-proposal-class-properties": "7.12.1",
