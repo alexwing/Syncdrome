@@ -21,6 +21,13 @@ module.exports = {
             test: /\.css$/,
             loader: ['style-loader', 'css-loader', 'postcss-loader'],
         }, {
+            test: /\.scss$/,
+            use: [
+                'style-loader',
+                'css-loader',
+                'sass-loader'
+            ]
+        }, {
             test: /\.(png|jpg|jpeg|gif|svg)$/,
             loader: 'file-loader?limit=8192&name=assets/[name].[ext]?[hash]'
         }]

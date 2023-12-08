@@ -1,8 +1,21 @@
 /* Project uses CSSNEXT (CSS4) - http://cssnext.io/features/ via postcss */
-@import '/components/variables.css';
-@import '/components/base.css';
-@import '/components/type.css';
-@import '/components/navbar.css';
-@import '/components/buttons.css';
-@import '/components/forms.css';
-@import '/components/helpers.css';
+@import "/components/variables.css";
+@import "/components/base.css";
+@import "/components/type.css";
+@import "/components/navbar.css";
+@import "/components/buttons.css";
+@import "/components/forms.css";
+@import "/components/helpers.css";
+@import "/react-windows-ui.css";
+
+:root {
+  --PrimaryColor: #0078d7; /* Change of your choice */
+  --PrimaryColorLight: #60cdff; /* Lighter version of --PrimaryColor for DarkMode */
+}
+body {
+  font-family: "Segoe UI";
+}
+
+[data-theme="dark"] ::selection {
+  background-color: #2e517e;
+}

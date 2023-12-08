@@ -14,6 +14,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const port = 5000;
 
+app.get("/find/", (req, res) => {
+  res.json({});
+});
+
 app.get("/find/:searchParam", (req, res) => {
   //const folder = process.cwd() + '\\res';
   // C:\Users\Windows\Mi unidad\Software\DiscosDuros
@@ -21,8 +25,13 @@ app.get("/find/:searchParam", (req, res) => {
   const folder = "C:\\Users\\Windows\\Mi unidad\\Software\\DiscosDuros";
 
   const searchText = req.params.searchParam.toLowerCase();
-
+  
   const results = {};
+
+  if (!searchText || searchText.length < 3) {
+    res.json(results);
+    return;
+  }
 
   fs.readdirSync(folder).forEach((filedata) => {
     if (filedata.endsWith(".txt")) {
@@ -39,13 +48,13 @@ app.get("/find/:searchParam", (req, res) => {
           const fileData = path.basename(empty);
 
           const fileName = isFolder ? "" : fileData;
-          //extract folder from file path
+          //extract folder from file path and remove drive letter: C:\\
           const folder = isFolder
             ? empty
             : path
                 .dirname(rowData)
                 .trim()
-                .replace(/\r?\n|\r/g, "");
+                .replace(/\r?\n|\r/g, "").slice(3);
 
           //add prop name, clean extension, remove "." "_" "-"" and replace with space
           const name = fileData

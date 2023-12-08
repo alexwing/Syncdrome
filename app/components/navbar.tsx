@@ -12,6 +12,8 @@ const Navbar = () => {
   const { theme, setLightTheme, setDarkTheme } = useContext(ThemeContext);
 
   const setTheme = () => {
+    //current navigator version
+    console.log("Navigator: " + navigator.appVersion);
     if (theme === 'light') {
       setDarkTheme();
     } else {
@@ -23,6 +25,7 @@ const Navbar = () => {
   return (
     <NavBar
       title="Hard Drive Content Finder"
+      theme={theme}
       shadowOnScroll={true}
       titleBarMobile={
         <div>
@@ -30,8 +33,8 @@ const Navbar = () => {
         </div>
       }
     >
-
-      <NavBarThemeSwitch onChange={(e) => setTheme()} />
+      {//<NavBarThemeSwitch onChange={(e) => setTheme()} />
+      }
       <NavBarLink
         text="Home"
         icon={<i className="icons10-home"></i>}
