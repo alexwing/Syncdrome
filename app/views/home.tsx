@@ -114,6 +114,7 @@ const Home = () => {
     }
   };
 
+
   return (
     <NavPageContainer>
       <div className="centered pt-3">
