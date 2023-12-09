@@ -5,6 +5,7 @@ import { Route } from "react-router-dom";
 import Home from "../views/home";
 import About from "../views/about";
 import { ThemeContext } from "../context/themeContext";
+import Settings from "../views/settings";
 
 const AppLayout = () => {
   const { theme } = useContext(ThemeContext);
@@ -18,6 +19,7 @@ const AppLayout = () => {
       <Navbar />
       <Route path="/" exact component={Home} />
       <Route path="/about" component={About} />
+      <Route path="/settings" component={Settings} />
     </AppContainer>
   );
 };

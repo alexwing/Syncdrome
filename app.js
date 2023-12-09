@@ -110,6 +110,51 @@ app.get("/find/:searchParam", (req, res) => {
   res.json(results);
 });
 
+const getSpaceDisk = (driveLetter) => {
+  const cp = require("child_process");
+  const cmd = cp.spawnSync("wmic", ["logicaldisk", "where", `DeviceID="${driveLetter}"`, "get", "freespace,size"]);
+  const lines = cmd.stdout.toString().split("\n");
+  let freeSpace = 0;
+  let size = 0;
+  lines.forEach((line) => {
+    const drive = line.trim();
+    if (drive.length > 0 && drive !== "FreeSpace  Size") {
+      const info = drive.split("  ");
+      freeSpace = info[0];
+      size = info[1];
+    }
+  });
+  return {
+    freeSpace: (freeSpace / 1024 / 1024 / 1024).toFixed(2) + " GB",
+    size: (size / 1024 / 1024 / 1024).toFixed(2) + " GB",
+  };
+}
+
+//get system connected drives letters and names, create a json object
+app.get("/drives", (req, res) => {
+  const drives = [];
+  const cp = require("child_process");
+  const cmd = cp.spawnSync("wmic", ["logicaldisk", "get", "name,volumename"]);
+  const lines = cmd.stdout.toString().split("\n");
+  lines.forEach((line) => {
+    const drive = line.trim();
+    if (drive.length > 0 && drive !== "Name  VolumeName") {
+      const driveName = drive.slice(3).trim();
+      const driveLetter = drive.slice(0,2).trim();
+      const {freeSpace, size} = getSpaceDisk(driveLetter);
+      drives.push({
+        letter: driveLetter,
+        name: driveName,
+        freeSpace: freeSpace,
+        size: size
+      });
+    }
+  });
+
+  res.json(drives);
+});
+
+
 app.listen(port, () => {
   console.log(
     `La aplicación está escuchando en http://localhost:${port}/find/{searchParam}`

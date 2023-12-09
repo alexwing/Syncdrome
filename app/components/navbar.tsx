@@ -25,7 +25,6 @@ const Navbar = () => {
   return (
     <NavBar
       title="Hard Drive Content Finder"
-      theme={theme}
       shadowOnScroll={true}
       titleBarMobile={
         <div>
@@ -43,12 +42,19 @@ const Navbar = () => {
         }}
       />
       <NavBarLink
+        text="Settings"
+        icon={<i className="icons10-settings"></i>}
+        onClick={() => {
+          history.push("/settings");
+        }}
+      />
+        <NavBarLink
         text="About"
         icon={<i className="icons10-info"></i>}
         onClick={() => {
           history.push("/about");
         }}
-      />
+      />        
     </NavBar>
   );
 };

@@ -1,6 +1,6 @@
 import React from "react";
 import { Router } from "react-router-dom";
-import { createBrowserHistory } from "history";
+import { createHashHistory } from "history";
 import "react-windows-ui/config/app-config.css";
 //import "react-windows-ui/dist/react-windows-ui.min.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -9,7 +9,7 @@ import "../styles/main.css";
 import AppLayout from "./appLayout";
 import ThemeProvider from "../components/ThemeProvider";
 
-const history = createBrowserHistory();
+const history = createHashHistory();
 
 const App = () => {
   return (
