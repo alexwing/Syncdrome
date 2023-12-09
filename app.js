@@ -1,6 +1,6 @@
-const express = require('express');
-const path = require('path');
-const bodyParser = require('body-parser');
+const express = require("express");
+const path = require("path");
+const bodyParser = require("body-parser");
 
 const app = express();
 const fs = require("fs");
@@ -8,9 +8,7 @@ const fs = require("fs");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use(express.static(path.join(__dirname, 'public')));
-
-
+app.use(express.static(path.join(__dirname, "public")));
 
 const port = 5000;
 
@@ -25,7 +23,7 @@ app.get("/find/:searchParam", (req, res) => {
   const folder = "C:\\Users\\Windows\\Mi unidad\\Software\\DiscosDuros";
 
   const searchText = req.params.searchParam.toLowerCase();
-  
+
   const results = {};
 
   if (!searchText || searchText.length < 3) {
@@ -54,13 +52,14 @@ app.get("/find/:searchParam", (req, res) => {
             : path
                 .dirname(rowData)
                 .trim()
-                .replace(/\r?\n|\r/g, "").slice(3);
+                .replace(/\r?\n|\r/g, "")
+                .slice(3);
 
           //add prop name, clean extension, remove "." "_" "-"" and replace with space
           const name = fileData
             .replace(/\.[^/.]+$/, "")
             .replace(/[-_\.]/g, " ");
-            
+
           founds.push({
             line: line + 1,
             name: name,
@@ -79,26 +78,22 @@ app.get("/find/:searchParam", (req, res) => {
       }, {});
 
       //remove  type = "folder" of groupByFolder
-        Object.keys(groupByFolder).forEach((key) => {
-            groupByFolder[key] = groupByFolder[key].filter(
-                (item) => item.type !== "folder"
-            );
-            }
+      Object.keys(groupByFolder).forEach((key) => {
+        groupByFolder[key] = groupByFolder[key].filter(
+          (item) => item.type !== "folder"
         );
+      });
 
-        //remove prop type line and content
-        //replace "[drive]:\\" with ""
-        Object.keys(groupByFolder).forEach((key) => {
-            groupByFolder[key].forEach((item) => {
-                delete item.type;
-                delete item.line;
-                delete item.content;
-                item.folder = item.folder.replace(/^[a-zA-Z]:\\/g, "");
-            });
+      //remove prop type line and content
+      //replace "[drive]:\\" with ""
+      Object.keys(groupByFolder).forEach((key) => {
+        groupByFolder[key].forEach((item) => {
+          delete item.type;
+          delete item.line;
+          delete item.content;
+          item.folder = item.folder.replace(/^[a-zA-Z]:\\/g, "");
         });
-      
-        
-
+      });
 
       if (founds.length > 0) {
         results[filedata] = groupByFolder;
@@ -112,7 +107,13 @@ app.get("/find/:searchParam", (req, res) => {
 
 const getSpaceDisk = (driveLetter) => {
   const cp = require("child_process");
-  const cmd = cp.spawnSync("wmic", ["logicaldisk", "where", `DeviceID="${driveLetter}"`, "get", "freespace,size"]);
+  const cmd = cp.spawnSync("wmic", [
+    "logicaldisk",
+    "where",
+    `DeviceID="${driveLetter}"`,
+    "get",
+    "freespace,size",
+  ]);
   const lines = cmd.stdout.toString().split("\n");
   let freeSpace = 0;
   let size = 0;
@@ -128,7 +129,15 @@ const getSpaceDisk = (driveLetter) => {
     freeSpace: (freeSpace / 1024 / 1024 / 1024).toFixed(2) + " GB",
     size: (size / 1024 / 1024 / 1024).toFixed(2) + " GB",
   };
-}
+};
+
+//get is has a ContentDrive.bat or ContentDriveMedia.bat in the root of the drive
+const getDriveContent = (driveLetter) => {
+  const file1 = path.join(driveLetter, "ContentDrive.bat");
+  const file2 = path.join(driveLetter, "ContentDriveMedia.bat");
+
+  return fs.existsSync(file1) || fs.existsSync(file2);
+};
 
 //get system connected drives letters and names, create a json object
 app.get("/drives", (req, res) => {
@@ -140,20 +149,20 @@ app.get("/drives", (req, res) => {
     const drive = line.trim();
     if (drive.length > 0 && drive !== "Name  VolumeName") {
       const driveName = drive.slice(3).trim();
-      const driveLetter = drive.slice(0,2).trim();
-      const {freeSpace, size} = getSpaceDisk(driveLetter);
+      const driveLetter = drive.slice(0, 2).trim();
+      const { freeSpace, size } = getSpaceDisk(driveLetter);
       drives.push({
         letter: driveLetter,
         name: driveName,
         freeSpace: freeSpace,
-        size: size
+        size: size,
+        content: getDriveContent(driveLetter),
       });
     }
   });
 
   res.json(drives);
 });
-
 
 app.listen(port, () => {
   console.log(
