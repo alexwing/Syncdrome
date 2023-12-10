@@ -4,7 +4,7 @@ const Api = {
     getFind: (searchParam) => Axios.get(`/find/${searchParam}`),
 
     getDrives: () => Axios.get('/drives'),
-    getExecute: (driveLetter) => Axios.get(`/execute/${driveLetter}`),
+    getExecute: (driveLetter) => Axios.get(`/executeNode/${driveLetter}`),
         
 };
 

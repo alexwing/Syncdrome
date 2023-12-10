@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
+const { exec } = require("child_process");
 
 const app = express();
 const fs = require("fs");
@@ -139,7 +140,6 @@ const getDriveContent = (driveLetter) => {
   return fs.existsSync(file1) || fs.existsSync(file2);
 };
 
-
 //execute a bat file in the root of the drive, from the drive letter
 app.get("/execute/:driveLetter", (req, res) => {
   const driveLetter = req.params.driveLetter;
@@ -149,18 +149,77 @@ app.get("/execute/:driveLetter", (req, res) => {
   }
   if (fs.existsSync(file)) {
     const cp = require("child_process");
-    const cmd = cp.spawnSync(file, [], { shell: true, encoding: 'utf8', cwd: driveLetter });
+    const cmd = cp.spawnSync(file, [], {
+      shell: true,
+      encoding: "utf8",
+      cwd: driveLetter,
+    });
     if (cmd.error) {
-      console.log('Error al ejecutar el archivo bat:', cmd.error);
-      res.json({ success: false, error: cmd.error, stdout: cmd.stdout, stderr: cmd.stderr });
+      console.log("Error al ejecutar el archivo bat:", cmd.error);
+      res.json({
+        success: false,
+        error: cmd.error,
+        stdout: cmd.stdout,
+        stderr: cmd.stderr,
+      });
     } else {
       res.json({ success: true, stdout: cmd.stdout, stderr: cmd.stderr });
     }
   } else {
-    console.log('Archivo bat no encontrado:', file);
+    console.log("Archivo bat no encontrado:", file);
     res.json({ success: false });
   }
 });
+
+app.get("/executeNode/:driveLetter", (req, res) => {
+  const driveLetter = req.params.driveLetter;
+
+  // Cambia al directorio del disco especificado
+  process.chdir(driveLetter + "\\");
+
+  // Extrae el nombre del volumen de la salida del comando 'vol'
+  const vol = getVolumeName(driveLetter);
+
+  // Ejecuta el comando 'dir' para listar todos los archivos y subcarpetas
+  exec("dir . /s /b", { encoding: "utf8" }, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error al listar los archivos: ${error}`);
+      return res.json({ success: false, error: error.message });
+    }
+
+    // Ruta donde se guardarán los archivos de lista
+    const drive = "C:\\Users\\Windows\\Mi unidad\\Software\\DiscosDuros\\";
+
+    // Guarda la lista de archivos en un archivo de texto
+    const filePath = path.join(drive, `${vol}.txt`);
+    fs.writeFile(filePath, stdout, "utf8", (error) => {
+      if (error) {
+        console.error(`Error al guardar la lista de archivos: ${error}`);
+        return res.json({ success: false, error: error.message });
+      }
+
+      console.log(`Lista de archivos en ${vol} guardada en ${filePath}`);
+      res.json({
+        success: true,
+        message: `Lista de archivos en ${vol} guardada en ${filePath}`,
+      });
+    });
+  });
+});
+
+const getVolumeName = (driveLetter) => {
+  const cp = require("child_process");
+  const cmd = cp.spawnSync("wmic", ["logicaldisk", "get", "volumename"]);
+  const lines = cmd.stdout.toString().split("\n");
+  let vol = "";
+  lines.forEach((line) => {
+    const drive = line.trim();
+    if (drive.length > 0 && drive !== "VolumeName") {
+      vol = drive;
+    }
+  });
+  return vol;
+};
 
 //get system connected drives letters and names, create a json object
 app.get("/drives", (req, res) => {
