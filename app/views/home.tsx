@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Api from "../helpers/api";
 import { NavPageContainer } from "react-windows-ui";
-import { Accordion, Alert, Badge, Button, ListGroup } from "react-bootstrap";
+import { Accordion, Alert, Badge, Button, Container, ListGroup } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 
 const Home = () => {
@@ -116,7 +116,9 @@ const Home = () => {
 
 
   return (
-    <NavPageContainer>
+    <Container
+    style={{ overflowY: "scroll", height: "100vh" }}
+    >
       <div className="centered pt-3">
         <img src="./assets/logo.png" alt="logo" className="logo" />
         <h1>Hard Drive Content Finder</h1>
@@ -190,7 +192,7 @@ const Home = () => {
           ))}
         </Accordion>
       </div>
-    </NavPageContainer>
+    </Container>
   );
 };
 
