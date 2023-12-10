@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const {
   getSpaceDisk,
-  getDriveContent,
+  getDriveSync,
   getVolumeName,
 } = require("./Utils/utils");
 const { exec } = require("child_process");
@@ -15,7 +15,7 @@ module.exports = function (app, config) {
     process.chdir(driveLetter + "\\");
 
     // Extract the volume name from the output of the 'vol' command
-    const vol = getVolumeName(driveLetter);
+    const vol = getVolumeName(driveLetter, config.folder);
 
     // Execute the 'dir' command to list all files and subfolders
     exec(
@@ -66,7 +66,7 @@ module.exports = function (app, config) {
           name: driveName,
           freeSpace: freeSpace,
           size: size,
-          content: getDriveContent(driveLetter),
+          sync: getDriveSync(driveName, config.folder),
         });
       }
     });

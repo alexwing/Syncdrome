@@ -6,6 +6,15 @@ const settings = require("./backend/settings");
 const search = require("./backend/search");
 const process = require("./backend/process");
 
+const { ipcMain, dialog } = require("electron");
+
+ipcMain.handle("open-directory-dialog", async (event, defaultPath) => {
+  const result = await dialog.showOpenDialog({
+    properties: ["openDirectory"],
+    defaultPath,
+  });
+  return result.filePaths[0];
+});
 const app = express();
 const fs = require("fs");
 

@@ -17,7 +17,7 @@ interface DrivesProps {
   name: string;
   freeSpace: string;
   size: string;
-  content: boolean;
+  sync: boolean;
 }
 
 const Settings = () => {
@@ -91,9 +91,7 @@ const Settings = () => {
   };
 
   return (
-    <Container
-    style={{ overflowY: "scroll", height: "100vh" }}
-    >
+    <Container style={{ overflowY: "scroll", height: "100vh" }}>
       <Breadcrumb className="mt-3">
         <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
         <Breadcrumb.Item active>Settings</Breadcrumb.Item>
@@ -116,8 +114,7 @@ const Settings = () => {
           </Col>
         </Row>
       </Container>
-      <Container fluid className="d-flex flex-wrap align-items-center  py-2"      
-      >
+      <Container fluid className="d-flex flex-wrap align-items-center  py-2">
         {drives.map((drive: DrivesProps, index) => (
           <Card style={{ width: "18rem" }} className="m-2" key={index}>
             <Card.Body>
@@ -125,7 +122,7 @@ const Settings = () => {
                 {drive.letter} - {drive.name}
               </Card.Title>
               <Card.Text>
-                {drive.content ? "Syncronized" : "Not Syncronized"}
+                {drive.sync ? "Syncronized" : "Not Syncronized"}
               </Card.Text>
             </Card.Body>
             <ListGroup className="list-group-flush">

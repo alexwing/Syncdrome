@@ -2,12 +2,12 @@ const fs = require("fs");
 const path = require("path");
 
 module.exports = function (app, config) {
-  // Servir la configuración como un endpoint GET
+  // Server the configuration as a GET endpoint
   app.get("/settings", (req, res) => {
     res.json(config);
   });
 
-  // guardar la configuración como un endpoint POST
+  // Save the configuration as a POST endpoint
   app.post("/settings", (req, res) => {
     const newConfig = req.body;
     fs.writeFileSync(

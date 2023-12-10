@@ -3,7 +3,6 @@ const path = require("path");
 const fs = require("fs");
 
 const getSpaceDisk = (driveLetter) => {
-  const cp = require("child_process");
   const cmd = cp.spawnSync("wmic", [
     "logicaldisk",
     "where",
@@ -30,16 +29,13 @@ const getSpaceDisk = (driveLetter) => {
   };
 };
 
-//get is has a ContentDrive.bat or ContentDriveMedia.bat in the root of the drive
-const getDriveContent = (driveLetter) => {
-  const file1 = path.join(driveLetter, "ContentDrive.bat");
-  const file2 = path.join(driveLetter, "ContentDriveMedia.bat");
-
-  return fs.existsSync(file1) || fs.existsSync(file2);
+//get is has a volume name txt file in the root of the drive, return true or false
+const getDriveSync = (driveVolumeName,folder) => {
+  const file = path.join(folder, `${driveVolumeName}.txt`);
+  return fs.existsSync(file);
 };
 
 const getVolumeName = (driveLetter) => {
-  const cp = require("child_process");
   const cmd = cp.spawnSync("wmic", [
     "logicaldisk",
     "where",
@@ -60,6 +56,6 @@ const getVolumeName = (driveLetter) => {
 
 module.exports = {
   getSpaceDisk,
-  getDriveContent,
+  getDriveSync,
   getVolumeName,
 };

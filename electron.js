@@ -9,7 +9,10 @@ const url = require("url");
 let mainWindow;
 
 function createWindow() {
-  mainWindow = new BrowserWindow({ width: 800, height: 600 });
+  //enabled showOpenDialog in renderer
+  mainWindow = new BrowserWindow({ width: 800, height: 600, webPreferences: { nodeIntegration: true, contextIsolation: false
+    
+  } });
   //full screen
   mainWindow.maximize();
 
