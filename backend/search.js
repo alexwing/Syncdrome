@@ -1,4 +1,3 @@
-const express = require("express");
 const fs = require("fs");
 const path = require("path");
 
@@ -10,11 +9,7 @@ module.exports = function (app, config) {
   });
 
   app.get("/find/:searchParam", (req, res) => {
-    //const folder = process.cwd() + '\\res';
-    // C:\Users\Windows\Mi unidad\Software\DiscosDuros
-
     const searchText = req.params.searchParam.toLowerCase();
-
     const results = {};
 
     if (!searchText || searchText.length < 3) {
