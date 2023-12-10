@@ -4,6 +4,7 @@ import Api from "../helpers/api";
 import { Button, Col, Container, Row } from "react-bootstrap";
 
 import { ipcRenderer } from 'electron';
+import * as Icon from "react-bootstrap-icons";
 
 const Comfig = () => {
   const [folder, setFolder] = useState("");
@@ -38,7 +39,10 @@ const Comfig = () => {
           value={folder}
           onChange={(e) => setFolder(e.target.value)}
         />
-        <button onClick={onChangeFolder}>...</button>
+        <Button 
+          variant="outline-secondary"
+          type="button" 
+        onClick={onChangeFolder}>...</Button>
       </label>
       <Container
         fluid
@@ -47,6 +51,7 @@ const Comfig = () => {
         <Row>
           <Col className="text-center">
             <Button variant="primary" type="submit" className="full-width">
+              <Icon.Save color="white" size={18} className="me-3" />
               Save
             </Button>
           </Col>

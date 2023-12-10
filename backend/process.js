@@ -4,9 +4,12 @@ const {
   getSpaceDisk,
   getDriveSync,
   getVolumeName,
+  getDriveSyncDate,
 } = require("./Utils/utils");
 const { exec } = require("child_process");
 
+
+// Execute the 'dir' command to list all files and subfolders
 module.exports = function (app, config) {
   app.get("/executeNode/:driveLetter", (req, res) => {
     const driveLetter = req.params.driveLetter;
@@ -20,7 +23,7 @@ module.exports = function (app, config) {
     // Execute the 'dir' command to list all files and subfolders
     exec(
       "dir . /s /b",
-      { encoding: "utf8", maxBuffer: 1024 * 125000 },
+      { encoding: "utf8", maxBuffer: 1024 * 1024 * 1024 * 4 },
       (error, stdout, stderr) => {
         // Increase the buffer size here
         if (error) {
@@ -61,16 +64,32 @@ module.exports = function (app, config) {
         const driveName = drive.slice(3).trim();
         const driveLetter = drive.slice(0, 2).trim();
         const { freeSpace, size } = getSpaceDisk(driveLetter);
+        const driveSync = getDriveSync(driveName, config.folder);
+        let syncDate = null;
+        if (driveSync) {
+           syncDate = getDriveSyncDate(driveName, config.folder);
+        }
         drives.push({
           letter: driveLetter,
           name: driveName,
           freeSpace: freeSpace,
           size: size,
-          sync: getDriveSync(driveName, config.folder),
+          sync: driveSync,
+          syncDate: syncDate,
         });
       }
     });
 
     res.json(drives);
+  });
+
+
+  //remove volume name file from drive root
+  app.delete("/drives/:driveLetter", (req, res) => {
+    const driveLetter = req.params.driveLetter;
+    const vol = getVolumeName(driveLetter, config.folder);
+    const file = path.join(config.folder, `${vol}.txt`);
+    fs.unlinkSync(file);
+    res.json({ success: true, message: `File ${file} deleted` });
   });
 };

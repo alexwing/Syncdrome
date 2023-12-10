@@ -8,16 +8,20 @@ import {
   Container,
   Row,
   Col,
+  Badge,
 } from "react-bootstrap";
 import Api from "../helpers/api";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import Config from "../components/config";
+import * as Icon from "react-bootstrap-icons";
+
 interface DrivesProps {
   letter: string;
   name: string;
   freeSpace: string;
   size: string;
   sync: boolean;
+  syncDate: string;
 }
 
 const Settings = () => {
@@ -45,6 +49,18 @@ const Settings = () => {
       .then((res) => {
         console.log(res.data);
         setLoading(false);
+        getDrives();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const deleteDrive = (drive) => {
+    Api.deleteDrive(drive)
+      .then((res) => {
+        console.log(res.data);
+        getDrives();
       })
       .catch((err) => {
         console.log(err);
@@ -90,6 +106,13 @@ const Settings = () => {
     return (parseFloat(byte) / 1024 / 1024 / 1024).toFixed(2) + " GB";
   };
 
+  const getSyncDate = (drive) => {
+    if (drive.syncDate) {
+      return new Date(drive.syncDate).toLocaleString();
+    }
+    return "";
+  }
+
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       <Breadcrumb className="mt-3">
@@ -97,18 +120,19 @@ const Settings = () => {
         <Breadcrumb.Item active>Settings</Breadcrumb.Item>
       </Breadcrumb>
       <h2>Settings</h2>
-      <p>Here you can configure the application.</p>
+      <small>Here you can configure the application.</small>
+      <p className="mt-3">
+        Select the folder where you want to save the files.
+      </p>
       <Config />
       <h3>Drives</h3>
-      <p>Here you can see the drives and syncronize them.</p>
+      <small>Here you can see the drives and syncronize them.</small>
 
-      <Container
-        fluid
-        className="d-flex align-items-center justify-content-center py-2"
-      >
+      <Container fluid>
         <Row>
-          <Col className="text-center">
+          <Col className="text-right">
             <Button variant="primary" size="sm" onClick={() => getDrives()}>
+              <Icon.ArrowRepeat color="white" size={16} className="me-2" />
               Refresh
             </Button>
           </Col>
@@ -116,41 +140,56 @@ const Settings = () => {
       </Container>
       <Container fluid className="d-flex flex-wrap align-items-center  py-2">
         {drives.map((drive: DrivesProps, index) => (
-          <Card style={{ width: "18rem" }} className="m-2" key={index}>
+          <Card style={{ width: "23.566rem" }} className="m-2" key={index}>
             <Card.Body>
               <Card.Title>
-                {drive.letter} - {drive.name}
+                <Icon.HddFill color="darkgray" size={24} className="me-2" />
+                {drive.letter} {drive.name}
               </Card.Title>
               <Card.Text>
-                {drive.sync ? "Syncronized" : "Not Syncronized"}
+                <Badge bg={drive.sync ? "primary" : "secondary"}>
+                  {drive.sync ? "Syncronized" : "Not Syncronized"}
+                </Badge>
+                <Badge bg="light" text="dark" className="ms-2">
+                  {getSyncDate(drive)}
+                </Badge>
               </Card.Text>
             </Card.Body>
             <ListGroup className="list-group-flush">
-              <ListGroup.Item>
-                Total Space: {byteToGB(drive.size)}
-              </ListGroup.Item>
-              <ListGroup.Item>
-                Free Space: {byteToGB(drive.freeSpace)}
-              </ListGroup.Item>
               {printPercentDisk(drive)}
+              <ListGroup.Item>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <div className="fw-bold">{byteToGB(drive.size)}</div>
+                  <div>Free: {byteToGB(drive.freeSpace)}</div>
+                </div>
+              </ListGroup.Item>
             </ListGroup>
             <Card.Body>
-              {drive.letter && (
+              <Button
+                variant="outline-primary"
+                disabled={loading}
+                onClick={() => executeContentDrive(drive.letter)}
+              >
+                {loading && (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                )}
+                Sync
+              </Button>
+              {drive.sync && (
                 <Button
-                  variant="outline-primary"
-                  disabled={loading}
-                  onClick={() => executeContentDrive(drive.letter)}
+                  variant="danger"
+                  className="ms-2"
+                  onClick={() => deleteDrive(drive.letter)}
                 >
-                  {loading && (
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                    />
-                  )}
-                  Sync
+                  <Icon.TrashFill color="white" size={16} />
                 </Button>
               )}
             </Card.Body>

@@ -5,6 +5,9 @@ const Api = {
 
   getDrives: () => Axios.get("/drives"),
   getExecute: (driveLetter) => Axios.get(`/executeNode/${driveLetter}`),
+  deleteDrive: (driveLetter) => Axios.delete(`/drives/${driveLetter}`),
+
+
   getSettings() {
     return Axios.get("/settings");
   },

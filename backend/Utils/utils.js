@@ -35,6 +35,18 @@ const getDriveSync = (driveVolumeName,folder) => {
   return fs.existsSync(file);
 };
 
+// get the modified date of the file in the root of the drive
+const getDriveSyncDate = (driveVolumeName, folder) => {
+  const file = path.join(folder, `${driveVolumeName}.txt`);
+
+  if (fs.existsSync(file)) {
+    const stats = fs.statSync(file);
+    return stats.mtime;
+  } else {
+    throw new Error(`File ${file} does not exist`);
+  }
+};
+
 const getVolumeName = (driveLetter) => {
   const cmd = cp.spawnSync("wmic", [
     "logicaldisk",
@@ -58,4 +70,5 @@ module.exports = {
   getSpaceDisk,
   getDriveSync,
   getVolumeName,
+  getDriveSyncDate,
 };
