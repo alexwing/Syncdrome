@@ -6,6 +6,7 @@ import Home from "../views/home";
 import About from "../views/about";
 import { ThemeContext } from "../context/themeContext";
 import Settings from "../views/settings";
+import Sync from "../views/sync";
 
 const AppLayout = () => {
   const { theme } = useContext(ThemeContext);
@@ -18,8 +19,9 @@ const AppLayout = () => {
       /> 
       <Navbar />
       <Route path="/" exact component={Home} />
-      <Route path="/about" component={About} />
+      <Route path="/sync" component={Sync} />
       <Route path="/settings" component={Settings} />
+      <Route path="/about" component={About} />
     </AppContainer>
   );
 };
