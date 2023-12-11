@@ -15,10 +15,11 @@ import ProgressBar from "react-bootstrap/ProgressBar";
 import * as Icon from "react-bootstrap-icons";
 
 interface DrivesProps {
+  conected: boolean;
   letter: string;
   name: string;
-  freeSpace: string;
-  size: string;
+  freeSpace: number;
+  size: number;
   sync: boolean;
   syncDate: string;
 }
@@ -101,8 +102,8 @@ const Sync = () => {
       </ListGroup.Item>
     );
   };
-  const byteToGB = (byte: string) => {
-    return (parseFloat(byte) / 1024 / 1024 / 1024).toFixed(2) + " GB";
+  const byteToGB = (byte: number) => {
+    return (byte / 1024 / 1024 / 1024).toFixed(2) + " GB";
   };
 
   const getSyncDate = (drive) => {
@@ -110,7 +111,7 @@ const Sync = () => {
       return new Date(drive.syncDate).toLocaleString();
     }
     return "";
-  }
+  };
 
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
@@ -132,10 +133,17 @@ const Sync = () => {
       </Container>
       <Container fluid className="d-flex flex-wrap align-items-center  py-2">
         {drives.map((drive: DrivesProps, index) => (
-          <Card style={{ width: "23.566rem" }} className="m-2" key={index}>
+          <Card style={{ width: "23.566rem" }} className="m-2" key={index}
+          bg={!drive.conected ? "light" : "white"}
+          >
             <Card.Body>
               <Card.Title>
-                <Icon.HddFill color="darkgray" size={24} className="me-2" />
+                {!drive.conected && (
+                <Icon.Hdd color="darkgray" size={24} className="me-2" />
+                )}
+                {drive.conected && (
+                  <Icon.HddFill color="darkgray" size={24} className="me-2" />
+                )}
                 {drive.letter} {drive.name}
               </Card.Title>
               <Card.Text>
@@ -147,6 +155,7 @@ const Sync = () => {
                 </Badge>
               </Card.Text>
             </Card.Body>
+            { drive.size > 0 && (
             <ListGroup className="list-group-flush">
               {printPercentDisk(drive)}
               <ListGroup.Item>
@@ -158,23 +167,26 @@ const Sync = () => {
                 </div>
               </ListGroup.Item>
             </ListGroup>
+            )}
             <Card.Body>
-              <Button
-                variant="outline-primary"
-                disabled={loading}
-                onClick={() => executeContentDrive(drive.letter)}
-              >
-                {loading && (
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                  />
-                )}
-                Sync
-              </Button>
+              {drive.conected && (
+                <Button
+                  variant="outline-primary"
+                  disabled={loading}
+                  onClick={() => executeContentDrive(drive.letter)}
+                >
+                  {loading && (
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                    />
+                  )}
+                  Sync
+                </Button>
+              )}
               {drive.sync && (
                 <Button
                   variant="danger"

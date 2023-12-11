@@ -52,4 +52,10 @@ module.exports = {
   node: {
     process: true,
   },
+  stats: {
+    warningsFilter: warning => {
+      // Ignora las advertencias que provienen de archivos CSS
+      return /css-loader/.test(warning);
+    },
+  },  
 };

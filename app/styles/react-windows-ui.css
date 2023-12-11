@@ -257,7 +257,7 @@ ul.app-cmdbar-menu-list,
   overflow-x: hidden;
   visibility: hidden;
   position: absolute;
-  min-width: -webkit-fill-available;
+  min-width: stretch;
   min-width: -moz-available;
   -webkit-tap-highlight-color: transparent;
   background: var(--color-dropdown-menu-bg);
@@ -711,7 +711,7 @@ p.app-para-light {
   padding: 5px;
 }
 .app-navbar-wrap .app-input-search-box {
-  width: -webkit-fill-available;
+  width: stretch;
   width: -moz-available;
   user-select: none;
   margin: 5px 20px;
@@ -848,9 +848,9 @@ input:checked + .app-navbar-theme-switch-icon:after {
   overscroll-behavior: contain;
 }
 .app-page-container.transition {
-  height: -webkit-fill-available;
+  height: stretch;
   height: -moz-available;
-  width: -webkit-fill-available;
+  width: stretch;
   width: -moz-available;
 }
 .app-page-container.transition.transition-left {
@@ -874,7 +874,7 @@ input:checked + .app-navbar-theme-switch-icon:after {
   height: auto;
   flex: 1 1 auto;
   width: -moz-available;
-  width: -webkit-fill-available;
+  width: stretch;
   transition: 0.2s ease;
 }
 .app-page-container.has-padding {
@@ -2294,7 +2294,7 @@ body.dark-theme .app-dialog .app-dialog-modal {
   }
   .app-dialog .app-dialog-modal {
     width: 100%;
-    width: -webkit-fill-available;
+    width: stretch;
     width: -moz-available;
     left: 0;
     bottom: 0;
