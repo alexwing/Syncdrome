@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
 import Api from "../helpers/api";
 import { NavPageContainer } from "react-windows-ui";
-import { Accordion, Alert, Badge, Button, Container, ListGroup } from "react-bootstrap";
+import {
+  Accordion,
+  Alert,
+  Badge,
+  Button,
+  Container,
+  ListGroup,
+} from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 
 const Home = () => {
-  const [name, setName] = useState("");
+  const [name, setName] = useState("dragon");
   const [files, setFiles] = useState([]);
   const [found, setFound] = useState(true);
 
@@ -29,6 +36,22 @@ const Home = () => {
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const onConnectedElementHandler = (filename, folder, driveLetter) => {
+    if (driveLetter) {
+      Api.openFile(filename, folder, driveLetter);
+    } else {
+      alert("Drive not connected");
+    }
+  };
+
+  const onConnectedFolderHandler = (folder, driveLetter) => {
+    if (driveLetter) {
+      Api.openFolder(folder, driveLetter);
+    } else {
+      alert("Drive not connected");
+    }
   };
 
   // set Icon component from url extension
@@ -97,28 +120,63 @@ const Home = () => {
     const length = files.length;
     if (length > 0) {
       return (
-        <h5>
-          <Badge
-            bg="secondary"
-            style={{
-              position: "absolute",
-              right: "60px",
-              top: "13px",
-              width: "50px",
-            }}
-          >
-            {length}
-          </Badge>
-        </h5>
+        <Badge
+          bg="secondary"
+          style={{
+            position: "absolute",
+            right: "60px",
+            top: "13px",
+            width: "50px",
+          }}
+        >
+          {length}
+        </Badge>
+      );
+    }
+  };
+  const openFile = (item, key2, key,connected) => {
+    return (
+      <Badge
+        bg="info"
+        style={{
+          position: "absolute",
+          right: "15px",
+          top: "10px",
+          width: "50px",
+          cursor: "pointer",
+        }}
+        className="ms-4"
+        onClick={() =>
+          onConnectedElementHandler(item.fileName, key2, connected)
+        }
+      >
+        Open
+      </Badge>
+    );
+  };
+
+  const openFolder = (folder, driveLetter) => {
+    if (driveLetter) {
+      return (
+        <Badge
+          bg="info"
+          style={{
+            position: "absolute",
+            right: "114px",
+            top: "13px",
+            width: "50px",
+          }}
+          className="ms-4"
+          onClick={() => onConnectedFolderHandler(folder, driveLetter)}
+        >
+          Open
+        </Badge>
       );
     }
   };
 
-
   return (
-    <Container
-    style={{ overflowY: "scroll", height: "100vh" }}
-    >
+    <Container style={{ overflowY: "scroll", height: "100vh" }}>
       <div className="centered pt-3">
         <img src="./assets/logo.png" alt="logo" className="logo" />
         <h1>Hard Drive Content Finder</h1>
@@ -153,12 +211,20 @@ const Home = () => {
                   color="dodgerblue"
                 />
                 {key}
+                {files[key].connected && (
+                  <Icon.CheckCircleFill
+                    style={{ position: "absolute", right: "25px", top: "15px" }}
+                    size={20}
+                    className="me-4"
+                    color="green"
+                  />
+                )}
               </Accordion.Header>
               <Accordion.Body>
                 <Accordion>
-                  {Object.keys(files[key]).map(
+                  {Object.keys(files[key].content).map(
                     (key2, index2) =>
-                      files[key][key2].length > 0 &&
+                      files[key].content[key2].length > 0 &&
                       found && (
                         <Accordion.Item
                           eventKey={index2.toString()}
@@ -171,14 +237,18 @@ const Home = () => {
                               color="#16ab9c"
                             />
                             {key2}
-                            {getFilesLength(files[key][key2])}
+                            {getFilesLength(files[key].content[key2])}
+                            {files[key].connected &&
+                              openFolder(key2, files[key].connected)}
                           </Accordion.Header>
                           <Accordion.Body>
                             <ListGroup as="ul">
-                              {files[key][key2].map((item) => (
+                              {files[key].content[key2].map((item) => (
                                 <ListGroup.Item as="li" key={item.fileName}>
                                   {getIcon(item.fileName)}
                                   {item.fileName}
+                                  {files[key].connected &&
+                                    openFile(item, key2, key, files[key].connected)}
                                 </ListGroup.Item>
                               ))}
                             </ListGroup>

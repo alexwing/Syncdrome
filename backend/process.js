@@ -82,6 +82,9 @@ module.exports = function (app, config) {
       }
     });
 
+    //remove drives with size 0
+    drives = drives.filter((drive) => drive.size > 0);
+
     drives = getDrivesInfo(config, drives);
 
     res.json(drives);

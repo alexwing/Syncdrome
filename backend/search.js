@@ -1,5 +1,11 @@
 const fs = require("fs");
 const path = require("path");
+const {
+  getDriveConected,
+  getNameFromFile,
+  openFile,
+  openFolder,
+} = require("./Utils/utils");
 
 module.exports = function (app, config) {
   const folder = config.folder;
@@ -82,12 +88,48 @@ module.exports = function (app, config) {
         });
 
         if (founds.length > 0) {
-          results[filedata] = groupByFolder;
-          //results[filedata] = founds;
+          results[filedata] = {
+            connected: getDriveConected(getNameFromFile(filedata)),
+            content: groupByFolder,
+          };
         }
       }
     });
 
     res.json(results);
   });
+
+  /* open file in windows explorer
+   * 1. decode url
+   * 2. open explorer.exe
+   */
+  app.get("/openFile/:url", (req, res) => {
+    const url = req.params.url;
+    // decode url and replace "//" with "\""
+    const decodedUrl = Buffer.from(url, "base64")
+      .toString("ascii")
+      .replace(/\//g, "\\");
+    const result = openFile(decodedUrl);
+    res.json({
+      decodedUrl: decodedUrl,
+      result: result,
+    });
+  });
+  /* open Folder in windows explorer
+    * 1. decode url
+    * 2. open explorer.exe
+    */
+  app.get("/openFolder/:url", (req, res) => {
+    const url = req.params.url;
+    // decode url and replace "//" with "\""
+    const decodedUrl = Buffer.from(url, "base64")
+      .toString("ascii")
+      .replace(/\//g, "\\");
+    const result = openFolder(decodedUrl);
+    res.json({
+      decodedUrl: decodedUrl,
+      result: result,
+    });
+  });
+
 };

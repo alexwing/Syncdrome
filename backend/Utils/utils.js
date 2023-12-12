@@ -35,6 +35,30 @@ const getDriveSync = (driveVolumeName, folder) => {
   return fs.existsSync(file);
 };
 
+//get is volume name is connected, return true or false
+const getDriveConected = (driveName) => {
+  const cmd = cp.spawnSync("wmic", [
+    "logicaldisk",
+    "where",
+    `volumename="${driveName}"`,
+    "get",
+    "DeviceID",
+  ]);
+  const lines = cmd.stdout.toString().split("\n");
+  let letter = "";
+  lines.forEach((line) => {
+    const drive = line.trim();
+    if (drive.length > 0 && drive !== "DeviceID") {
+      letter = drive;
+    }
+  });
+  return letter;
+};
+
+const getNameFromFile = (file) => {
+  return file.replace(".txt", "");
+};
+
 // get the modified date of the file in the root of the drive
 const getDriveSyncDate = (driveVolumeName, folder) => {
   const file = path.join(folder, `${driveVolumeName}.txt`);
@@ -135,6 +159,18 @@ const getDrivesInfo = (config, conected) => {
 
   return 0;
 }
+    
+//open file in windows explorer
+const openFile = (file) => {
+  const cmd = cp.spawnSync("explorer", [file]);
+  return cmd;
+};
+
+//open folder in windows explorer
+const openFolder = (folder) => {
+  const cmd = cp.spawnSync("explorer", [folder]);
+  return cmd;
+};
 
 
 module.exports = {
@@ -143,4 +179,8 @@ module.exports = {
   getVolumeName,
   getDriveSyncDate,
   getDrivesInfo,
+  getDriveConected,
+  getNameFromFile,
+  openFile,
+  openFolder,
 };
