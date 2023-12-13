@@ -110,6 +110,33 @@ const Home = () => {
       case "azw":
       case "azw3":
         return <Icon.BookFill size={20} className="me-4" color="blue" />;
+      case "exe":
+        return <Icon.FileEarmarkBinaryFill size={20} className="me-4" color="blue" />;
+      case "ttf":
+      case "otf":
+        return <Icon.FileEarmarkFontFill size={20} className="me-4" color="blue" />;
+      case "csv":
+      case "json":
+      case "xml":
+      case "db":
+      case "sql":
+      case "dbf":
+      case "mdb":
+      case "accdb":
+      case "dbx":
+      case "dbf":
+      case "pdb":
+      case "pst":
+      case "odt":
+      case "ods":
+      case "odp":
+          return <Icon.FileEarmarkSpreadsheetFill size={20} className="me-4" color="blue" />;
+      case "ini":
+      case "conf":
+      case "cfg":
+      case "config":
+      case "properties":
+            return <Icon.FileEarmarkCodeFill size={20} className="me-4" color="blue" />;          
       default:
         return <Icon.File size={20} className="me-4" color="black" />;
     }
