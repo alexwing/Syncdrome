@@ -23,7 +23,6 @@ dist
 node_modules
 bower_components
 package-lock.json
-public
 
 #public 
 public
@@ -38,3 +37,4 @@ release-builds
 # OS metadata
 .DS_Store
 Thumbs.db
+public/app.bundle.js

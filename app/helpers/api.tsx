@@ -22,15 +22,19 @@ const Api = {
    * @param {string} driveLetter - drive letter where file is located
    * @returns {object} - response from server
    */
-  openFile(fileName, folder, driveLetter) {  
-    const url = !folder ? btoa(driveLetter + "\\" + fileName) :
-    btoa(driveLetter + "\\" + folder + "\\" + fileName);
+  openFile(fileName, folder, driveLetter) {
+    const url = !folder
+      ? btoa(driveLetter + "\\" + fileName)
+      : btoa(driveLetter + "\\" + folder + "\\" + fileName);
     return Axios.get(`/openFile/${url}`);
   },
 
   openFolder(folder, driveLetter) {
-    const url = !folder ? btoa(driveLetter + "\\") :
-    btoa(driveLetter + "\\" + folder+ "\\");
+    const folderName = folder;
+    console.log(folderName);
+    const url = !folder
+      ? btoa(driveLetter + "\\")
+      : btoa(driveLetter + "\\" + folderName);
     return Axios.get(`/openFolder/${url}`);
   },
 };

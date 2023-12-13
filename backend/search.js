@@ -110,7 +110,7 @@ module.exports = function (app, config) {
     const url = req.params.url;
     // decode url and replace "//" with "\""
     const decodedUrl = Buffer.from(url, "base64")
-      .toString("ascii")
+      .toString("latin1")
       .replace(/\//g, "\\");
     const result = openFile(decodedUrl);
     res.json({
@@ -126,7 +126,7 @@ module.exports = function (app, config) {
     const url = req.params.url;
     // decode url and replace "//" with "\""
     const decodedUrl = Buffer.from(url, "base64")
-      .toString("ascii")
+      .toString("latin1")
       .replace(/\//g, "\\");
     const result = openFolder(decodedUrl);
     res.json({
