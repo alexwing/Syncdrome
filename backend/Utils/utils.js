@@ -98,7 +98,7 @@ const getVolumeName = (driveLetter) => {
  * @returns {Object} - The object with the info
  */
 const getDrivesInfo = (config, conected) => {
-  console.log("getDrivesInfo", config, conected);
+  //console.log("getDrivesInfo", config, conected);
 
   const drives = [];
 

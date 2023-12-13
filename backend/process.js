@@ -7,50 +7,43 @@ const {
   getDriveSyncDate,
   getDrivesInfo,
 } = require("./Utils/utils");
-const { exec } = require("child_process");
+
+const iconv = require("iconv-lite");
+
+// Convert exec and writeFile to return promises
+const util = require('util');
+const execPromise = util.promisify(require('child_process').exec);
+const fsPromise = { writeFile: util.promisify(require('fs').writeFile) };
 
 // Execute the 'dir' command to list all files and subfolders
 module.exports = function (app, config) {
-
-  app.get("/executeNode/:driveLetter", (req, res) => {
+  app.get("/executeNode/:driveLetter", async (req, res) => {
     const driveLetter = req.params.driveLetter;
-
-    // Change to the directory of the specified disk
-    process.chdir(driveLetter + "\\");
-
-    // Extract the volume name from the output of the 'vol' command
-    const vol = getVolumeName(driveLetter, config.folder);
-
-    // Execute the 'dir' command to list all files and subfolders
-    exec(
-      "dir . /s /b",
-      { encoding: "utf8", maxBuffer: 1024 * 1024 * 1024 * 4 },
-      (error, stdout, stderr) => {
-        // Increase the buffer size here
-        if (error) {
-          console.error(`Error on listing files: ${error}`);
-          return res.json({ success: false, error: error.message });
-        }
-
-        // Path to save the list files
-        const drive = config.folder;
-
-        // save the list of files in a text file
-        const filePath = path.join(drive, `${vol}.txt`);
-        fs.writeFile(filePath, stdout, "utf8", (error) => {
-          if (error) {
-            console.error(`Error saving the list of files: ${error}`);
-            return res.json({ success: false, error: error.message });
-          }
-
-          console.log(`File list in ${vol} saved in ${filePath}`);
-          res.json({
-            success: true,
-            message: `File list in ${vol} saved in ${filePath}`,
-          });
-        });
-      }
-    );
+    const BUFFER_SIZE = 1024 * 1024 * 1024 * 4;
+    const ENCODING = "Latin1";
+  
+    try {
+      process.chdir(driveLetter + "\\");
+  
+      const vol = getVolumeName(driveLetter, config.folder);
+      const drive = config.folder;
+      const filePath = path.join(drive, `${vol}.txt`);
+      const command = `chcp 65001 >nul && dir . /s /b`;
+  
+      const { stdout } = await execPromise(command, { encoding: ENCODING, maxBuffer: BUFFER_SIZE });
+      // Remove $RECYCLE.BIN folder and empty lines
+      let output = stdout.replace(/.*\$RECYCLE\.BIN.*/g, "").split('\n').filter(line => line.trim() !== '').join('\n');
+      // Convert from Latin1 to UTF-8
+      output = iconv.decode(output, "cp850");
+  
+      await fsPromise.writeFile(filePath, output, "utf8");
+  
+      console.log(`File list in ${vol} saved in ${filePath}`);
+      res.json({ success: true, message: `File list in ${vol} saved in ${filePath}` });
+    } catch (error) {
+      console.error(`Error: ${error}`);
+      res.json({ success: false, error: error.message });
+    }
   });
 
   //get system connected drives letters and names, create a json object

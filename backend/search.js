@@ -22,6 +22,7 @@ module.exports = function (app, config) {
       res.json(results);
       return;
     }
+   
 
     fs.readdirSync(folder).forEach((filedata) => {
       if (filedata.endsWith(".txt")) {
@@ -31,7 +32,9 @@ module.exports = function (app, config) {
         content.split("\n").forEach((rowData, line) => {
           // trim and remove crlf
           const empty = rowData.trim().replace(/\r?\n|\r/g, "");
-          if (empty.toLowerCase().includes(searchText)) {
+          //ignore $RECYCLE.BIN folder
+          if (empty.toLowerCase().includes(searchText) && !empty.includes("$RECYCLE.BIN")) {  
+
             // check if is folder or file, the file has a extension
             const isFolder = !rowData.includes(".");
 

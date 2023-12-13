@@ -12,7 +12,7 @@ import {
 import * as Icon from "react-bootstrap-icons";
 
 const Home = () => {
-  const [name, setName] = useState("dragon");
+  const [name, setName] = useState(" ");
   const [files, setFiles] = useState([]);
   const [found, setFound] = useState(true);
 

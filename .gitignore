@@ -25,6 +25,9 @@ bower_components
 package-lock.json
 public
 
+#public 
+public
+
 # builds
 release-builds
 
