@@ -1,33 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  Breadcrumb,
-  Button,
-  Card,
-  ListGroup,
-  Spinner,
-  Container,
-  Row,
-  Col,
-  Badge,
-} from "react-bootstrap";
-import Api from "../helpers/api";
-import ProgressBar from "react-bootstrap/ProgressBar";
+import { Breadcrumb, Container } from "react-bootstrap";
 import Config from "../components/config";
-import * as Icon from "react-bootstrap-icons";
-
-interface DrivesProps {
-  letter: string;
-  name: string;
-  freeSpace: string;
-  size: string;
-  sync: boolean;
-  syncDate: string;
-}
 
 const Settings = () => {
-  const [drives, setDrives] = useState([]);
-
-
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       <Breadcrumb className="mt-3">

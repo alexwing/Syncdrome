@@ -6,6 +6,7 @@ import { Button, Col, Container, Row } from "react-bootstrap";
 import { ipcRenderer } from 'electron';
 import * as Icon from "react-bootstrap-icons";
 
+
 const Comfig = () => {
   const [folder, setFolder] = useState("");
 

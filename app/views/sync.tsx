@@ -13,16 +13,8 @@ import {
 import Api from "../helpers/api";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import * as Icon from "react-bootstrap-icons";
+import { DrivesProps } from "../interfaces/interface";
 
-interface DrivesProps {
-  conected: boolean;
-  letter: string;
-  name: string;
-  freeSpace: number;
-  size: number;
-  sync: boolean;
-  syncDate: string;
-}
 
 const Sync = () => {
   const [drives, setDrives] = useState([]);
