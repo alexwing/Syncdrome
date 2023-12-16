@@ -1,3 +1,85 @@
 {
-  "folder": "C:\\Users\\Windows\\Mi unidad\\Software\\DiscosDuros"
+  "folder": "C:\\Users\\Windows\\Mi unidad\\Software\\DiscosDuros", 
+  "extensions": {
+    "document": {
+      "icon": "File",
+      "color": "black",
+      "extensions": ["doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "odt", "ods", "odp"]
+    },
+    "image": {
+      "icon": "FileImageFill",
+      "color": "pink",
+      "extensions": ["jpg", "jpeg", "bmp", "ico", "tif", "tiff", "arw", "raw", "psd", "png", "gif", "ai", "ps", "xcf"]
+    },
+    "video": {
+      "icon": "FileEarmarkPlayFill",
+      "color": "red",
+      "extensions": ["flv", "mov", "mkv", "mp4", "avi", "wmv", "webm", "mpg", "mpeg", "3gp"]
+    },
+    "audio": {
+      "icon": "FileEarmarkMusicFill",
+      "color": "green",
+      "extensions": ["mp3", "wav", "wma", "mpa", "aif", "iff", "m3u", "m4a"]
+    },
+    "executable": {
+      "icon": "FiletypeExe",
+      "color": "blue",
+      "extensions": ["exe", "msi", "apk", "app", "vb", "bat", "bin", "cgi", "pl", "com", "gadget", "jar", "wsf"]
+    },
+    "font": {
+      "icon": "FileEarmarkFontFill",
+      "color": "blue",
+      "extensions": ["ttf", "otf", "woff", "woff2", "eot", "suit", "fnt", "odttf", "ttc"]
+    },
+    "spreadsheet": {
+      "icon": "FileEarmarkSpreadsheetFill",
+      "color": "blue",
+      "extensions": ["csv", "json", "xml", "db", "sql", "dbf", "mdb", "accdb", "dbx", "pdb", "pst", "odt", "ods", "odp"]
+    },
+    "database": {
+      "icon": "Database",
+      "color": "blue",
+      "extensions": ["db", "sql", "dbf", "mdb", "accdb", "dbx", "pdb", "pst", "sqlite", "sqlite3"]
+    },
+    "code": {
+      "icon": "FileEarmarkCodeFill",
+      "color": "blue",
+      "extensions": ["ini", "conf", "cfg", "config", "properties"]
+    },
+    "compressed": {
+      "icon": "FileEarmarkZipFill",
+      "color": "blue",
+      "extensions": ["zip", "rar", "7z", "tar", "gz", "dmg", "iso", "xz", "pkg", "deb", "rpm", "tgz"]
+    },
+    "book" : {
+      "icon": "Book",
+      "color": "blue",
+      "extensions": ["pdf", "epub", "mobi", "azw", "azw3"]
+    },
+    "presentation": {
+      "icon": "FileEarmarkSlidesFill",
+      "color": "red",
+      "extensions": ["key", "odp", "pps", "ppt", "pptx"]
+    },
+    "vector": {
+      "icon": "FiletypeAi",
+      "color": "blue",
+      "extensions": ["ai", "eps", "svg", "sketch","cdr"]
+    },
+    "cad": {
+      "icon": "Badge3d",
+      "color": "blue",
+      "extensions": ["dwg", "dxf", "dws", "dwt"]
+    },
+    "3d": {
+      "icon": "Badge3dFill",
+      "color": "blue",
+      "extensions": ["stl", "obj", "fbx", "blend", "ply", "3mf"]
+    },
+    "default": {
+      "icon": "File",
+      "color": "black",
+      "extensions": []
+    }
+  }
 }

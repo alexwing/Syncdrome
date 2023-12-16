@@ -15,6 +15,17 @@ const Home = () => {
   const [name, setName] = useState("");
   const [files, setFiles] = useState([]);
   const [found, setFound] = useState(true);
+  const [fileIconMappings, setFileIconMappings] = useState({});
+
+  const getConfig = async () => {
+    const response = await Api.getSettings();
+    console.log(response.data);
+    setFileIconMappings(response.data.extensions);
+  };
+  useEffect(() => {
+    getConfig();
+  }, []);
+
 
   const handleInput = (e) => {
     setName(e.target.value);
@@ -46,7 +57,9 @@ const Home = () => {
     }
   };
 
-  const onConnectedFolderHandler = (folder, driveLetter) => {
+  const onConnectedFolderHandler = (folder, driveLetter, event) => {
+    event.preventDefault();
+    event.stopPropagation();
     if (driveLetter) {
       Api.openFolder(folder, driveLetter);
     } else {
@@ -54,92 +67,26 @@ const Home = () => {
     }
   };
 
+
+  
+  const getFileIcon = (extension) => {
+    for (const category in fileIconMappings) {
+      if (fileIconMappings[category].extensions.includes(extension.toLowerCase())) {
+        const { icon, color } = fileIconMappings[category];
+        const IconComponent = Icon[icon];
+        return { category, icon: <IconComponent size={20} className="me-4" color={color} /> };
+      }
+    }
+    // Si no encuentra una categoría, usa la categoría predeterminada
+    const { icon, color } = fileIconMappings["default"];
+    const IconComponent = Icon[icon];
+    return { category: "default", icon: <IconComponent size={20} className="me-4" color={color} /> };
+  };
+  
   // set Icon component from url extension
   const getIcon = (url) => {
     const extension = url.split(".").pop();
-
-    switch (extension) {
-      case "pdf":
-        return <Icon.FilePdfFill size={20} className="me-4" color="red" />;
-      case "doc":
-      case "docx":
-        return <Icon.FileWordFill size={20} className="me-4" color="blue" />;
-      case "xls":
-      case "xlsx":
-        return <Icon.FileExcelFill size={20} className="me-4" color="green" />;
-      case "ppt":
-      case "pptx":
-        return <Icon.FilePptFill size={20} className="me-4" color="orange" />;
-      case "zip":
-      case "rar":
-        return <Icon.FileZipFill size={20} className="me-4" color="purple" />;
-      case "gif":
-      case "jpeg":
-      case "bmp":
-      case "ico":
-      case "svg":
-      case "tif":
-      case "tiff":
-      case "ARW":
-      case "RAW":
-      case "jpg":
-      case "PSD":
-      case "png":
-        return <Icon.FileImageFill size={20} className="me-4" color="pink" />;
-      case "flv":
-      case "mov":
-      case "mkv":
-      case "mp4":
-      case "avi":
-      case "wmv":
-      case "webm":
-        return (
-          <Icon.FileEarmarkPlayFill size={20} className="me-4" color="red" />
-        );
-      case "mp3":
-      case "wav":
-        return (
-          <Icon.FileEarmarkMusicFill size={20} className="me-4" color="green" />
-        );
-      case "txt":
-        return (
-          <Icon.FileEarmarkTextFill size={20} className="me-4" color="blue" />
-        );
-      case "epub":
-      case "mobi":
-      case "azw":
-      case "azw3":
-        return <Icon.BookFill size={20} className="me-4" color="blue" />;
-      case "exe":
-        return <Icon.FileEarmarkBinaryFill size={20} className="me-4" color="blue" />;
-      case "ttf":
-      case "otf":
-        return <Icon.FileEarmarkFontFill size={20} className="me-4" color="blue" />;
-      case "csv":
-      case "json":
-      case "xml":
-      case "db":
-      case "sql":
-      case "dbf":
-      case "mdb":
-      case "accdb":
-      case "dbx":
-      case "dbf":
-      case "pdb":
-      case "pst":
-      case "odt":
-      case "ods":
-      case "odp":
-          return <Icon.FileEarmarkSpreadsheetFill size={20} className="me-4" color="blue" />;
-      case "ini":
-      case "conf":
-      case "cfg":
-      case "config":
-      case "properties":
-            return <Icon.FileEarmarkCodeFill size={20} className="me-4" color="blue" />;          
-      default:
-        return <Icon.File size={20} className="me-4" color="black" />;
-    }
+    return getFileIcon(extension).icon;
   };
 
   //print count of files as  <Badge>
@@ -194,7 +141,7 @@ const Home = () => {
             width: "50px",
           }}
           className="ms-4"
-          onClick={() => onConnectedFolderHandler(folder, driveLetter)}
+          onClick={(e) => onConnectedFolderHandler(folder, driveLetter, e)}
         >
           Open
         </Badge>
