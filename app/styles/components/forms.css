@@ -33,3 +33,28 @@ input, select, textarea {
     	opacity: .5;
     }
 }
+
+.toggleSync {
+	display: inline-block;
+	align-items: center;
+	margin-bottom: .5rem;
+	margin-left: 0.5rem;
+
+	label {
+		margin-left: 0.25rem;
+		font-size: 1.2rem;
+		margin-bottom: 0px;
+		margin-top: 1px;
+	}
+
+	input {
+		margin-left: .5rem;
+	}
+
+}
+.toggleSync.form-switch .form-check-input {
+	width: 2.5em;
+}
+.text-muted {
+	color: gray;
+}

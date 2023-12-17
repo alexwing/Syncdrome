@@ -6,5 +6,6 @@ export interface DrivesProps {
     size: number;
     sync: boolean;
     syncDate: string;
+    onlyMedia: boolean;
   }
   

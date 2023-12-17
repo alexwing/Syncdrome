@@ -24,7 +24,7 @@
     "executable": {
       "icon": "FiletypeExe",
       "color": "blue",
-      "extensions": ["exe", "msi", "apk", "app", "vb", "bat", "bin", "cgi", "pl", "com", "gadget", "jar", "wsf"]
+      "extensions": ["exe", "msi", "apk", "app", "bat", "jar"]
     },
     "font": {
       "icon": "FileEarmarkFontFill",

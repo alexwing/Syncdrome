@@ -22,8 +22,6 @@ const getSpaceDisk = (driveLetter) => {
     }
   });
   return {
-    // freeSpace: (freeSpace / 1024 / 1024 / 1024).toFixed(2) + " GB",
-    // size: (size / 1024 / 1024 / 1024).toFixed(2) + " GB",
     freeSpace: parseInt(freeSpace),
     size: parseInt(size),
   };
@@ -71,6 +69,51 @@ const getDriveSyncDate = (driveVolumeName, folder) => {
   }
 };
 
+
+// get drives.json from the root of the drive, return the info
+const getDriveOptions = (driveVolumeName, folder) => {
+  const file = path.join(folder, `drives.json`);
+  if (fs.existsSync(file)) {
+    //get file content as json  
+    const drives = JSON.parse(fs.readFileSync(file, "utf8"));
+    const onlyMedia = drives[driveVolumeName]?.onlyMedia || false;
+    //if exist size and freeSpace, return it
+    if (drives[driveVolumeName]?.size && drives[driveVolumeName]?.freeSpace) {
+      return {
+        onlyMedia: onlyMedia,
+        size: drives[driveVolumeName].size,
+        freeSpace: drives[driveVolumeName].freeSpace,
+      };
+    } else {
+      //if not exist size and freeSpace, return 0
+      return {
+        onlyMedia: onlyMedia,
+        size: 0,
+        freeSpace: 0,
+      };
+    }
+  }
+  //if file not exist, return 0
+  return {
+    onlyMedia: false,
+    size: 0,
+    freeSpace: 0,
+  };
+};
+
+
+// delete drive options from drives.json
+const deleteDriveOptions = (driveVolumeName, folder) => {
+  const file = path.join(folder, `drives.json`);
+  if (fs.existsSync(file)) {
+    //get file content as json  
+    const drives = JSON.parse(fs.readFileSync(file, "utf8"));
+    delete drives[driveVolumeName];
+    fs.writeFileSync(file, JSON.stringify(drives));
+  }
+}
+
+// get the volume name of the drive letter
 const getVolumeName = (driveLetter) => {
   const cmd = cp.spawnSync("wmic", [
     "logicaldisk",
@@ -88,6 +131,21 @@ const getVolumeName = (driveLetter) => {
     }
   });
   return vol;
+};
+
+// write size and freeSpace in drives.json
+const writeSize = (driveVolumeName, folder, size, freeSpace) => {
+  const file = path.join(folder, `drives.json`);
+  let drives = {};
+  if (fs.existsSync(file)) {
+    drives = JSON.parse(fs.readFileSync(file));
+  }
+  drives[driveVolumeName] = {
+    ...drives[driveVolumeName],
+    size: size,
+    freeSpace: freeSpace,
+  };
+  fs.writeFileSync(file, JSON.stringify(drives, null, 2));
 };
 
 /***
@@ -114,14 +172,16 @@ const getDrivesInfo = (config, conected) => {
   //get info of each volume
   volumes.forEach((vol) => {
     const syncDate = getDriveSyncDate(vol, config.folder);
+    const driveOptions = getDriveOptions(vol, config.folder);
     drives.push({
       conected: false,
       letter: "",
       name: vol,
-      freeSpace: 0,
-      size: 0,
+      freeSpace: driveOptions.freeSpace,
+      size: driveOptions.size,
       sync: true,
       syncDate: syncDate,
+      onlyMedia: driveOptions.onlyMedia,
     });
   });
   
@@ -172,6 +232,17 @@ const openFolder = (folder) => {
   return cmd;
 };
 
+//get extensions from config.json file
+const getExtensions = (config) => {
+  let extensions = [];
+  Object.keys(config.extensions).forEach((key) => {
+    extensions.push(...config.extensions[key].extensions);
+  });
+  //trim and lowercase
+  extensions = extensions.map((ext) => ext.trim().toLowerCase());
+  return [...new Set(extensions)];;
+}
+
 
 module.exports = {
   getSpaceDisk,
@@ -183,4 +254,9 @@ module.exports = {
   getNameFromFile,
   openFile,
   openFolder,
+  getDriveOptions,
+  writeSize,
+  deleteDriveOptions,
+  deleteDriveOptions,
+  getExtensions,
 };

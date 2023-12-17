@@ -9,12 +9,12 @@ import {
   Row,
   Col,
   Badge,
+  Form,
 } from "react-bootstrap";
 import Api from "../helpers/api";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import * as Icon from "react-bootstrap-icons";
 import { DrivesProps } from "../interfaces/interface";
-
 
 const Sync = () => {
   const [drives, setDrives] = useState([]);
@@ -105,6 +105,18 @@ const Sync = () => {
     return "";
   };
 
+  const toogleMediaDrive = (drive:DrivesProps, state) => {
+    drive.onlyMedia = state;
+    Api.toogleMediaDrive(drive.name, state)
+      .then((res) => {
+        console.log(res.data);
+        getDrives();
+      })
+      .catch((err) => { 
+        console.log(err);
+      });
+  };
+
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       <Breadcrumb className="mt-3">
@@ -125,13 +137,16 @@ const Sync = () => {
       </Container>
       <Container fluid className="d-flex flex-wrap align-items-center  py-2">
         {drives.map((drive: DrivesProps, index) => (
-          <Card style={{ width: "23.566rem" }} className="m-2" key={index}
-          bg={!drive.conected ? "light" : "white"}
+          <Card
+            style={{ width: "23.566rem" }}
+            className="m-2"
+            key={index}
+            bg={!drive.conected ? "light" : "white"}
           >
             <Card.Body>
-              <Card.Title>
+              <Card.Title className={!drive.conected ? "text-muted" : ""}>
                 {!drive.conected && (
-                <Icon.Hdd color="darkgray" size={24} className="me-2" />
+                  <Icon.Hdd color="darkgray" size={24} className="me-2" />
                 )}
                 {drive.conected && (
                   <Icon.HddFill color="darkgray" size={24} className="me-2" />
@@ -147,39 +162,21 @@ const Sync = () => {
                 </Badge>
               </Card.Text>
             </Card.Body>
-            { drive.size > 0 && (
-            <ListGroup className="list-group-flush">
-              {printPercentDisk(drive)}
-              <ListGroup.Item>
-                <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  <div className="fw-bold">{byteToGB(drive.size)}</div>
-                  <div>Free: {byteToGB(drive.freeSpace)}</div>
-                </div>
-              </ListGroup.Item>
-            </ListGroup>
+            {drive.size > 0 && (
+              <ListGroup className="list-group-flush">
+                {printPercentDisk(drive)}
+                <ListGroup.Item>
+                  <div
+                    style={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <div className="fw-bold">{byteToGB(drive.size)}</div>
+                    <div>Free: {byteToGB(drive.freeSpace)}</div>
+                  </div>
+                </ListGroup.Item>
+              </ListGroup>
             )}
             <Card.Body>
-              {drive.conected && (
-                <Button
-                  variant="outline-primary"
-                  disabled={loading}
-                  onClick={() => executeContentDrive(drive.letter)}
-                >
-                  {loading && (
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                    />
-                  )}
-                  Sync
-                </Button>
-              )}
-              {drive.sync && (
+            {drive.sync && (
                 <Button
                   variant="danger"
                   className="ms-2"
@@ -188,6 +185,39 @@ const Sync = () => {
                   <Icon.TrashFill color="white" size={16} />
                 </Button>
               )}
+              {drive.conected && (
+                <React.Fragment>
+                  <Button
+                    variant="outline-primary"
+                    disabled={loading}
+                    onClick={() => executeContentDrive(drive.letter)}
+                  >
+                    {loading && (
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"
+                      />
+                    )}
+                    Sync
+                  </Button>
+
+                </React.Fragment>
+              )}{drive.onlyMedia}
+                  <Form.Check
+                    type="switch"
+                    id="custom-switch"
+                    label="Only media"
+                    className="toggleSync"
+                    checked={drive.onlyMedia}
+                    onChange={(e) =>
+                      toogleMediaDrive(drive, e.target.checked)
+                    }
+                    disabled={!drive.conected}
+                  ></Form.Check>              
             </Card.Body>
           </Card>
         ))}

@@ -31,11 +31,14 @@ const Api = {
 
   openFolder(folder, driveLetter) {
     const folderName = folder;
-    console.log(folderName);
     const url = !folder
       ? btoa(driveLetter + "\\")
       : btoa(driveLetter + "\\" + folderName);
     return Axios.get(`/openFolder/${url}`);
+  },
+
+  toogleMediaDrive(driveLetter, status) {
+    return Axios.put(`/drives/${driveLetter}`, { onlyMedia: status });
   },
 };
 export default Api;
