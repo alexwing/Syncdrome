@@ -1,4 +1,4 @@
-# Content Drives Finder App
+# Syncdrome - Content Drives Finder App
 
 This is a simple Express.js server that serves as a tool to create a catalog of all files on specified hard drives, allowing for quick searches by keyword. The search results are returned and organized by folders.
 

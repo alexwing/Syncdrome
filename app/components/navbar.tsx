@@ -24,11 +24,11 @@ const Navbar = () => {
 
   return (
     <NavBar
-      title="Hard Drive Content Finder"
+      title="Syncdrome"
       shadowOnScroll={true}
       titleBarMobile={
         <div>
-          <span className="app-navbar-name">Hard Drive Content Finder</span>
+          <span className="app-navbar-name">Syncdrome</span>
         </div>
       }
     >

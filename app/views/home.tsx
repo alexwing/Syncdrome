@@ -152,7 +152,7 @@ const Home = () => {
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       <div className="centered pt-3">
         <img src="./assets/logo.png" alt="logo" className="logo" />
-        <h1>Hard Drive Content Finder</h1>
+        <h1>Syncdrome</h1>
       </div>
       <div className="container text-center pb-3">
         <form className="search" onSubmit={handleSearch}>
