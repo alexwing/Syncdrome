@@ -80,5 +80,27 @@ textarea {
   border: 0px;
 }
 .sync .btn:disabled {
-  opacity: 0.2;
+  opacity: 0.4;
+}
+
+.sync .card.disabled {
+  background: #ededed !important;
+  border-color: #ededed;
+}
+.sync .card {
+  /* gradient background  white to light green */
+  background: linear-gradient(to bottom, white, #7cac7c);
+  border-color: #7cac7c;
+  border: 1.5px solid #7cac7c;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.sync .card > .list-group {
+  border-top: none;
+  border-bottom: none;
+}
+
+.sync .list-group-item {
+  border: none;
+  padding: 0.25rem 0.5rem;
 }

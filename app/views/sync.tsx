@@ -106,30 +106,84 @@ const Sync = () => {
     return "";
   };
 
-  const toogleMediaDrive = (drive:DrivesProps, state) => {
+  const getTotalSize = () => {
+    let total = 0;
+    drives.forEach((drive: DrivesProps) => {
+      total += drive.size;
+    });
+    return total;
+  };
+
+  const getTotalFreeSpace = () => {
+    let total = 0;
+    drives.forEach((drive: DrivesProps) => {
+      total += drive.freeSpace;
+    });
+    return total;
+  };
+
+  const toogleMediaDrive = (drive: DrivesProps, state) => {
     drive.onlyMedia = state;
     Api.toogleMediaDrive(drive.name, state)
       .then((res) => {
         console.log(res.data);
         getDrives();
       })
-      .catch((err) => { 
+      .catch((err) => {
         console.log(err);
       });
   };
 
   return (
-    <Container style={{ overflowY: "scroll", height: "100vh" }} className="sync">
+    <Container
+      style={{ overflowY: "scroll", height: "100vh" }}
+      className="sync"
+    >
       <Breadcrumb className="mt-3">
         <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
         <Breadcrumb.Item active>Sync</Breadcrumb.Item>
       </Breadcrumb>
       <h2>Syncronize Drives</h2>
       <small>Here you can see the drives and syncronize them.</small>
-      <Container fluid>
+      <Container fluid className="mt-3 mb-3">
         <Row>
-          <Col className="text-right">
-            <Button variant="primary" size="sm" onClick={() => getDrives()}>
+          <Col md={9}>
+            <ListGroup>
+              <ListGroup.Item>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <div className="fw-bold">Total</div>
+                </div>
+                <ProgressBar
+                  variant={percentDiskColor({
+                    size: getTotalSize(),
+                    freeSpace: getTotalFreeSpace(),
+                  })}
+                  now={percentDisk({
+                    size: getTotalSize(),
+                    freeSpace: getTotalFreeSpace(),
+                  })}
+                  label={`${percentDisk({
+                    size: getTotalSize(),
+                    freeSpace: getTotalFreeSpace(),
+                  }).toFixed(2)}%`}
+                />
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <div className="fw-bold">{byteToGB(getTotalSize())}</div>
+                  <div>Free: {byteToGB(getTotalFreeSpace())}</div>
+                </div>
+              </ListGroup.Item>
+            </ListGroup>
+          </Col>
+          <Col md={3}>
+            <Button variant="primary" size="lg" onClick={() => getDrives()}
+            style={{width: "225px", margin: "16px"}}
+            >
               <Icon.ArrowRepeat color="white" size={16} className="me-2" />
               Refresh
             </Button>
@@ -139,8 +193,8 @@ const Sync = () => {
       <Container fluid className="d-flex flex-wrap align-items-center  py-2">
         {drives.map((drive: DrivesProps, index) => (
           <Card
-            style={{ width: "23.566rem" }}
-            className="m-2"
+            style={{ width: "23.5rem" }}
+            className={drive.conected ? "me-3 mb-3" : "me-3 mb-3 disabled"}
             key={index}
             bg={!drive.conected ? "light" : "white"}
           >
@@ -177,7 +231,7 @@ const Sync = () => {
               </ListGroup>
             )}
             <ButtonGroup aria-label="Basic example">
-            {drive.sync && (
+              {drive.sync && (
                 <Button
                   variant="danger"
                   onClick={() => deleteDrive(drive.letter)}
@@ -191,10 +245,13 @@ const Sync = () => {
                     disabled={loading}
                     onClick={() => executeContentDrive(drive.letter)}
                   >
-                    {! loading ? 
-                      <Icon.ArrowRepeat color="white" size={16} className="me-2" />
-                      :
-                     (
+                    {!loading ? (
+                      <Icon.ArrowRepeat
+                        color="white"
+                        size={16}
+                        className="me-2"
+                      />
+                    ) : (
                       <Spinner
                         as="span"
                         animation="border"
@@ -206,23 +263,27 @@ const Sync = () => {
                     )}
                     Sync
                   </Button>
-
                 </React.Fragment>
-              )}{drive.onlyMedia}            
-                  <Button
-                    variant={!drive.onlyMedia ? "success" : "secondary"}
-                    style={{width: "100px"}}
-                    onClick={() =>
-                      toogleMediaDrive(drive, !drive.onlyMedia)
-                    }
-                    disabled={!drive.conected}
-                  >{drive.onlyMedia ? 
-                    <span className="d-none d-md-inline"><Icon.Film color="white" size={16} className="me-2" />Only Media</span>
-                    :
-                    <span className="d-none d-md-inline"><Icon.CheckAll color="white" size={16} className="me-2" />All</span>
-                  }
-                 
-                  </Button>
+              )}
+              {drive.onlyMedia}
+              <Button
+                variant={!drive.onlyMedia ? "success" : "secondary"}
+                style={{ width: "100px" }}
+                onClick={() => toogleMediaDrive(drive, !drive.onlyMedia)}
+                disabled={!drive.conected}
+              >
+                {drive.onlyMedia ? (
+                  <span className="d-none d-md-inline">
+                    <Icon.Film color="white" size={16} className="me-2" />
+                    Only Media
+                  </span>
+                ) : (
+                  <span className="d-none d-md-inline">
+                    <Icon.CheckAll color="white" size={16} className="me-2" />
+                    All
+                  </span>
+                )}
+              </Button>
             </ButtonGroup>
           </Card>
         ))}
