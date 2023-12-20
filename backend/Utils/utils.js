@@ -160,12 +160,13 @@ const getDrivesInfo = (config, conected) => {
 
   const drives = [];
 
-  // Obtener los nombres de los archivos txt en la carpeta y filtrar los volúmenes que no están en la lista conectada
+  // Get the names of the txt files in the folder and filter the volumes that are not in the conected list
+  // conected name is the volume name
   let volumes = fs
     .readdirSync(config.folder)
     .filter(
       (file) =>
-        file.endsWith(".txt") && !conected.includes(file.replace(".txt", ""))
+        file.endsWith(".txt") && !conected.map((drive) => drive.name).includes(getNameFromFile(file))
     )
     .map((file) => file.replace(".txt", ""));
 
@@ -184,9 +185,17 @@ const getDrivesInfo = (config, conected) => {
       onlyMedia: driveOptions.onlyMedia,
     });
   });
+
+  //print conected drives
+  console.log("conected", conected);
+
+  //print drives
+  console.log("drives", drives);
   
   //combine conected and not conected drives
   drives.push(...conected);
+
+  
 
   //sort drives by conected, drive letter and volume name
   drives.sort(sortDrives);

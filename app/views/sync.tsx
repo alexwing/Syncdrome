@@ -10,6 +10,7 @@ import {
   Col,
   Badge,
   Form,
+  ButtonGroup,
 } from "react-bootstrap";
 import Api from "../helpers/api";
 import ProgressBar from "react-bootstrap/ProgressBar";
@@ -118,7 +119,7 @@ const Sync = () => {
   };
 
   return (
-    <Container style={{ overflowY: "scroll", height: "100vh" }}>
+    <Container style={{ overflowY: "scroll", height: "100vh" }} className="sync">
       <Breadcrumb className="mt-3">
         <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
         <Breadcrumb.Item active>Sync</Breadcrumb.Item>
@@ -175,11 +176,10 @@ const Sync = () => {
                 </ListGroup.Item>
               </ListGroup>
             )}
-            <Card.Body>
+            <ButtonGroup aria-label="Basic example">
             {drive.sync && (
                 <Button
                   variant="danger"
-                  className="ms-2"
                   onClick={() => deleteDrive(drive.letter)}
                 >
                   <Icon.TrashFill color="white" size={16} />
@@ -188,11 +188,13 @@ const Sync = () => {
               {drive.conected && (
                 <React.Fragment>
                   <Button
-                    variant="outline-primary"
                     disabled={loading}
                     onClick={() => executeContentDrive(drive.letter)}
                   >
-                    {loading && (
+                    {! loading ? 
+                      <Icon.ArrowRepeat color="white" size={16} className="me-2" />
+                      :
+                     (
                       <Spinner
                         as="span"
                         animation="border"
@@ -206,19 +208,22 @@ const Sync = () => {
                   </Button>
 
                 </React.Fragment>
-              )}{drive.onlyMedia}
-                  <Form.Check
-                    type="switch"
-                    id="custom-switch"
-                    label="Only media"
-                    className="toggleSync"
-                    checked={drive.onlyMedia}
-                    onChange={(e) =>
-                      toogleMediaDrive(drive, e.target.checked)
+              )}{drive.onlyMedia}            
+                  <Button
+                    variant={!drive.onlyMedia ? "success" : "secondary"}
+                    style={{width: "100px"}}
+                    onClick={() =>
+                      toogleMediaDrive(drive, !drive.onlyMedia)
                     }
                     disabled={!drive.conected}
-                  ></Form.Check>              
-            </Card.Body>
+                  >{drive.onlyMedia ? 
+                    <span className="d-none d-md-inline"><Icon.Film color="white" size={16} className="me-2" />Only Media</span>
+                    :
+                    <span className="d-none d-md-inline"><Icon.CheckAll color="white" size={16} className="me-2" />All</span>
+                  }
+                 
+                  </Button>
+            </ButtonGroup>
           </Card>
         ))}
       </Container>
