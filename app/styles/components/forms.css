@@ -104,3 +104,13 @@ textarea {
   border: none;
   padding: 0.25rem 0.5rem;
 }
+
+.loading-icon {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  height: 100px;
+  width: 100px;
+  margin-top: 1em;
+  margin-bottom: 2em;
+}

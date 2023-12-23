@@ -7,14 +7,16 @@ import {
   Button,
   Container,
   ListGroup,
+  Spinner,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 
 const Home = () => {
-  const [name, setName] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [files, setFiles] = useState([]);
   const [found, setFound] = useState(true);
   const [fileIconMappings, setFileIconMappings] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const getConfig = async () => {
     const response = await Api.getSettings();
@@ -25,15 +27,16 @@ const Home = () => {
     getConfig();
   }, []);
 
-
   const handleInput = (e) => {
-    setName(e.target.value);
+    setSearchTerm(e.target.value);
+    setSearchTerm(e.target.value);
   };
 
   // get all files and folders on load
   const handleSearch = (e) => {
     e.preventDefault();
-    Api.getFind(name)
+    setIsLoading(true);
+    Api.getFind(searchTerm)
       .then((res) => {
         setFiles(res.data);
         console.log(res.data);
@@ -42,9 +45,11 @@ const Home = () => {
         } else {
           setFound(false);
         }
+        setIsLoading(false);
       })
       .catch((err) => {
         console.log(err);
+        setIsLoading(false);
       });
   };
 
@@ -66,22 +71,28 @@ const Home = () => {
     }
   };
 
-
-  
   const getFileIcon = (extension) => {
     for (const category in fileIconMappings) {
-      if (fileIconMappings[category].extensions.includes(extension.toLowerCase())) {
+      if (
+        fileIconMappings[category].extensions.includes(extension.toLowerCase())
+      ) {
         const { icon, color } = fileIconMappings[category];
         const IconComponent = Icon[icon];
-        return { category, icon: <IconComponent size={20} className="me-4" color={color} /> };
+        return {
+          category,
+          icon: <IconComponent size={20} className="me-4" color={color} />,
+        };
       }
     }
     // Si no encuentra una categoría, usa la categoría predeterminada
     const { icon, color } = fileIconMappings["default"];
     const IconComponent = Icon[icon];
-    return { category: "default", icon: <IconComponent size={20} className="me-4" color={color} /> };
+    return {
+      category: "default",
+      icon: <IconComponent size={20} className="me-4" color={color} />,
+    };
   };
-  
+
   // set Icon component from url extension
   const getIcon = (url) => {
     const extension = url.split(".").pop();
@@ -107,7 +118,7 @@ const Home = () => {
       );
     }
   };
-  const openFile = (item, key2, key,connected) => {
+  const openFile = (item, key2, key, connected) => {
     return (
       <Badge
         bg="info"
@@ -148,6 +159,10 @@ const Home = () => {
     }
   };
 
+  const handleClearSearch = () => {
+    setSearchTerm("");
+  };
+
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       <div className="centered pt-3">
@@ -157,14 +172,17 @@ const Home = () => {
       <div className="container text-center pb-3">
         <form className="search" onSubmit={handleSearch}>
           <input
-            value={name}
+            value={searchTerm}
             onChange={handleInput}
             type="search"
             placeholder="Enter file or folder to search"
           />
-          <Button variant="primary" type="submit" size="lg">
-            <Icon.Search size={20} className="me-4" />
+          <Button variant="primary" type="submit" size="lg" className="me-2">
+            <Icon.Search size={20} className="me-2" />
             Search
+          </Button>
+          <Button variant="secondary" size="lg" onClick={handleClearSearch}>
+            Clear
           </Button>
         </form>
       </div>
@@ -174,6 +192,18 @@ const Home = () => {
             <h3>Nothing found</h3>
           </Alert>
         )}
+        {isLoading && (
+          <div className="loading-icon">
+            <Spinner
+              className="loading-icon"
+              variant="primary"
+              animation="grow"
+              role="status"
+              aria-hidden="true"
+            />
+          </div>
+        )}
+        {! isLoading && (
         <Accordion>
           {Object.keys(files).map((key, index) => (
             <Accordion.Item eventKey={index.toString()} key={index}>
@@ -221,7 +251,12 @@ const Home = () => {
                                   {getIcon(item.fileName)}
                                   {item.fileName}
                                   {files[key].connected &&
-                                    openFile(item, key2, key, files[key].connected)}
+                                    openFile(
+                                      item,
+                                      key2,
+                                      key,
+                                      files[key].connected
+                                    )}
                                 </ListGroup.Item>
                               ))}
                             </ListGroup>
@@ -234,6 +269,7 @@ const Home = () => {
             </Accordion.Item>
           ))}
         </Accordion>
+        )}
       </div>
     </Container>
   );

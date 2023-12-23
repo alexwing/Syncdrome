@@ -49,3 +49,11 @@ img {
 .centered {
 	text-align: center;
 }
+
+pre {
+    background: black;
+    color: wheat;
+    padding: 10px;
+    font-size: .95em;
+    border-radius: 10px;
+}

@@ -12,13 +12,15 @@ const Help = () => {
     });
   }, []);
 
+
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       <Breadcrumb className="mt-3">
         <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
         <Breadcrumb.Item active>Help</Breadcrumb.Item>
       </Breadcrumb>
-      <ReactMarkdown children={markdown} />
+      <ReactMarkdown 
+      children={markdown} />
     </Container>
   );
 };
