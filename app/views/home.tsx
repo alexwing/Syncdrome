@@ -12,7 +12,8 @@ import {
 import * as Icon from "react-bootstrap-icons";
 
 const Home = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const initialSearchTerm = localStorage.getItem('searchTerm') || "";
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [files, setFiles] = useState([]);
   const [found, setFound] = useState(true);
   const [fileIconMappings, setFileIconMappings] = useState({});
@@ -29,9 +30,12 @@ const Home = () => {
 
   const handleInput = (e) => {
     setSearchTerm(e.target.value);
-    setSearchTerm(e.target.value);
+    localStorage.setItem('searchTerm', e.target.value);
   };
-
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    localStorage.removeItem('searchTerm');
+  };
   // get all files and folders on load
   const handleSearch = (e) => {
     e.preventDefault();
@@ -159,9 +163,7 @@ const Home = () => {
     }
   };
 
-  const handleClearSearch = () => {
-    setSearchTerm("");
-  };
+
 
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
@@ -187,9 +189,15 @@ const Home = () => {
         </form>
       </div>
       <div className="container  pb-3">
-        {!found && (
+        {!found && !isLoading && (
           <Alert variant="warning" className="text-center">
-            <h3>Nothing found</h3>
+            <h3>
+              <Icon.ExclamationTriangleFill
+                size={30}
+                className="me-3"
+                color="orange"
+              />
+              Nothing found</h3>
           </Alert>
         )}
         {isLoading && (
