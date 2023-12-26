@@ -18,10 +18,6 @@ ipcMain.handle("open-directory-dialog", async (event, defaultPath) => {
 const app = express();
 const fs = require("fs");
 
-// Load the config file
-const config = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "config.json"), "utf8")
-);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -30,9 +26,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const port = 5000;
 
-settings(app, config);
-search(app, config);
-process(app, config);
+settings(app);
+search(app);
+process(app);
 
 app.listen(port, () => {
   console.log(

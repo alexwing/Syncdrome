@@ -24,13 +24,14 @@ const fsPromise = { writeFile: util.promisify(require("fs").writeFile) };
 
 
 
-module.exports = function (app, config) {
+module.exports = function (app) {
 
   app.get("/executeNodeNEW/:driveLetter", async (req, res) => {
     const driveLetter = req.params.driveLetter;
     const ENCODING = "Latin1";
     const BUFFER_SIZE = 1024 * 1024 * 1024 * 4;
-    
+    const config = JSON.parse(fs.readFileSync(path.join(__dirname, "../config.json"), "utf8"));
+
     try {
       process.chdir(driveLetter + "\\");
 
@@ -91,6 +92,7 @@ module.exports = function (app, config) {
     const driveLetter = req.params.driveLetter;
     const BUFFER_SIZE = 1024 * 1024 * 1024 * 1024 * 4;
     const ENCODING = "Latin1";
+    const config = JSON.parse(fs.readFileSync(path.join(__dirname, "../config.json"), "utf8"));
 
     try {
       process.chdir(driveLetter + "\\");
@@ -158,6 +160,8 @@ module.exports = function (app, config) {
     const cp = require("child_process");
     const cmd = cp.spawnSync("wmic", ["logicaldisk", "get", "name,volumename"]);
     const lines = cmd.stdout.toString().split("\n");
+    const config = JSON.parse(fs.readFileSync(path.join(__dirname, "../config.json"), "utf8"));
+
     lines.forEach((line) => {
       const drive = line.trim();
       if (drive.length > 0 && drive !== "Name  VolumeName") {
@@ -192,6 +196,7 @@ module.exports = function (app, config) {
 
   //remove volume name file from drive root
   app.delete("/drives/:driveLetter", (req, res) => {
+    const config = JSON.parse(fs.readFileSync(path.join(__dirname, "../config.json"), "utf8"));
     const driveLetter = req.params.driveLetter;
     const vol = getVolumeName(driveLetter, config.folder);
     const file = path.join(config.folder, `${vol}.txt`);
@@ -210,6 +215,7 @@ module.exports = function (app, config) {
    */
   app.put("/drives/:driveLetter", (req, res) => {
     try {
+      const config = JSON.parse(fs.readFileSync(path.join(__dirname, "../config.json"), "utf8"));
       const onlyMedia = req.body.onlyMedia;
       const vol = req.params.driveLetter;
       const file = path.join(config.folder, `drives.json`);

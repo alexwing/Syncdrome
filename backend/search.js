@@ -7,8 +7,7 @@ const {
   openFolder,
 } = require("./Utils/utils");
 
-module.exports = function (app, config) {
-  const folder = config.folder;
+module.exports = function (app) {
 
   app.get("/find/", (req, res) => {
     res.json({});
@@ -22,7 +21,10 @@ module.exports = function (app, config) {
       res.json(results);
       return;
     }
-   
+    //read config.json file
+    const config = JSON.parse(fs.readFileSync(path.join(__dirname, "../config.json"), "utf8"));
+    //read folder
+    const folder = config.folder;
 
     fs.readdirSync(folder).forEach((filedata) => {
       if (filedata.endsWith(".txt")) {
