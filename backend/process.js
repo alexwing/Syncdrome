@@ -1,5 +1,8 @@
 const fs = require("fs");
 const path = require("path");
+const readline = require('readline');
+const iconv = require('iconv-lite');
+const stream = require('stream');
 const {
   getSpaceDisk,
   getDriveSync,
@@ -12,18 +15,81 @@ const {
   getExtensions,
 } = require("./Utils/utils");
 
-const iconv = require("iconv-lite");
 
 // Convert exec and writeFile to return promises
 const util = require("util");
 const execPromise = util.promisify(require("child_process").exec);
 const fsPromise = { writeFile: util.promisify(require("fs").writeFile) };
 
-// Execute the 'dir' command to list all files and subfolders
+
+
+
 module.exports = function (app, config) {
+
+  app.get("/executeNodeNEW/:driveLetter", async (req, res) => {
+    const driveLetter = req.params.driveLetter;
+    const ENCODING = "Latin1";
+    const BUFFER_SIZE = 1024 * 1024 * 1024 * 4;
+    
+    try {
+      process.chdir(driveLetter + "\\");
+
+      const vol = getVolumeName(driveLetter, config.folder);
+      const onlyMedia = getDriveOptions(vol, config.folder).onlyMedia;
+      let extensions = [];
+      if (onlyMedia) {
+        extensions = getExtensions(config);
+      }
+      const drive = config.folder;
+      const filePath = path.join(drive, `${vol}.txt`);
+      const command = `chcp 65001 >nul && dir . /s /b`;
+
+      const { stdout } = await execPromise(command, {
+        encoding: ENCODING,
+        maxBuffer: BUFFER_SIZE,
+      });
+      const lineStream = readline.createInterface({
+        input: stream.PassThrough().end(Buffer.from(stdout, ENCODING)),
+        output: fs.createWriteStream(filePath),
+        terminal: false
+      });
+
+      lineStream.on('line', (line) => {
+        if (!line.includes('$RECYCLE.BIN') && line.trim() !== "") {
+          let output = iconv.decode(line, "cp850");
+          if (onlyMedia) {
+            if (line.indexOf(".") > -1) {
+              const extension = line.split(".").pop().toLowerCase().trim();
+              if (extensions.includes(extension)) {
+                lineStream.output.write(output + '\n');
+              }
+            } else {
+              lineStream.output.write(output + '\n');
+            }
+          } else {
+            lineStream.output.write(output + '\n');
+          }
+        }
+      });
+
+      lineStream.on('close', () => {
+        console.log(`File list in ${vol} saved in ${filePath}`);
+        const { freeSpace, size } = getSpaceDisk(driveLetter);
+        writeSize(vol, config.folder, size, freeSpace);
+        res.json({
+          success: true,
+          message: `File list in ${vol} saved in ${filePath}: onlyMedia: ${onlyMedia}`,
+        });
+      });
+    } catch (error) {
+      console.error(`Error: ${error}`);
+      res.json({ success: false, error: error.message });
+    }
+  });
+
   app.get("/executeNode/:driveLetter", async (req, res) => {
     const driveLetter = req.params.driveLetter;
-    const BUFFER_SIZE = 1024 * 1024 * 1024 * 4;
+    const BUFFER_SIZE = 1024 * 1024 * 1024 * 1024 * 4;
     const ENCODING = "Latin1";
 
     try {

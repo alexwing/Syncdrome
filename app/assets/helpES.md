@@ -64,7 +64,7 @@ E:\projects\hd-contend-finder\renovate.json
 ...
 ```
 
-Se genera a través del comando `dir /s /b  > catalog.txt` en la carpeta raíz del volumen de disco y se codifica en UTF-8.
+Se genera a través del comando `dir /s /b` en la carpeta de trabajo y se codifica en UTF-8.
 
 ### Sincronización
 
@@ -97,6 +97,9 @@ Para buscar un archivo, simplemente escriba una palabra clave en el campo de bú
 Los resultados de la búsqueda se muestran en una lista desplegable, en primer lugar se muestran los volúmenes de disco, y a continuación las carpetas y archivos que coinciden con la palabra clave.
 
 Los discos que estan conectados al equipo, se muestran con un icono de `ok` verde. Para las carpetas y archivos de los discos conectados, se muestra un boton `Open` que permite abrir el archivo con el programa predeterminado del sistema, o mostrar la carpeta en el explorador de archivos.
+
+
+
 
 
 

@@ -19,23 +19,29 @@ const Home = () => {
   const [fileIconMappings, setFileIconMappings] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
+  // get config from server
   const getConfig = async () => {
     const response = await Api.getSettings();
-    console.log(response.data);
     setFileIconMappings(response.data.extensions);
   };
+
+  // get config on load
   useEffect(() => {
     getConfig();
   }, []);
 
+  // set search input
   const handleInput = (e) => {
     setSearchTerm(e.target.value);
     localStorage.setItem('searchTerm', e.target.value);
   };
+
+  // clear search input
   const handleClearSearch = () => {
     setSearchTerm("");
     localStorage.removeItem('searchTerm');
   };
+
   // get all files and folders on load
   const handleSearch = (e) => {
     e.preventDefault();
@@ -57,6 +63,7 @@ const Home = () => {
       });
   };
 
+  // open file on click
   const onConnectedElementHandler = (filename, folder, driveLetter) => {
     if (driveLetter) {
       Api.openFile(filename, folder, driveLetter);
@@ -64,7 +71,7 @@ const Home = () => {
       alert("Drive not connected");
     }
   };
-
+  // open folder on click
   const onConnectedFolderHandler = (folder, driveLetter, event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -75,6 +82,7 @@ const Home = () => {
     }
   };
 
+  // get Icon component from extension
   const getFileIcon = (extension) => {
     for (const category in fileIconMappings) {
       if (
@@ -122,6 +130,8 @@ const Home = () => {
       );
     }
   };
+  
+  //print count of files as  <Badge>
   const openFile = (item, key2, key, connected) => {
     return (
       <Badge
@@ -142,7 +152,6 @@ const Home = () => {
       </Badge>
     );
   };
-
   const openFolder = (folder, driveLetter) => {
     if (driveLetter) {
       return (
@@ -219,7 +228,7 @@ const Home = () => {
                 <Icon.DeviceHddFill
                   size={20}
                   className="me-4"
-                  color="dodgerblue"
+                  color={files[key].connected ? "#16ab9c" : "dodgerblue"}
                 />
                 {key}
                 {files[key].connected && (
@@ -245,7 +254,7 @@ const Home = () => {
                             <Icon.FolderFill
                               size={20}
                               className="me-4"
-                              color="#16ab9c"
+                              color="DarkOrange"
                             />
                             {key2}
                             {getFilesLength(files[key].content[key2])}

@@ -7,7 +7,7 @@ const Help = () => {
   const [markdown, setMarkdown] = useState('');
 
   useEffect(() => {
-    axios.get('/assets/help.md').then(response => {
+    axios.get('/assets/helpEN.md').then(response => {
       setMarkdown(response.data);
     });
   }, []);

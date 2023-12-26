@@ -7,9 +7,9 @@ This is a simple Express.js server that serves as a tool to create a catalog of 
 1. Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
 
 2. Clone this repository:
-
+ 
    ```bash
-   git clone https://github.com/alexwing/content-drives-finder.git
+   git clone https://github.com/alexwing/Syncdrome
    ```
 
 3. Navigate to the project directory:
