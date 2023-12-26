@@ -20,5 +20,6 @@ GitHub Sponsors es una nueva forma de apoyar a los desarrolladores de código ab
 
 Copyleft © 2024 [Alejandro Aranda](https://aaranda.es/).
 
+### Incidencias
 
-Versión 1.0.0
+Puede informar de cualquier problema o sugerencia relacionada con este proyecto en el repositorio de [GitHub](https://github.com/alexwing/Syncdrome/issues).
