@@ -4,17 +4,8 @@ import ReactMarkdown from "react-markdown";
 import axios from "axios";
 import { shell } from "electron";
 import packageJson from '../../package.json';
+import { Commit } from "../models/Interfaces";
 
-interface Commit {
-  sha: string;
-  html_url: string;
-  commit: {
-    message: string;
-    committer: {
-      date: string;
-    };
-  };
-}
 
 const About = () => {
   const [markdown, setMarkdown] = useState("");

@@ -8,8 +8,6 @@ const Navbar = () => {
   const { theme, setLightTheme, setDarkTheme } = useContext(ThemeContext);
 
   const setTheme = () => {
-    //current navigator version
-    console.log("Navigator: " + navigator.appVersion);
     if (theme === "light") {
       setDarkTheme();
     } else {

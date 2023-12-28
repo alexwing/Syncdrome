@@ -5,6 +5,7 @@ const {
   getNameFromFile,
   openFile,
   openFolder,
+  getConfig,
 } = require("./Utils/utils");
 
 module.exports = function (app) {
@@ -22,7 +23,7 @@ module.exports = function (app) {
       return;
     }
     //read config.json file
-    const config = JSON.parse(fs.readFileSync(path.join(__dirname, "../config.json"), "utf8"));
+    const config = getConfig();
     //read folder
     const folder = config.folder;
 

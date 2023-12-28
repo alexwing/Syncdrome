@@ -9,17 +9,23 @@ import {
   Row,
   Col,
   Badge,
-  Form,
   ButtonGroup,
 } from "react-bootstrap";
 import Api from "../helpers/api";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import * as Icon from "react-bootstrap-icons";
-import { DrivesProps } from "../interfaces/interface";
+import { AlertModel, DrivesProps } from "../models/Interfaces";
+import AlertMessage from "../components/AlertMessage";
 
 const Sync = () => {
   const [drives, setDrives] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState({
+    title: "",
+    message: "",
+    type: "danger",
+  } as AlertModel);
+  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     getDrives();
@@ -28,7 +34,6 @@ const Sync = () => {
   const getDrives = () => {
     Api.getDrives()
       .then((res) => {
-        console.log(res.data);
         setDrives(res.data);
       })
       .catch((err) => {
@@ -40,19 +45,30 @@ const Sync = () => {
     setLoading(true);
     Api.getExecute(drive)
       .then((res) => {
-        console.log(res.data);
         setLoading(false);
         getDrives();
+        setAlert({
+          title: "Success",
+          message: "Drive syncronized",
+          type: "success",
+        });
+        setShowAlert(true);
       })
       .catch((err) => {
         console.log(err);
+        setLoading(false);
+        setAlert({
+          title: "Error",
+          message: err.response.data,
+          type: "danger",
+        });
+        setShowAlert(true);
       });
   };
 
   const deleteDrive = (drive) => {
     Api.deleteDrive(drive)
       .then((res) => {
-        console.log(res.data);
         getDrives();
       })
       .catch((err) => {
@@ -60,24 +76,30 @@ const Sync = () => {
       });
   };
 
+    // open folder on click
+    const openDriveHandler = (driveLetter:string) => {
+      //extract leter from folder
+      driveLetter = "";
+      if (driveLetter) {
+        Api.openFolder("ss", driveLetter);
+      } else {
+        setAlert({
+          title: "Error",
+          message: "No folder selected",
+          type: "danger",
+        });
+        setShowAlert(true);
+      }
+    };
+
   const percentDisk = (drive) => {
     if (!drive.size || !drive.freeSpace) return 0;
     let percent = (100 * (drive.size - drive.freeSpace)) / drive.size;
-    console.log(
-      "Drive: ",
-      drive.letter,
-      "size: ",
-      drive.size,
-      "freeSpace: ",
-      drive.freeSpace,
-      "percent: ",
-      percent
-    );
     return percent;
   };
 
-  const percentDiskColor = (drive) => {
-    const percent: number = percentDisk(drive);
+  const percentDiskColor = (drive) => { 
+    const percent: number = percentDisk(drive); 
     if (percent < 50) return "success";
     if (percent < 80) return "warning";
     return "danger";
@@ -126,7 +148,6 @@ const Sync = () => {
     drive.onlyMedia = state;
     Api.toogleMediaDrive(drive.name, state)
       .then((res) => {
-        console.log(res.data);
         getDrives();
       })
       .catch((err) => {
@@ -134,11 +155,18 @@ const Sync = () => {
       });
   };
 
+  const showAlertMessage = <AlertMessage
+    show={showAlert}
+    alertMessage={alert}
+    onHide={() => setShowAlert(false)}
+    autoClose={2000} />;
+
   return (
     <Container
       style={{ overflowY: "scroll", height: "100vh" }}
       className="sync"
     >
+      {showAlertMessage}
       <Breadcrumb className="mt-3">
         <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
         <Breadcrumb.Item active>Sync</Breadcrumb.Item>
@@ -204,7 +232,10 @@ const Sync = () => {
                   <Icon.Hdd color="darkgray" size={24} className="me-2" />
                 )}
                 {drive.conected && (
-                  <Icon.HddFill color="darkgray" size={24} className="me-2" />
+                  <Icon.HddFill color="green" size={24} className="me-2" onClick={openDriveHandler.bind(this, drive.letter)}
+                  style={{cursor: "pointer"}}
+                  key={index}
+                  />
                 )}
                 {drive.letter} {drive.name}
               </Card.Title>

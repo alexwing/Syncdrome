@@ -1,30 +1,29 @@
 const fs = require("fs");
 const path = require("path");
+const {
+  getConfig,
+  saveConfig,
+} = require("./Utils/utils");
 
 module.exports = function (app) {
   // Server the configuration as a GET endpoint
   app.get("/settings", (req, res) => {
-    const config = JSON.parse(fs.readFileSync(path.join(__dirname, "../config.json"), "utf8"));
+    const config = getConfig();
     res.json(config);
   });
 
   // Save the configuration as a POST endpoint
   app.post("/settings", (req, res) => {
-    const config = JSON.parse(fs.readFileSync(path.join(__dirname, "../config.json"), "utf8"));
+    const config = getConfig();
     const newConfig = {
       ...config,
       ...req.body,
     }
     try {
-      fs.writeFileSync(
-        path.join(__dirname, "../config.json"),
-        JSON.stringify(newConfig, null, 2)
-      );
-      console.log("Configuración guardada correctamente en: ", path.join(__dirname, "../../config.json"));
       res.json({
         result: "ok",
         message: "Configuración guardada correctamente",
-        path: path.join(__dirname, "../../config.json"),
+        path: saveConfig(newConfig),
       });      
     } catch (error) {
       console.error('Error al escribir en el archivo:', error);

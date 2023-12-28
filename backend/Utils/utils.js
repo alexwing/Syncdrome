@@ -1,7 +1,55 @@
+const electron = require("electron");
 const cp = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
+/***
+ * Get the config from config.json
+ * if development, get from backend folder else get from root folder
+ * @returns {Object} - The config file
+ */
+const getConfig = () => {
+  let configPath = "";
+  if (
+    process.env.NODE_ENV !== undefined &&
+    process.env.NODE_ENV.trim() === "development"
+  ) {
+    configPath = path.join(__dirname, "..", "..", "config.json");
+  } else {
+    const exePath = electron.app.getPath("exe");
+    const exeDir = path.dirname(exePath);
+    configPath = path.join(exeDir, "resources", "config.json");
+  }
+  console.log("configPath", configPath);
+  return JSON.parse(fs.readFileSync(configPath, "utf8"));
+};
+
+/***
+ * Save the config in config.json
+ * @param {Object} config - The config file
+ * @returns {String} - The path of the config file
+ */
+const saveConfig = (config) => {
+  let configPath = "";
+  if (
+    process.env.NODE_ENV !== undefined &&
+    process.env.NODE_ENV.trim() === "development"
+  ) {
+    configPath = path.join(__dirname, "..", "..", "config.json");
+  } else {
+    const exePath = electron.app.getPath("exe");
+    const exeDir = path.dirname(exePath);
+    configPath = path.join(exeDir,  "resources", "config.json");
+  }
+  console.log("Configuración guardada correctamente en: ", configPath);
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+  return configPath;
+};
+/***
+ * Get the free space and size of the drive
+ * @param {String} driveLetter - The drive letter
+ * @returns {Object} - The object with the info
+ */
 const getSpaceDisk = (driveLetter) => {
   const cmd = cp.spawnSync("wmic", [
     "logicaldisk",
@@ -27,13 +75,22 @@ const getSpaceDisk = (driveLetter) => {
   };
 };
 
-//get is has a volume name txt file in the root of the drive, return true or false
+/***
+ * get is has a volume name txt file in the root of the drive, return true or false
+ * @param {String} driveVolumeName - The volume name
+ * @param {String} folder - The folder to search
+ * @returns {Boolean} - The result
+ */
 const getDriveSync = (driveVolumeName, folder) => {
   const file = path.join(folder, `${driveVolumeName}.txt`);
   return fs.existsSync(file);
 };
 
-//get is volume name is connected, return true or false
+/***
+ * get is volume name is connected, return true or false
+ * @param {String} driveName - The volume name
+ * @returns {Boolean} - The result
+ */
 const getDriveConected = (driveName) => {
   const cmd = cp.spawnSync("wmic", [
     "logicaldisk",
@@ -57,7 +114,12 @@ const getNameFromFile = (file) => {
   return file.replace(".txt", "");
 };
 
-// get the modified date of the file in the root of the drive
+/***
+ * get the modified date of the file in the root of the drive
+ * @param {String} driveVolumeName - The volume name
+ * @param {String} folder - The folder to search
+ * @returns {Date} - The date
+ */
 const getDriveSyncDate = (driveVolumeName, folder) => {
   const file = path.join(folder, `${driveVolumeName}.txt`);
 
@@ -69,12 +131,16 @@ const getDriveSyncDate = (driveVolumeName, folder) => {
   }
 };
 
-
-// get drives.json from the root of the drive, return the info
+/***
+ * get drives.json from the root of the drive, return the info
+ * @param {String} driveVolumeName - The volume name
+ * @param {String} folder - The folder to search
+ * @returns {Object} - The object with the info
+ */
 const getDriveOptions = (driveVolumeName, folder) => {
   const file = path.join(folder, `drives.json`);
   if (fs.existsSync(file)) {
-    //get file content as json  
+    //get file content as json
     const drives = JSON.parse(fs.readFileSync(file, "utf8"));
     const onlyMedia = drives[driveVolumeName]?.onlyMedia || false;
     //if exist size and freeSpace, return it
@@ -101,19 +167,26 @@ const getDriveOptions = (driveVolumeName, folder) => {
   };
 };
 
-
-// delete drive options from drives.json
+/***
+ *  delete drive options from drives.json
+ * @param {String} driveVolumeName - The volume name
+ * @param {String} folder - The folder to search
+ */
 const deleteDriveOptions = (driveVolumeName, folder) => {
   const file = path.join(folder, `drives.json`);
   if (fs.existsSync(file)) {
-    //get file content as json  
+    //get file content as json
     const drives = JSON.parse(fs.readFileSync(file, "utf8"));
     delete drives[driveVolumeName];
     fs.writeFileSync(file, JSON.stringify(drives));
   }
-}
+};
 
-// get the volume name of the drive letter
+/***
+ * get the volume name of the drive letter
+ * @param {String} driveLetter - The drive letter
+ * @returns {String} - The volume name
+ */
 const getVolumeName = (driveLetter) => {
   const cmd = cp.spawnSync("wmic", [
     "logicaldisk",
@@ -133,7 +206,13 @@ const getVolumeName = (driveLetter) => {
   return vol;
 };
 
-// write size and freeSpace in drives.json
+/***
+ * Write size and freeSpace in drives.json
+ * @param {String} driveVolumeName - The volume name
+ * @param {String} folder - The folder to search
+ * @param {Number} size - The size
+ * @param {Number} freeSpace - The free space
+ */
 const writeSize = (driveVolumeName, folder, size, freeSpace) => {
   const file = path.join(folder, `drives.json`);
   let drives = {};
@@ -156,8 +235,6 @@ const writeSize = (driveVolumeName, folder, size, freeSpace) => {
  * @returns {Object} - The object with the info
  */
 const getDrivesInfo = (config, conected) => {
-  //console.log("getDrivesInfo", config, conected);
-
   const drives = [];
 
   // Get the names of the txt files in the folder and filter the volumes that are not in the conected list
@@ -166,7 +243,8 @@ const getDrivesInfo = (config, conected) => {
     .readdirSync(config.folder)
     .filter(
       (file) =>
-        file.endsWith(".txt") && !conected.map((drive) => drive.name).includes(getNameFromFile(file))
+        file.endsWith(".txt") &&
+        !conected.map((drive) => drive.name).includes(getNameFromFile(file))
     )
     .map((file) => file.replace(".txt", ""));
 
@@ -187,15 +265,13 @@ const getDrivesInfo = (config, conected) => {
   });
 
   //print conected drives
-  console.log("conected", conected);
+  // console.log("conected", conected);
 
   //print drives
-  console.log("drives", drives);
-  
+  // console.log("drives", drives);
+
   //combine conected and not conected drives
   drives.push(...conected);
-
-  
 
   //sort drives by conected, drive letter and volume name
   drives.sort(sortDrives);
@@ -204,7 +280,7 @@ const getDrivesInfo = (config, conected) => {
 };
 
 // sort drives function by conected, drive letter and volume name
- const sortDrives = (a, b) => {
+const sortDrives = (a, b) => {
   if (a.conected && !b.conected) {
     return -1;
   }
@@ -227,8 +303,8 @@ const getDrivesInfo = (config, conected) => {
   }
 
   return 0;
-}
-    
+};
+
 //open file in windows explorer
 const openFile = (file) => {
   const cmd = cp.spawnSync("explorer", [file]);
@@ -249,9 +325,8 @@ const getExtensions = (config) => {
   });
   //trim and lowercase
   extensions = extensions.map((ext) => ext.trim().toLowerCase());
-  return [...new Set(extensions)];;
-}
-
+  return [...new Set(extensions)];
+};
 
 module.exports = {
   getSpaceDisk,
@@ -268,4 +343,6 @@ module.exports = {
   deleteDriveOptions,
   deleteDriveOptions,
   getExtensions,
+  getConfig,
+  saveConfig,
 };

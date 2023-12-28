@@ -94,38 +94,3 @@ Feel free to contribute and enhance the code. You can do so through pull request
 
 This project is under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
-```
-
-//execute a bat file in the root of the drive, from the drive letter
-/*
-app.get("/execute/:driveLetter", (req, res) => {
-  const driveLetter = req.params.driveLetter;
-  let file = path.join(driveLetter, "ContentDrive.bat");
-  if (!fs.existsSync(file)) {
-    file = path.join(driveLetter, "ContentDriveMedia.bat");
-  }
-  if (fs.existsSync(file)) {
-    const cp = require("child_process");
-    const cmd = cp.spawnSync(file, [], {
-      shell: true,
-      encoding: "utf8",
-      cwd: driveLetter,
-    });
-    if (cmd.error) {
-      console.log("Error al ejecutar el archivo bat:", cmd.error);
-      res.json({
-        success: false,
-        error: cmd.error,
-        stdout: cmd.stdout,
-        stderr: cmd.stderr,
-      });
-    } else {
-      res.json({ success: true, stdout: cmd.stdout, stderr: cmd.stderr });
-    }
-  } else {
-    console.log("Archivo bat no encontrado:", file);
-    res.json({ success: false });
-  }
-});
-*/
-```
