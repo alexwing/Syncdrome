@@ -14,7 +14,7 @@ It is developed in Electron, so in the future it can be compiled for other platf
 
 In the `Settings` section of the application menu, you can configure the working folder where the file catalog will be stored. An interesting idea is to store the catalog in a cloud storage service like Dropbox, Google Drive, etc., allowing access to files from any computer.
 
-This working folder is stored within the application folder in the `resources\app\config.json` file. You can also configure file extensions to change the color of file icons or add new file extensions. These extensions are used to determine if the file is multimedia or not.
+This working folder is stored within the application folder in the `resources\config.json` file. You can also configure file extensions to change the color of file icons or add new file extensions. These extensions are used to determine if the file is multimedia or not.
 
 ```json
 {

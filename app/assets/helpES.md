@@ -15,7 +15,7 @@ Esta desarrollado en Electron, por lo que en un futuro se podrá compilar para o
 
 En la seccion `Settings` del menú de la aplicación, se puede configurar la carpeta de trabajo, donde se almacenará el catálogo de archivos. Como idea interesante, se puede almacenar el catálogo en un servicio de almacenamiento en la nube, como Dropbox, Google Drive, etc. de esta forma se puede acceder a los archivos desde cualquier equipo.
 
-Esta carpeta de trabajo, se almacena dentro de la carpeta de la aplicación, en el fichero resources\app\config.json además se puede configurar las extensiones de archivo, para
+Esta carpeta de trabajo, se almacena dentro de la carpeta de la aplicación, en el fichero `resources\config.json` además se puede configurar las extensiones de archivo, para
  cambiar el color de los iconos de los archivos, o para añadir nuevas extensiones de archivo. Estas extensiones además son usadas para determinar si el archivo es multimedia o no.
 
 ```json

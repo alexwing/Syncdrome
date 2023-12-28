@@ -10,20 +10,48 @@ import {
   Spinner,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
+import { AlertModel, DrivesProps } from "../models/Interfaces";
+import AlertMessage from "../components/AlertMessage";
 
 const Home = () => {
-  const initialSearchTerm = localStorage.getItem('searchTerm') || "";
+  const initialSearchTerm = localStorage.getItem("searchTerm") || "";
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [files, setFiles] = useState([]);
   const [found, setFound] = useState(true);
   const [fileIconMappings, setFileIconMappings] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [alert, setAlert] = useState({
+    title: "",
+    message: "",
+    type: "danger",
+  } as AlertModel);
+  const [showAlert, setShowAlert] = useState(false);
 
   // get config from server
   const getConfig = async () => {
-    const response = await Api.getSettings();
-    setFileIconMappings(response.data.extensions);
+    try {
+      const response = await Api.getSettings();
+      setFileIconMappings(response.data.extensions);
+    } catch (error) {
+      setAlert({
+        title: "Error",
+        message: "Config file not found or corrupted",
+        type: "danger",
+      });
+      setShowAlert(true);
+      return;
+    }
   };
+
+  // alert message
+  const showAlertMessage = (
+    <AlertMessage
+      show={showAlert}
+      alertMessage={alert}
+      onHide={() => setShowAlert(false)}
+      autoClose={2000}
+    />
+  );
 
   // get config on load
   useEffect(() => {
@@ -33,13 +61,13 @@ const Home = () => {
   // set search input
   const handleInput = (e) => {
     setSearchTerm(e.target.value);
-    localStorage.setItem('searchTerm', e.target.value);
+    localStorage.setItem("searchTerm", e.target.value);
   };
 
   // clear search input
   const handleClearSearch = () => {
     setSearchTerm("");
-    localStorage.removeItem('searchTerm');
+    localStorage.removeItem("searchTerm");
   };
 
   // get all files and folders on load
@@ -59,6 +87,11 @@ const Home = () => {
       })
       .catch((err) => {
         console.log(err);
+        setAlert({
+          title: "Error",
+          message: "Error searching files, verify config file",
+          type: "danger",
+        });
         setIsLoading(false);
       });
   };
@@ -68,7 +101,11 @@ const Home = () => {
     if (driveLetter) {
       Api.openFile(filename, folder, driveLetter);
     } else {
-      alert("Drive not connected");
+      setAlert({
+        title: "Error",
+        message: "Drive not connected",
+        type: "danger",
+      });
     }
   };
   // open folder on click
@@ -78,7 +115,11 @@ const Home = () => {
     if (driveLetter) {
       Api.openFolder(folder, driveLetter);
     } else {
-      alert("Drive not connected");
+      setAlert({
+        title: "Error",
+        message: "Drive not connected",
+        type: "danger",
+      });
     }
   };
 
@@ -130,7 +171,7 @@ const Home = () => {
       );
     }
   };
-  
+
   //print count of files as  <Badge>
   const openFile = (item, key2, key, connected) => {
     return (
@@ -172,10 +213,9 @@ const Home = () => {
     }
   };
 
-
-
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
+      {showAlertMessage}
       <div className="centered pt-3">
         <img src="./assets/logo.png" alt="logo" className="logo" />
         <h1>Syncdrome</h1>
@@ -206,7 +246,8 @@ const Home = () => {
                 className="me-3"
                 color="orange"
               />
-              Nothing found</h3>
+              Nothing found
+            </h3>
           </Alert>
         )}
         {isLoading && (
@@ -220,72 +261,76 @@ const Home = () => {
             />
           </div>
         )}
-        {! isLoading && (
-        <Accordion>
-          {Object.keys(files).map((key, index) => (
-            <Accordion.Item eventKey={index.toString()} key={index}>
-              <Accordion.Header>
-                <Icon.DeviceHddFill
-                  size={20}
-                  className="me-4"
-                  color={files[key].connected ? "#16ab9c" : "dodgerblue"}
-                />
-                {key}
-                {files[key].connected && (
-                  <Icon.CheckCircleFill
-                    style={{ position: "absolute", right: "25px", top: "15px" }}
+        {!isLoading && (
+          <Accordion>
+            {Object.keys(files).map((key, index) => (
+              <Accordion.Item eventKey={index.toString()} key={index}>
+                <Accordion.Header>
+                  <Icon.DeviceHddFill
                     size={20}
                     className="me-4"
-                    color="green"
+                    color={files[key].connected ? "#16ab9c" : "dodgerblue"}
                   />
-                )}
-              </Accordion.Header>
-              <Accordion.Body>
-                <Accordion>
-                  {Object.keys(files[key].content).map(
-                    (key2, index2) =>
-                      files[key].content[key2].length > 0 &&
-                      found && (
-                        <Accordion.Item
-                          eventKey={index2.toString()}
-                          key={index2}
-                        >
-                          <Accordion.Header>
-                            <Icon.FolderFill
-                              size={20}
-                              className="me-4"
-                              color="DarkOrange"
-                            />
-                            {key2}
-                            {getFilesLength(files[key].content[key2])}
-                            {files[key].connected &&
-                              openFolder(key2, files[key].connected)}
-                          </Accordion.Header>
-                          <Accordion.Body>
-                            <ListGroup as="ul">
-                              {files[key].content[key2].map((item) => (
-                                <ListGroup.Item as="li" key={item.fileName}>
-                                  {getIcon(item.fileName)}
-                                  {item.fileName}
-                                  {files[key].connected &&
-                                    openFile(
-                                      item,
-                                      key2,
-                                      key,
-                                      files[key].connected
-                                    )}
-                                </ListGroup.Item>
-                              ))}
-                            </ListGroup>
-                          </Accordion.Body>
-                        </Accordion.Item>
-                      )
+                  {key}
+                  {files[key].connected && (
+                    <Icon.CheckCircleFill
+                      style={{
+                        position: "absolute",
+                        right: "25px",
+                        top: "15px",
+                      }}
+                      size={20}
+                      className="me-4"
+                      color="green"
+                    />
                   )}
-                </Accordion>
-              </Accordion.Body>
-            </Accordion.Item>
-          ))}
-        </Accordion>
+                </Accordion.Header>
+                <Accordion.Body>
+                  <Accordion>
+                    {Object.keys(files[key].content).map(
+                      (key2, index2) =>
+                        files[key].content[key2].length > 0 &&
+                        found && (
+                          <Accordion.Item
+                            eventKey={index2.toString()}
+                            key={index2}
+                          >
+                            <Accordion.Header>
+                              <Icon.FolderFill
+                                size={20}
+                                className="me-4"
+                                color="DarkOrange"
+                              />
+                              {key2}
+                              {getFilesLength(files[key].content[key2])}
+                              {files[key].connected &&
+                                openFolder(key2, files[key].connected)}
+                            </Accordion.Header>
+                            <Accordion.Body>
+                              <ListGroup as="ul">
+                                {files[key].content[key2].map((item) => (
+                                  <ListGroup.Item as="li" key={item.fileName}>
+                                    {getIcon(item.fileName)}
+                                    {item.fileName}
+                                    {files[key].connected &&
+                                      openFile(
+                                        item,
+                                        key2,
+                                        key,
+                                        files[key].connected
+                                      )}
+                                  </ListGroup.Item>
+                                ))}
+                              </ListGroup>
+                            </Accordion.Body>
+                          </Accordion.Item>
+                        )
+                    )}
+                  </Accordion>
+                </Accordion.Body>
+              </Accordion.Item>
+            ))}
+          </Accordion>
         )}
       </div>
     </Container>

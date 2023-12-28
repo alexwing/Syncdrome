@@ -21,6 +21,10 @@ const getConfig = () => {
     configPath = path.join(exeDir, "resources", "config.json");
   }
   console.log("configPath", configPath);
+  //verify if config.json exist
+  if (!fs.existsSync(configPath)) {
+    throw new Error(`File ${configPath} does not exist`);
+  }
   return JSON.parse(fs.readFileSync(configPath, "utf8"));
 };
 
@@ -39,7 +43,7 @@ const saveConfig = (config) => {
   } else {
     const exePath = electron.app.getPath("exe");
     const exeDir = path.dirname(exePath);
-    configPath = path.join(exeDir,  "resources", "config.json");
+    configPath = path.join(exeDir, "resources", "config.json");
   }
   console.log("Configuración guardada correctamente en: ", configPath);
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));

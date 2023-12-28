@@ -5,25 +5,57 @@ import { Button, Col, Container, Row } from "react-bootstrap";
 
 import { ipcRenderer } from "electron";
 import * as Icon from "react-bootstrap-icons";
+import { AlertModel, DrivesProps } from "../models/Interfaces";
+import AlertMessage from "../components/AlertMessage";
 
 const Comfig = () => {
   const [folder, setFolder] = useState("");
+  const [alert, setAlert] = useState({
+    title: "",
+    message: "",
+    type: "danger",
+  } as AlertModel);
+  const [showAlert, setShowAlert] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const newConfig = { folder };
     await Api.saveSettings(newConfig);
+
+    //get result from api
+    const response = await Api.getSettings();
+    if (response.data.result !== "ok") {
+    }
   };
 
-
   const getConfig = async () => {
-    const response = await Api.getSettings();
-    setFolder(response.data.folder);
+    try {
+      const response = await Api.getSettings();
+      setFolder(response.data.folder);
+    } catch (error) {
+      setAlert({
+        title: "Error",
+        message: "Config file not found or corrupted",
+        type: "danger",
+      });
+      setShowAlert(true);
+      return;
+    }
   };
 
   useEffect(() => {
     getConfig();
   }, []);
+
+  // alert message
+  const showAlertMessage = (
+    <AlertMessage
+      show={showAlert}
+      alertMessage={alert}
+      onHide={() => setShowAlert(false)}
+      autoClose={2000}
+    />
+  );
 
   // open folder on click
   const openFolderHandler = (event) => {
@@ -33,11 +65,7 @@ const Comfig = () => {
     const folderPath = folder.slice(3);
     event.preventDefault();
     event.stopPropagation();
-    if (driveLetter) {
-      Api.openFolder(folderPath, driveLetter);
-    } else {
-      alert("Drive not connected");
-    }
+    Api.openFolder(folderPath, driveLetter);
   };
 
   const onChangeFolder = async () => {
@@ -47,6 +75,7 @@ const Comfig = () => {
 
   return (
     <form onSubmit={handleSubmit}>
+      {showAlertMessage}
       <label>
         Folder:
         <input

@@ -8,8 +8,16 @@ const {
 module.exports = function (app) {
   // Server the configuration as a GET endpoint
   app.get("/settings", (req, res) => {
-    const config = getConfig();
-    res.json(config);
+    try {
+      const config = getConfig();
+      res.json(config);
+    } catch (error) {
+      res.status(500).send({
+        result: "error",
+        message: "Error al leer la configuración",
+        error: error,
+      });
+    }
   });
 
   // Save the configuration as a POST endpoint
