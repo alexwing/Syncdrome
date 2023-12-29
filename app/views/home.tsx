@@ -10,15 +10,16 @@ import {
   Spinner,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
-import { AlertModel, DrivesProps } from "../models/Interfaces";
+import { AlertModel, DrivesProps, FileTypes } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
+import ExtensionSelect from "../components/ExtensionSelect";
 
 const Home = () => {
   const initialSearchTerm = localStorage.getItem("searchTerm") || "";
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [files, setFiles] = useState([]);
   const [found, setFound] = useState(true);
-  const [fileIconMappings, setFileIconMappings] = useState({});
+  const [fileIconMappings, setFileIconMappings] = useState({} as FileTypes);
   const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState({
     title: "",
@@ -228,6 +229,7 @@ const Home = () => {
             type="search"
             placeholder="Enter file or folder to search"
           />
+          <ExtensionSelect fileExtension={fileIconMappings} className="my-3" />
           <Button variant="primary" type="submit" size="lg" className="me-2">
             <Icon.Search size={20} className="me-2" />
             Search

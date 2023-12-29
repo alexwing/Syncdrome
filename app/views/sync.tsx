@@ -84,14 +84,13 @@ const Sync = () => {
 
   // open folder on click
   const openDriveHandler = (driveLetter: string) => {
-    //extract leter from folder
-    driveLetter = "";
+    //extract letter from folder
     if (driveLetter) {
-      Api.openFolder("ss", driveLetter);
+      Api.openFolder("", driveLetter);
     } else {
       setAlert({
         title: "Error",
-        message: "No folder selected",
+        message: "No drive letter found",
         type: "danger",
       });
       setShowAlert(true);

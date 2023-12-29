@@ -33,3 +33,13 @@ export interface AlertMessageProps {
   onHide: () => void;
   autoClose?: number ;
 }
+
+export interface FileType {
+  icon: string;
+  color: string;
+  extensions: string[];
+}
+
+export interface FileTypes {
+  [key: string]: FileType;
+}
