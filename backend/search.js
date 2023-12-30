@@ -23,8 +23,6 @@ module.exports = function (app) {
     //read folder
     const folder = config.folder;
 
-    //console.log("extensions", extensionsTypes);
-
     let extensions = [];
     if (extensionsTypes.length > 0 && extensionsTypes[0] !== "all") {
       extensions = getExtensionsByType(extensionsTypes, config);

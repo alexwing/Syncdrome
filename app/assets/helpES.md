@@ -98,6 +98,7 @@ Los resultados de la búsqueda se muestran en una lista desplegable, en primer l
 
 Los discos que estan conectados al equipo, se muestran con un icono de `ok` verde. Para las carpetas y archivos de los discos conectados, se muestra un boton `Open` que permite abrir el archivo con el programa predeterminado del sistema, o mostrar la carpeta en el explorador de archivos.
 
+Adicionalmente, se puede filtrar por archivos multimedia, para ello, puede seleccionar uno o varios tipos de archivos en el selector y hacer clic en el botón `Search`.
 
 
 

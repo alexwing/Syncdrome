@@ -94,3 +94,6 @@ To search for a file, simply type a keyword in the search field and press the `E
 Search results are displayed in a drop-down list, first the disk volumes are displayed, and then the folders and files that match the keyword.
 
 Drives that are connected to the computer are displayed with a green `ok` icon. For folders and files on connected drives, an `Open` button is displayed that allows you to open the file with the system's default program, or display the folder in the file explorer.
+
+Additionally, you can filter by multimedia files, for this, you can select one or several types of files in the selector and click on the `Search` button.
+
