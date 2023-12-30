@@ -20,7 +20,7 @@ const getConfig = () => {
     const exeDir = path.dirname(exePath);
     configPath = path.join(exeDir, "resources", "config.json");
   }
-  console.log("configPath", configPath);
+  console.log("ConfigPath: ", configPath);
   //verify if config.json exist
   if (!fs.existsSync(configPath)) {
     throw new Error(`File ${configPath} does not exist`);
@@ -321,7 +321,11 @@ const openFolder = (folder) => {
   return cmd;
 };
 
-//get extensions from config.json file
+/***
+ * Get extensions from config.json file
+ * @param {Object} config - The config file
+ * @returns {List} - The list of extensions
+ */
 const getExtensions = (config) => {
   let extensions = [];
   Object.keys(config.extensions).forEach((key) => {
@@ -330,6 +334,31 @@ const getExtensions = (config) => {
   //trim and lowercase
   extensions = extensions.map((ext) => ext.trim().toLowerCase());
   return [...new Set(extensions)];
+};
+
+/***
+ * Get extension by extesions type array of string
+ * @param {string[]} extensions - The array of extensions keys values
+ * @param {Object} config - The config file
+ * @returns {List} - The list of extensions
+ */
+const getExtensionsByType = (extensions, config) => {
+  let ext = [];
+  if (extensions.length === 0) {
+    return [];
+  }
+  extensions.forEach((key) => {
+    try {
+      if (config.extensions[key]) {
+        ext.push(...config.extensions[key].extensions);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }    
+  });
+  //trim and lowercase
+  ext = ext.map((ext) => ext.trim().toLowerCase());
+  return [...new Set(ext)];
 };
 
 module.exports = {
@@ -349,4 +378,5 @@ module.exports = {
   getExtensions,
   getConfig,
   saveConfig,
+  getExtensionsByType,
 };

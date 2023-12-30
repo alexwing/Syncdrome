@@ -1,30 +1,29 @@
 import React, { useEffect, useState } from "react";
-import {
-  Col,
-  Form,
-  InputGroup,
-  FormControl,
-  DropdownButton,
-  Dropdown,
-} from "react-bootstrap";
-import ReactSelect, { MultiValue } from "react-select";
+import { Col, Form } from "react-bootstrap";
+import ReactSelect from "react-select";
 import { FileType, FileTypes } from "../models/Interfaces";
 import * as Icon from "react-bootstrap-icons";
 
 interface ExtensionSelectProps {
   className?: string;
   fileExtension: FileTypes;
+  values?: string[];
+  onValuesChange?: (values: any) => void;
 }
 
 //react component for file type selection, get file type from file extension parameter
 const ExtensionSelect: React.FC<ExtensionSelectProps> = ({
   fileExtension,
   className,
+  onValuesChange,
+  values,
 }) => {
   //FileTypes sorted by key
   const [sorted, setSorted] = useState<FileTypes>({});
+  const [selected, setSelected] = useState<any>([]);	
   const handleSelect = (values: any) => {
-    console.log(values);
+    const selected = values.map((value: any) => value.value);
+    onValuesChange?.(selected);
   };
   // get Icon component from extension
   const getFileIcon = (fileType: FileType) => {
@@ -33,6 +32,21 @@ const ExtensionSelect: React.FC<ExtensionSelectProps> = ({
       icon: <IconComponent size={20} className="me-2" color={fileType.color} />,
     };
   };
+  useEffect(() => {
+    if (values && sorted && Object.keys(sorted).length > 0) {
+      const selected = values.map((value) => ({
+        value: value,
+        label: (
+          <div>
+            {getFileIcon(sorted[value])?.icon}
+            {value}
+          </div>
+        ),
+      }));
+      setSelected(selected);
+    }
+  }, [values, sorted]);
+
   //sort file types by key
   useEffect(() => {
     const sorted = () => {
@@ -65,9 +79,10 @@ const ExtensionSelect: React.FC<ExtensionSelectProps> = ({
         isMulti
         defaultValue={options[0]}
         options={options}
+        value={selected}
         className="basic-multi-select text-start"
         classNamePrefix="select"
-        onChange={(e) => handleSelect(e?.values)}
+        onChange={handleSelect}
         placeholder="Filter by file types"
       />
     </Form.Group>

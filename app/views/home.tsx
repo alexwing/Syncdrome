@@ -10,13 +10,15 @@ import {
   Spinner,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
-import { AlertModel, DrivesProps, FileTypes } from "../models/Interfaces";
+import { AlertModel, FileTypes, FileType, IFile } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import ExtensionSelect from "../components/ExtensionSelect";
 
 const Home = () => {
   const initialSearchTerm = localStorage.getItem("searchTerm") || "";
+  const initialExtSelected = localStorage.getItem("extSelected") || "";
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+  const [extSelected, setExtSelected] = useState<string[]>(initialExtSelected ? initialExtSelected.split(",") : []);
   const [files, setFiles] = useState([]);
   const [found, setFound] = useState(true);
   const [fileIconMappings, setFileIconMappings] = useState({} as FileTypes);
@@ -75,7 +77,11 @@ const Home = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     setIsLoading(true);
-    Api.getFind(searchTerm)
+    //ext selected transform to url param
+    const extSelectedUrl = extSelected.join("&") ? extSelected.join("&") : "all";
+
+
+    Api.getFind(searchTerm, extSelectedUrl)
       .then((res) => {
         setFiles(res.data);
         console.log(res.data);
@@ -148,8 +154,7 @@ const Home = () => {
   };
 
   // set Icon component from url extension
-  const getIcon = (url) => {
-    const extension = url.split(".").pop();
+  const getIcon = (extension) => {
     return getFileIcon(extension).icon;
   };
 
@@ -213,6 +218,10 @@ const Home = () => {
       );
     }
   };
+  const onExtSelectChange = (values: string[]) => {
+    setExtSelected(values);
+    localStorage.setItem("extSelected", values.join(","));
+  };
 
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
@@ -229,7 +238,12 @@ const Home = () => {
             type="search"
             placeholder="Enter file or folder to search"
           />
-          <ExtensionSelect fileExtension={fileIconMappings} className="my-3" />
+          <ExtensionSelect
+            fileExtension={fileIconMappings}
+            className="my-3"
+            onValuesChange={onExtSelectChange}
+            values={extSelected}
+          />
           <Button variant="primary" type="submit" size="lg" className="me-2">
             <Icon.Search size={20} className="me-2" />
             Search
@@ -310,9 +324,9 @@ const Home = () => {
                             </Accordion.Header>
                             <Accordion.Body>
                               <ListGroup as="ul">
-                                {files[key].content[key2].map((item) => (
+                                {files[key].content[key2].map((item:IFile) => (
                                   <ListGroup.Item as="li" key={item.fileName}>
-                                    {getIcon(item.fileName)}
+                                    {getIcon(item.extension)}
                                     {item.fileName}
                                     {files[key].connected &&
                                       openFile(

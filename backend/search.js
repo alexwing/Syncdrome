@@ -6,26 +6,36 @@ const {
   openFile,
   openFolder,
   getConfig,
+  getExtensionsByType,
 } = require("./Utils/utils");
 
 module.exports = function (app) {
-
   app.get("/find/", (req, res) => {
     res.json({});
   });
 
-  app.get("/find/:searchParam", (req, res) => {
+  //add parame extensions to search
+  app.get("/find/:searchParam/:extensions", (req, res) => {
     const searchText = req.params.searchParam.toLowerCase();
+    const extensionsTypes = req.params.extensions.toLowerCase().split("&");
+    //read config.json file
+    const config = getConfig();
+    //read folder
+    const folder = config.folder;
+
+    //console.log("extensions", extensionsTypes);
+
+    let extensions = [];
+    if (extensionsTypes.length > 0 && extensionsTypes[0] !== "all") {
+      extensions = getExtensionsByType(extensionsTypes, config);
+    }
+
     const results = {};
 
     if (!searchText || searchText.length < 3) {
       res.json(results);
       return;
     }
-    //read config.json file
-    const config = getConfig();
-    //read folder
-    const folder = config.folder;
 
     fs.readdirSync(folder).forEach((filedata) => {
       if (filedata.endsWith(".txt")) {
@@ -36,8 +46,10 @@ module.exports = function (app) {
           // trim and remove crlf
           const empty = rowData.trim().replace(/\r?\n|\r/g, "");
           //ignore $RECYCLE.BIN folder
-          if (empty.toLowerCase().includes(searchText) && !empty.includes("$RECYCLE.BIN")) {  
-
+          if (
+            empty.toLowerCase().includes(searchText) &&
+            !empty.includes("$RECYCLE.BIN")
+          ) {
             // check if is folder or file, the file has a extension
             const isFolder = !rowData.includes(".");
 
@@ -58,14 +70,24 @@ module.exports = function (app) {
               .replace(/\.[^/.]+$/, "")
               .replace(/[-_\.]/g, " ");
 
-            founds.push({
-              line: line + 1,
-              name: name,
-              content: rowData.trim(),
-              type: isFolder ? "folder" : "file",
-              fileName: fileName,
-              folder: folder,
-            });
+            let extension = "";
+            if (!isFolder) {
+              extension = fileName.split(".").pop();
+              //check if extension is in extensionsTypes
+              if (extensions.length > 0 && !extensions.includes(extension)) {
+                return;
+              }
+
+              founds.push({
+                line: line + 1,
+                name: name,
+                content: rowData.trim(),
+                type: isFolder ? "folder" : "file",
+                fileName: fileName,
+                folder: folder,
+                extension: extension,
+              });
+            }
           }
         });
 
@@ -94,8 +116,9 @@ module.exports = function (app) {
         });
 
         if (founds.length > 0) {
-          results[filedata] = {
-            connected: getDriveConected(getNameFromFile(filedata)),
+          const fileDataName = getNameFromFile(filedata);
+          results[fileDataName] = {
+            connected: getDriveConected(fileDataName),
             content: groupByFolder,
           };
         }
@@ -122,9 +145,9 @@ module.exports = function (app) {
     });
   });
   /* open Folder in windows explorer
-    * 1. decode url
-    * 2. open explorer.exe
-    */
+   * 1. decode url
+   * 2. open explorer.exe
+   */
   app.get("/openFolder/:url", (req, res) => {
     const url = req.params.url;
     // decode url and replace "//" with "\""
@@ -137,5 +160,4 @@ module.exports = function (app) {
       result: result,
     });
   });
-
 };

@@ -6,7 +6,7 @@ const Api = {
    * @param {string} searchParam - search param
    * @returns {object} - response from server
    */
-  getFind: (searchParam) => Axios.get(`/find/${searchParam}`),
+  getFind: (searchParam, extSelected) => Axios.get(`/find/${searchParam}/${extSelected}`),
 
   getDrives: () => Axios.get("/drives"),
 
