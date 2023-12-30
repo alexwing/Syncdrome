@@ -2,7 +2,13 @@
 Syncdrome - Content Drives Finder App
 =====================================
 
+
+<img src="app/assets/icon.png" style="width: 150px; height: 150px;margin-left: auto;margin-right: auto;display: block;margin-bottom: 20px;">
+
 Syncdrome simplifies the organization and search of your digital files on specific hard drives.
+
+So it is possible to align images! You just have to use inline CSS to solve the problem. You can take an example from my GitHub repository. At the bottom of README.md there is a centered aligned image. For simplicity you can just do as follows:
+
 
 About
 -----
@@ -62,11 +68,15 @@ Synchronization
 
 To start using the search, you first need to create a catalog. Access the `Sync` option in the application menu.
 
+<img src="res/screenshot02.png" style="width: 100%; height: auto;">
+
 A list of connected hard drives is displayed. Select the drive you want to synchronize and click the `Sync` button. The synchronized catalogs of disk volumes that are not currently connected to the computer are also shown. To remove them from the catalog, click the trash icon.
 
 ### Search
 
 To search for a file, simply enter a keyword in the search field and press `Enter` or click the `Search` button. The search results are displayed in a dropdown list, showing disk volumes first, followed by folders and files that match the keyword.
+
+<img src="res/screenshot01.png" style="width: 100%; height: auto;">
 
 Connected drives are shown with a green `ok` icon. For folders and files on connected drives, an `Open` button is displayed, allowing you to open the file with the system's default program or show the folder in the file explorer.
 
