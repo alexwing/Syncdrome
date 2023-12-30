@@ -1,60 +1,86 @@
-# Syncdrome - Content Drives Finder App
 
-This is a simple Express.js server that serves as a tool to create a catalog of all files on specified hard drives, allowing for quick searches by keyword. The search results are returned and organized by folders.
+Syncdrome - Content Drives Finder App
+=====================================
 
-## Installation
+Syncdrome simplifies the organization and search of your digital files on specific hard drives.
 
-1. Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
+About
+-----
 
-2. Clone this repository:
- 
-   ```bash
-   git clone https://github.com/alexwing/Syncdrome
-   ```
+As someone who tends to accumulate digital files in a disorganized manner, I felt the need to develop a tool that would simplify my digital life. Syncdrome was born out of my own experience as a self-proclaimed "digital Diogenes."
 
-3. Navigate to the project directory:
+Syncdrome is an Electron application with React in the frontend and Node.js in the backend. This intuitive tool streamlines the search and organization of your files on specific hard drives. With a simple yet powerful interface, Syncdrome allows quick keyword searches and presents results organized by folders.
 
-   ```bash
-   cd content-drives-finder
-   ```
+Installation
+------------
 
-4. Install the dependencies:
+1.  Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
+    
+2.  Clone this repository:
+    
+    bashCopy code
+    
+    `git clone https://github.com/alexwing/Syncdrome`
+    
+3.  Navigate to the project directory:
+    
+    bashCopy code
+    
+    `cd Syncdrome`
+    
+4.  Install the dependencies:
+    
+    bashCopy code
+    
+    `npm install`
 
-   ```bash
-   npm install
-   ```
+Configuration
+-------------
 
-## Usage
+In the `Settings` section of the application menu, you can configure the working folder where the file catalog will be stored. It's an interesting idea to store the catalog in a cloud storage service, such as Dropbox or Google Drive, for easy access from any device.
 
-1. Modify the value of the `folder` variable in `app.js` with the path of the directory you want to explore.
+The working folder is stored within the application folder in the `resources\config.json` file. You can also configure file extensions to change the color of file icons or add new file extensions.
 
-   ```javascript
-   const folder = "C:\\Users\\Windows\\My Drive\\Software\\HardDrives";
-   ```
+jsonCopy code
 
-2. Run the application:
+```json
+{
+  "folder": "C:\\myfolder",
+  "extensions": {
+    "document": {
+      "icon": "File",
+      "color": "black",
+      "extensions": ["doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "odt", "ods", "odp"]
+    },
+    ...
+  }
+}
+```
 
-   ```bash
-   node app.js
-   ```
+Synchronization
+---------------
 
-3. Open your browser and visit the URL:
+To start using the search, you first need to create a catalog. Access the `Sync` option in the application menu.
 
-   [http://localhost:3000/find/{searchParam}](http://localhost:3000/find/{searchParam})
+A list of connected hard drives is displayed. Select the drive you want to synchronize and click the `Sync` button. The synchronized catalogs of disk volumes that are not currently connected to the computer are also shown. To remove them from the catalog, click the trash icon.
 
-   Replace `{searchParam}` with the keyword you want to search for.
+### Search
 
-4. Observe the results grouped by text file and folder.
+To search for a file, simply enter a keyword in the search field and press `Enter` or click the `Search` button. The search results are displayed in a dropdown list, showing disk volumes first, followed by folders and files that match the keyword.
 
-## Batch File Description
+Connected drives are shown with a green `ok` icon. For folders and files on connected drives, an `Open` button is displayed, allowing you to open the file with the system's default program or show the folder in the file explorer.
+
+Batch File Version
+------------------
 
 The `ContentDrive.bat` batch file is used to generate text files with the content of the hard drives. The batch file description is as follows:
 
-Copy file to hard drive and run it. The file will create a text file with the list of all files on the drive. The text file will be saved in the Google drive folder. The file name will be the drive name with the extension `.txt`. For example, if the drive name is `My Passport`, the file name will be `My Passport.txt`.
+Copy file to hard drive and run it. The file will create a text file with the list of all files on the drive. The text file will be saved in the Google drive/ Dropbox (or other folder). The file name will be the drive name with the extension `.txt`. For example, if the drive name is `My Passport`, the file name will be `My Passport.txt`.
 
-replace "drive" with the path of the Google drive folder or other folder where you want to save the text files.
+In current version, not is necessary to copy the file to the hard drive, you can run syncronization from the application.
 
-```batch
+
+```bat
 @rem  Batch file to create a list of all files on a drive. 
 @rem  The list is saved in the Google drive folder.
 
@@ -72,25 +98,41 @@ dir . /s /b > %drive%%vol:~5%".txt"
 @echo on
 @echo List of files on %vol% saved in %drive%%vol:~5%".txt"
 @pause
+
 ```
 
-## Code Details
+Code Details
+------------
 
-- The application uses Express.js for route handling and server creation.
+*   The application uses Express.js for route handling and server creation.
+*   The code searches through all text files (`*.txt`) in the specified directory and groups the results by folder.
+*   Each result includes information such as line number, clean file name, type (file or folder), file name, and folder path.
 
-- The code searches through all text files (`*.txt`) in the specified directory and groups the results by folder.
 
-- Each result includes information such as line number, clean file name, type (file or folder), file name, and folder path.
+About
+-----
 
-- The code uses the `reduce` function to group the results by folder.
+Syncdrome simplifies the organization and search of your digital files on specific hard drives. Developed by Alejandro Aranda, it is an Electron application with React on the frontend and Node.js on the backend.
 
-- The server runs on [http://localhost:3000](http://localhost:3000) by default.
+As someone who tends to accumulate digital files in a disorganized manner, I felt the need to develop a tool that would simplify my digital life. Syncdrome was born out of my own experience as a self-proclaimed "digital Diogenes."
 
-## Contributions
+Syncdrome is an Electron application with React in the frontend and Node.js in the backend. This intuitive tool streamlines the search and organization of your files on specific hard drives. With a simple yet powerful interface, Syncdrome allows quick keyword searches and presents results organized by folders.
 
-Feel free to contribute and enhance the code. You can do so through pull requests.
-
-## License
+License
+-------
 
 This project is under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
+You can access the Syncdrome repository on [GitHub](https://github.com/alexwing/Syncdrome).
+
+### Contribute and Support
+
+If you find value in Syncdrome and want to contribute to its continuous development, consider making a donation on my [GitHub Sponsors](https://github.com/sponsors/alexwing) page. Your support is highly appreciated! 🚀✨
+
+GitHub Sponsors is a new way to support open-source developers contributing to projects like Syncdrome. If Syncdrome is a useful tool for you, consider supporting my work with a donation. Your support allows me to dedicate more time to open-source projects like this one.
+
+Copyleft © 2024 [Alejandro Aranda](https://aaranda.es/).
+
+### Issues
+
+Report any issues or suggestions related to this project on the [GitHub repository](https://github.com/alexwing/Syncdrome/issues).
