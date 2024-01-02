@@ -7,9 +7,6 @@ Syncdrome - Content Drives Finder App
 
 Syncdrome simplifies the organization and search of your digital files on specific hard drives.
 
-So it is possible to align images! You just have to use inline CSS to solve the problem. You can take an example from my GitHub repository. At the bottom of README.md there is a centered aligned image. For simplicity you can just do as follows:
-
-
 About
 -----
 
