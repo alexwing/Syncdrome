@@ -44,8 +44,6 @@ In the `Settings` section of the application menu, you can configure the working
 
 The working folder is stored within the application folder in the `resources\config.json` file. You can also configure file extensions to change the color of file icons or add new file extensions.
 
-jsonCopy code
-
 ```json
 {
   "folder": "C:\\myfolder",
