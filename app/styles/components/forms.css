@@ -115,13 +115,34 @@ textarea {
   margin-bottom: 2em;
 }
 
-.modal-title {
+/* Modal alert */
+
+.alert-message .modal-title {
   font-size: 2.5vh;
   margin: auto 1vh;
 }
-.modal-title-error {
+.alert-message .modal-title-error {
   font-size: 1.7vh;
   line-height: 1.7vh;
   font-weight: bold;
   margin: auto 1vh;
+}
+
+.alert-message .modal-body {
+  font-size: 1.7vh;
+  border-bottom-left-radius: var(--bs-modal-inner-border-radius);
+  border-bottom-right-radius: var(--bs-modal-inner-border-radius);
+}
+
+.alert-message .modal-content {
+  border-bottom-left-radius: var(--bs-modal-inner-border-radius);
+  border-bottom-right-radius: var(--bs-modal-inner-border-radius);
+}
+
+.alert-message .modal-header {
+  border-bottom: 0px;
+  padding: 0.5rem;
+}
+.alert-message .bg-success {
+  background-color: #7cac7c !important;
 }

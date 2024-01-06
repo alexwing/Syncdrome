@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import { AlertMessageProps, AlertModel } from "../models/Interfaces";
-
+import * as Icon from "react-bootstrap-icons";
 
 function AlertMessage({
   show = false,
@@ -39,6 +39,7 @@ function AlertMessage({
         size="sm"
         aria-labelledby="contained-modal-title-vcenter"
         centered
+        className="alert-message"
         animation={false}
       >
         <Modal.Header className={"bg-" + alert.type}>
@@ -49,10 +50,10 @@ function AlertMessage({
             {alert.title}
           </Modal.Title>
           <Button variant={alert.type} onClick={handleClose}>
-            <i className="close-icon"></i>
+            <Icon.X size={24} />
           </Button>
         </Modal.Header>
-        <Modal.Body className="bg-warning">{alert.message}</Modal.Body>
+        <Modal.Body>{alert.message}</Modal.Body>
       </Modal>
     </React.Fragment>
   );
