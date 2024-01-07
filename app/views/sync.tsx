@@ -55,7 +55,7 @@ const Sync = () => {
         getDrives();
         setAlert({
           title: "Success",
-          message: "Drive syncronized",
+          message: "Drive catalog syncronized",
           type: "success",
         });
         setShowAlert(true);
@@ -76,6 +76,12 @@ const Sync = () => {
     Api.deleteDrive(drive)
       .then((res) => {
         getDrives();
+        setAlert({
+          title: "Deleted",
+          message: "Drive catalog deleted",
+          type: "danger",
+        });
+        setShowAlert(true);
       })
       .catch((err) => {
         console.log(err);

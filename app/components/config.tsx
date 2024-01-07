@@ -20,12 +20,32 @@ const Comfig = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const newConfig = { folder };
-    await Api.saveSettings(newConfig);
-
-    //get result from api
-    const response = await Api.getSettings();
-    if (response.data.result !== "ok") {
+    Api.saveSettings(newConfig).then((response) => {
+      getConfig();
+      if (response.data.result === "error") {
+        setAlert({
+          title: "Error",
+          message: "Config file not saved: " + response.data.message,
+          type: "danger",
+        });
+        setShowAlert(true);
+        return;
+      }
+      setAlert({
+        title: "Success",
+        message: "Config file saved successfully",
+        type: "success",
+      });
+      setShowAlert(true);
     }
+    ).catch((error) => {
+      setAlert({
+        title: "Error",
+        message: "Config file not saved",
+        type: "danger",
+      });
+      setShowAlert(true);
+    });
   };
 
   const getConfig = async () => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import { AlertMessageProps, AlertModel } from "../models/Interfaces";
@@ -16,15 +16,30 @@ function AlertMessage({
 }: AlertMessageProps) : JSX.Element {
   const [showIn, setShowIn] = useState(false);
   const [alert, setAlert] = useState(alertMessage);
+  // Create a ref that will persist
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   //on load show modal
   useEffect(() => {
     setShowIn(show);
     setAlert(alertMessage);
     if (autoClose > 0) {
-      setTimeout(() => {
+      // Clear previous timer
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      // Create new timeout
+      timeoutRef.current = setTimeout(() => {
         setShowIn(false);
       }, autoClose);
     }
+
+    // Clear timeout if the component is unmounted
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, [show, alertMessage, autoClose]);
 
   function handleClose() {

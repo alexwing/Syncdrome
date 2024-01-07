@@ -146,3 +146,6 @@ textarea {
 .alert-message .bg-success {
   background-color: #7cac7c !important;
 }
+.alert-message .bg-danger {
+  background-color: #e47681 !important;
+}
