@@ -16,10 +16,10 @@ const About = () => {
     try {
       const response = await Api.getLatestVersion();
       // the tag_name property contains the version number of the latest release
-      return response.data.tag_name;
+      return response.data.tag_name.replace("v", "");
     } catch (error) {
       console.error(error);
-      return packageJson.version;
+      return packageJson.version.replace("v", "");
     }
   }
 
