@@ -16,6 +16,7 @@ import ProgressBar from "react-bootstrap/ProgressBar";
 import * as Icon from "react-bootstrap-icons";
 import { AlertModel, DrivesProps } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 const Sync = () => {
   const [drives, setDrives] = useState([]);
@@ -26,6 +27,8 @@ const Sync = () => {
     type: "danger",
   } as AlertModel);
   const [showAlert, setShowAlert] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [selectedDrive, setSelectedDrive] = useState("");
 
   useEffect(() => {
     getDrives();
@@ -70,6 +73,20 @@ const Sync = () => {
         });
         setShowAlert(true);
       });
+  };
+
+  const handleCloseConfirm = () => {
+    setShowConfirm(false);
+  };
+
+  const handleOKConfirm = () => {
+    setShowConfirm(false);
+    deleteDrive(selectedDrive);
+  };
+
+  const showDeleteDrive = (drive) => {
+    setSelectedDrive(drive);
+    setShowConfirm(true);
   };
 
   const deleteDrive = (drive) => {
@@ -186,6 +203,13 @@ const Sync = () => {
       className="sync"
     >
       {showAlertMessage}
+      <ConfirmDialog
+        title="Delete Catalog"
+        message="Are you sure you want to delete this drive catalog?"
+        show={showConfirm}
+        handleCancel={handleCloseConfirm}
+        handleOK={handleOKConfirm}
+      />
       <Breadcrumb className="mt-3">
         <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
         <Breadcrumb.Item active>Sync</Breadcrumb.Item>
@@ -291,7 +315,7 @@ const Sync = () => {
               {drive.sync && (
                 <Button
                   variant="danger"
-                  onClick={() => deleteDrive(drive.letter)}
+                  onClick={() => showDeleteDrive(drive.letter)}
                 >
                   <Icon.TrashFill color="white" size={16} />
                 </Button>

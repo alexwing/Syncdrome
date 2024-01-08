@@ -227,7 +227,7 @@ const Home = () => {
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       {showAlertMessage}
       <div className="centered pt-3">
-        <img src="./assets/logo.png" alt="logo" className="logo" />
+        <img src="./assets/icon.png" alt="logo" className="logo" />
         <h1>Syncdrome</h1>
       </div>
       <div className="container text-center pb-3">
