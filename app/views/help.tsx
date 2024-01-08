@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Breadcrumb, Container } from "react-bootstrap";
 import ReactMarkdown from 'react-markdown';
-import axios from 'axios';
+import Api from "../helpers/api";
 
 const Help = () => {
   const [markdown, setMarkdown] = useState('');
 
   useEffect(() => {
-    axios.get('/assets/helpEN.md').then(response => {
+    Api.getResource('/assets/helpEN.md').then(response => {
       setMarkdown(response.data);
     });
   }, []);

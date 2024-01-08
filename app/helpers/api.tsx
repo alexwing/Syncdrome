@@ -1,5 +1,6 @@
 import Axios from "axios";
-
+const repoOwner = "alexwing";
+const repoName = "Syncdrome";
 const Api = {
   /***
    * Find files in catalog by search param
@@ -78,5 +79,34 @@ const Api = {
   toogleMediaDrive(driveLetter, status) {
     return Axios.put(`/drives/${driveLetter}`, { onlyMedia: status });
   },
+
+  /***
+   * Get latest version from github
+   * @returns {object} - response from server
+   */
+  getLatestVersion() {
+    return Axios.get(
+      `https://api.github.com/repos/${repoOwner}/${repoName}/releases/latest`
+    );
+  },
+
+  /***
+   * Get commits from github
+   * @returns {object} - response from server
+   */
+  getCommits() {
+    return Axios.get(
+      `https://api.github.com/repos/${repoOwner}/${repoName}/commits?sha=main`
+    );
+  },
+
+  /*** get local resource 
+   * @param {string} path - path to resource
+   * @returns {object} - response from server
+   * */
+  getResource(path) {
+    return Axios.get(path);
+  },
+
 };
 export default Api;
