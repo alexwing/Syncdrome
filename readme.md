@@ -21,19 +21,14 @@ Installation
     
 2.  Clone this repository:
     
-    bashCopy code
-    
     `git clone https://github.com/alexwing/Syncdrome`
     
 3.  Navigate to the project directory:
-    
-    bashCopy code
     
     `cd Syncdrome`
     
 4.  Install the dependencies:
     
-    bashCopy code
     
     `npm install`
 
