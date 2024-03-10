@@ -84,7 +84,7 @@ const About = () => {
   }, []);
 
   const showLastVersion = () => {
-    if (latestVersion !== packageJson.version) {
+    if (latestVersion !== packageJson.version || !latestVersion) {
       return (
         <div>
           <h3>Latest Version</h3>

@@ -108,5 +108,16 @@ const Api = {
     return Axios.get(path);
   },
 
+  //    app.post("/bookmark", (req, res) => {
+
+  /***
+   * Add bookmark
+   * @param {object} bookmark - bookmark to add
+   * @returns {object} - response from server
+   */
+  addBookmark(bookmark) {
+    return Axios.post("/bookmark", bookmark);
+  }
+
 };
 export default Api;

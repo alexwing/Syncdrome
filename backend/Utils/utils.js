@@ -3,6 +3,27 @@ const cp = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
+
+/***
+ * Get the config SQLite file 
+  * if development, get from backend folder else get from root folder
+  * @returns {String} - The path of the config file
+  */
+const getSqlitePath = () => {
+  let configPath = "";
+  if (
+    process.env.NODE_ENV !== undefined &&
+    process.env.NODE_ENV.trim() === "development"
+  ) {
+    configPath = path.join(__dirname, "..", "..", "db.sqlite");
+  } else {
+    const exePath = electron.app.getPath("exe");
+    const exeDir = path.dirname(exePath);
+    configPath = path.join(exeDir, "resources",  "db.sqlite");
+  }
+  return configPath;
+}
+
 /***
  * Get the config from config.json
  * if development, get from backend folder else get from root folder
@@ -379,4 +400,5 @@ module.exports = {
   getConfig,
   saveConfig,
   getExtensionsByType,
+  getSqlitePath,
 };

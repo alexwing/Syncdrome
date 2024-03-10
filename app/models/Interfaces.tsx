@@ -44,6 +44,14 @@ export interface FileTypes {
   [key: string]: FileType;
 }
 
+export interface Bookmark {
+    id: Number | null;
+    name: string;
+    path: string;
+    volume: string;
+    description: string;
+}
+
 /*
 {
     "CrucialX6.txt": {

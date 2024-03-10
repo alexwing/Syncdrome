@@ -10,19 +10,30 @@ import {
   Spinner,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
-import { AlertModel, FileTypes, FileType, IFile } from "../models/Interfaces";
+import {
+  AlertModel,
+  FileTypes,
+  FileType,
+  IFile,
+  Bookmark,
+} from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import ExtensionSelect from "../components/ExtensionSelect";
+import AddBookmarkModal from "../components/AddBookmarkModal";
 
 const Home = () => {
   const initialSearchTerm = localStorage.getItem("searchTerm") || "";
   const initialExtSelected = localStorage.getItem("extSelected") || "";
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
-  const [extSelected, setExtSelected] = useState<string[]>(initialExtSelected ? initialExtSelected.split(",") : []);
+  const [extSelected, setExtSelected] = useState<string[]>(
+    initialExtSelected ? initialExtSelected.split(",") : []
+  );
   const [files, setFiles] = useState([]);
   const [found, setFound] = useState(true);
   const [fileIconMappings, setFileIconMappings] = useState({} as FileTypes);
   const [isLoading, setIsLoading] = useState(false);
+  const [bookmarkSelected, setBookmarkSelected] = useState({} as Bookmark);
+  const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
   const [alert, setAlert] = useState({
     title: "",
     message: "",
@@ -78,8 +89,9 @@ const Home = () => {
     e.preventDefault();
     setIsLoading(true);
     //ext selected transform to url param
-    const extSelectedUrl = extSelected.join("&") ? extSelected.join("&") : "all";
-
+    const extSelectedUrl = extSelected.join("&")
+      ? extSelected.join("&")
+      : "all";
 
     Api.getFind(searchTerm, extSelectedUrl)
       .then((res) => {
@@ -115,6 +127,7 @@ const Home = () => {
       });
     }
   };
+
   // open folder on click
   const onConnectedFolderHandler = (folder, driveLetter, event) => {
     event.preventDefault();
@@ -176,6 +189,38 @@ const Home = () => {
         </Badge>
       );
     }
+  };
+
+  //print button add to bookmark
+  const addBookmark = (item, key2, key, connected) => {
+    return (
+      <Badge
+        bg="none"
+        style={{
+          position: "absolute",
+          right: "-23px",
+          top: "8px",
+          width: "28px",
+          height: "28px",
+          cursor: "pointer",
+          color: "#af6619", // "#16ab9c"
+        }}
+        className="ms-4"
+        onClick={() => {
+          setBookmarkSelected({
+            id: null,
+            name: item.fileName,
+            path: key2,
+            volume: key,
+            description: "",
+          });
+          console.log("bookmarkSelected", bookmarkSelected);
+          setShowAddBookmarkModal(true);
+        }}
+      >
+        <Icon.BookmarkPlus size={16} />
+      </Badge>
+    );
   };
 
   //print count of files as  <Badge>
@@ -324,10 +369,16 @@ const Home = () => {
                             </Accordion.Header>
                             <Accordion.Body>
                               <ListGroup as="ul">
-                                {files[key].content[key2].map((item:IFile) => (
+                                {files[key].content[key2].map((item: IFile) => (
                                   <ListGroup.Item as="li" key={item.fileName}>
                                     {getIcon(item.extension)}
                                     {item.fileName}
+                                    {addBookmark(
+                                      item,
+                                      key2,
+                                      key,
+                                      files[key].connected
+                                    )}
                                     {files[key].connected &&
                                       openFile(
                                         item,
@@ -349,6 +400,11 @@ const Home = () => {
           </Accordion>
         )}
       </div>
+      <AddBookmarkModal
+        show={showAddBookmarkModal}
+        onHide={() => setShowAddBookmarkModal(false)}
+        bookmark={bookmarkSelected}
+      />      
     </Container>
   );
 };

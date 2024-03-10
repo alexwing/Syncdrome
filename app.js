@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const settings = require("./backend/settings");
 const search = require("./backend/search");
 const process = require("./backend/process");
+const bookmarks = require("./backend/bookmarks");
 
 const { ipcMain, dialog } = require("electron");
 
@@ -29,6 +30,7 @@ const port = 5000;
 settings(app);
 search(app);
 process(app);
+bookmarks(app);
 
 app.listen(port, () => {
   console.log(
