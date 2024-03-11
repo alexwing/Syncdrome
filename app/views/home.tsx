@@ -7,7 +7,9 @@ import {
   Button,
   Container,
   ListGroup,
+  OverlayTrigger,
   Spinner,
+  Tooltip,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 import {
@@ -96,7 +98,6 @@ const Home = () => {
     Api.getFind(searchTerm, extSelectedUrl)
       .then((res) => {
         setFiles(res.data);
-        console.log(res.data);
         if (Object.keys(res.data).length > 0) {
           setFound(true);
         } else {
@@ -193,7 +194,13 @@ const Home = () => {
 
   //print button add to bookmark
   const addBookmark = (item, key2, key, connected) => {
-    return (
+    const renderTooltip = (props) => (
+      <Tooltip id="button-tooltip" {...props}>
+        {item.bookmark.description}
+      </Tooltip>
+    );
+
+    const badge = (
       <Badge
         bg="none"
         style={{
@@ -203,23 +210,38 @@ const Home = () => {
           width: "28px",
           height: "28px",
           cursor: "pointer",
-          color: "#af6619", // "#16ab9c"
+          color: item.bookmark ? "#16ab9c" : "#cdcdcd",
         }}
         className="ms-4"
         onClick={() => {
-          setBookmarkSelected({
-            id: null,
-            name: item.fileName,
-            path: key2,
-            volume: key,
-            description: "",
-          });
-          console.log("bookmarkSelected", bookmarkSelected);
+          setBookmarkSelected(
+            item.bookmark
+              ? item.bookmark
+              : {
+                  id: null,
+                  name: item.fileName,
+                  path: key2,
+                  volume: key,
+                  description: "",
+                }
+          );
           setShowAddBookmarkModal(true);
         }}
       >
-        <Icon.BookmarkPlus size={16} />
+        <Icon.BookmarkPlusFill size={16} />
       </Badge>
+    );
+
+    return item.bookmark && item.bookmark.description ? (
+      <OverlayTrigger
+        placement="left"
+        delay={{ show: 250, hide: 400 }}
+        overlay={renderTooltip}
+      >
+        {badge}
+      </OverlayTrigger>
+    ) : (
+      badge
     );
   };
 
@@ -404,7 +426,7 @@ const Home = () => {
         show={showAddBookmarkModal}
         onHide={() => setShowAddBookmarkModal(false)}
         bookmark={bookmarkSelected}
-      />      
+      />
     </Container>
   );
 };

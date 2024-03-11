@@ -10,9 +10,10 @@ const url = require("url");
 let mainWindow;
 
 //require('electron-reload')(__dirname);
-//only fron require electron-reload in development mode at app folder
+//only fron require electron-reload in development mode at app folder and backend folder
 if (process.env.NODE_ENV !== undefined && process.env.NODE_ENV.trim() === "development") {
   require("electron-reload")(`${__dirname}/app`);
+  require("electron-reload")(`${__dirname}/backend`);
 }
 function createWindow() {
   //enabled showOpenDialog in renderer

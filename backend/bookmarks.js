@@ -30,26 +30,18 @@
  */
 
 
-const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
+const { connectToDb, getBookmarksFromDb } = require("./Utils/sqlite");
 
-const {
-    getSqlitePath,
-} = require("./Utils/utils");
+
 
 module.exports = function (app) {
     app.get("/bookmarks", (req, res) => {
-        const db = connectToDb();
-        let query = "SELECT * FROM bookmarks";
-        if (req.query.volume) {
-            query += ` WHERE volume = '${req.query.volume}'`;
-        }
-        db.all(query, [], (err, rows) => {
-            if (err) {
+        getBookmarksFromDb(req.query.volume)
+            .then(rows => res.json(rows))
+            .catch(err => {
                 throw err;
-            }
-            res.json(rows);
-        });
+            });
     });
 
     app.post("/bookmark", (req, res) => {
@@ -74,34 +66,4 @@ module.exports = function (app) {
             res.json({ deletedId: req.params.id });
         });
     });
-}
-
-function connectToDb() {
-    const sqlitePath = getSqlitePath();
-    let exist = true;
-    if (!fs.existsSync(sqlitePath)) {
-        fs.writeFileSync(sqlitePath, "");
-        exist = false;
-    }
-    const db = new sqlite3.Database(sqlitePath, (err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Connected to the bookmarks database.');
-    });
-    if (!exist) {
-        db.run(`CREATE TABLE bookmarks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            path TEXT NOT NULL,
-            volume TEXT,
-            description TEXT
-        )`, (err) => {
-            if (err) {
-                console.error(err.message);
-            }
-            console.log('Table bookmarks created.');
-        });
-    }
-    return db;
 }
