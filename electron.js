@@ -1,4 +1,5 @@
 const electron = require("electron");
+
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const server = require("./app");
@@ -8,6 +9,11 @@ const url = require("url");
 
 let mainWindow;
 
+//require('electron-reload')(__dirname);
+//only fron require electron-reload in development mode at app folder
+if (process.env.NODE_ENV !== undefined && process.env.NODE_ENV.trim() === "development") {
+  require("electron-reload")(`${__dirname}/app`);
+}
 function createWindow() {
   //enabled showOpenDialog in renderer
   mainWindow = new BrowserWindow({ width: 800, height: 600, webPreferences: { nodeIntegration: true, contextIsolation: false

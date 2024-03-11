@@ -4,7 +4,7 @@
   "description": "Create a catalog of all files on specified hard drives",
   "main": "electron.js",
   "scripts": {
-    "dev": "set NODE_ENV=development && concurrently \"webpack  --watch\" \"electron .\"",
+    "dev": "set NODE_ENV=development && concurrently \"webpack --watch\" \"electron --inspect .\"",
     "build": "rimraf ./public && mkdir public && webpack --progress -p",
     "windows": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=app/assets/icon.png --prune=true --out=release-builds",
     "windows-asar": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=app/assets/icon.png --prune=true --asar --out=release-builds --extra-resource=config.json",
@@ -56,6 +56,7 @@
     "classnames": "2.2.6",
     "core-js": "^3.34.0",
     "dotenv": "8.2.0",
+    "electron-reload": "^2.0.0-alpha.1",
     "express": "4.17.1",
     "morgan": "^1.10.0",
     "node-sass": "^7.0.1",

@@ -4,6 +4,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Api from "../helpers/api";
 import { Bookmark } from "../models/Interfaces";
+import { Col, Row } from "react-bootstrap";
 
 function AddBookmarkModal({ show = false, onHide, bookmark }) {
   const [bookmarkLocal, setBookmarkLocal] = useState({} as Bookmark);
@@ -48,51 +49,49 @@ function AddBookmarkModal({ show = false, onHide, bookmark }) {
           Añadir Bookmark
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body className="m-0 p-0">
         <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="bookmarkName">
-            <Form.Label>Nombre</Form.Label>
-            <Form.Control
-              type="text"
-              name="name"
-              value={bookmarkLocal.name}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-          <Form.Group controlId="bookmarkPath">
-            <Form.Label>Ruta</Form.Label>
-            <Form.Control
-              type="text"
-              name="path"
-              value={bookmarkLocal.path}
-              readOnly
-            />
-          </Form.Group>
-          <Form.Group controlId="bookmarkVolume">
-            <Form.Label>Volumen</Form.Label>
-            <Form.Control
-              type="text"
-              name="volume"
-              value={bookmarkLocal.volume}
-              readOnly
-            />
-          </Form.Group>
-          <Form.Group controlId="bookmarkDescription">
-            <Form.Label>Descripción</Form.Label>
-            <Form.Control
-              type="text"
-              name="description"
-              value={bookmarkLocal.description}
-              onChange={handleChange}
-            />
-          </Form.Group>
-          <Button variant="primary" type="submit">
-            Añadir
-          </Button>
-          <Button variant="secondary" onClick={handleClose} className="ml-2">
-            Cancelar
-          </Button>
+          <Row className="p-3 m-0 text-white bg-dark">
+            <Col xs={10}>
+              <Form.Group controlId="bookmarkName">
+                <Form.Label className="text-white-50 fs-6 fw-bold">
+                  File
+                </Form.Label>
+                <Form.Text className="text-white">
+                  {bookmarkLocal.name}
+                </Form.Text>
+              </Form.Group>
+            </Col>
+            <Col xs={2}>
+              <Form.Group controlId="bookmarkVolume">
+                <Form.Label className="text-white-50 fs-6 fw-bold">
+                  Volume
+                </Form.Label>
+                <Form.Text className="text-white">
+                  {bookmarkLocal.volume}
+                </Form.Text>
+              </Form.Group>
+            </Col>
+          </Row>
+          <div className="p-3">
+            <Form.Group controlId="bookmarkDescription">
+              <Form.Label className="text-black-50 fs-6 fw-bold">
+                Description
+              </Form.Label>
+              <Form.Control
+                as="textarea"
+                name="description"
+                value={bookmarkLocal.description}
+                onChange={handleChange}
+              />
+            </Form.Group>
+            <Button variant="primary" type="submit" className="me-2">
+              Add
+            </Button>
+            <Button variant="secondary" onClick={handleClose}>
+              Cancelar
+            </Button>
+          </div>
         </Form>
       </Modal.Body>
     </Modal>
