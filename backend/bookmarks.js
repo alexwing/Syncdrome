@@ -31,7 +31,7 @@
 
 
 const fs = require('fs');
-const { connectToDb, getBookmarksFromDb } = require("./Utils/sqlite");
+const { connectToDb, getBookmarksFromDb, upsertBookmark } = require("./Utils/sqlite");
 
 
 
@@ -45,14 +45,14 @@ module.exports = function (app) {
     });
 
     app.post("/bookmark", (req, res) => {
-        const db = connectToDb();
-        const { name, path, volume, description } = req.body;
-        const stmt = db.prepare("INSERT INTO bookmarks (name, path, volume, description) VALUES (?, ?, ?, ?)");
-        stmt.run([name, path, volume, description], function(err) {
+
+        upsertBookmark(req.body, (err, result) => {
             if (err) {
-                return console.error(err.message);
+                console.error(err.message);
+                res.status(500).send(err.message);
+            } else {
+                res.json(result);
             }
-            res.json({ id: this.lastID, name, path, volume, description });
         });
     });
 

@@ -64,7 +64,30 @@ const getBookmarksFromDb = (volume) => {
   });
 };
 
+const upsertBookmark = ( bookmark, callback) => {
+  const db = connectToDb();
+  const { id, name, path, volume, description } = bookmark;
+  if (id) {
+      const stmt = db.prepare("UPDATE bookmarks SET name = ?, path = ?, volume = ?, description = ? WHERE id = ?");
+      stmt.run([name, path, volume, description, id], function(err) {
+          if (err) {
+              return callback(err);
+          }
+          callback(null, { id, name, path, volume, description });
+      });
+  } else {
+      const stmt = db.prepare("INSERT INTO bookmarks (name, path, volume, description) VALUES (?, ?, ?, ?)");
+      stmt.run([name, path, volume, description], function(err) {
+          if (err) {
+              return callback(err);
+          }
+          callback(null, { id: this.lastID, name, path, volume, description });
+      });
+  }
+}
+
 module.exports = {
   connectToDb,
   getBookmarksFromDb,
+  upsertBookmark,
 };

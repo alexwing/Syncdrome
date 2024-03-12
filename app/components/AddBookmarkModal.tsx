@@ -74,7 +74,7 @@ function AddBookmarkModal({ show = false, onHide, bookmark }) {
             </Col>
           </Row>
           <div className="p-3">
-            <Form.Group controlId="bookmarkDescription">
+            <Form.Group controlId="bookmarkDescription" className="mb-3">
               <Form.Label className="text-black-50 fs-6 fw-bold">
                 Description
               </Form.Label>
@@ -86,7 +86,7 @@ function AddBookmarkModal({ show = false, onHide, bookmark }) {
               />
             </Form.Group>
             <Button variant="primary" type="submit" className="me-2">
-              Add
+              Ok
             </Button>
             <Button variant="secondary" onClick={handleClose}>
               Cancelar
