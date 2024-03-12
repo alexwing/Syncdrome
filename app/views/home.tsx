@@ -30,7 +30,7 @@ const Home = () => {
   const [extSelected, setExtSelected] = useState<string[]>(
     initialExtSelected ? initialExtSelected.split(",") : []
   );
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState({} as FileType);
   const [found, setFound] = useState(true);
   const [fileIconMappings, setFileIconMappings] = useState({} as FileTypes);
   const [isLoading, setIsLoading] = useState(false);
@@ -290,6 +290,33 @@ const Home = () => {
     localStorage.setItem("extSelected", values.join(","));
   };
 
+  /***
+   *  Add bookmark to file
+   *  @param bookmark
+   *  This function is called when the user adds a bookmark to a file
+   *  It updates the file state with the new bookmark
+   */
+  const onAddBookmarkHandler = (bookmark) => {
+    setBookmarkSelected(bookmark);
+    setFiles((prevFiles) => {
+      const newFiles = { ...prevFiles };
+      if (!newFiles[bookmark.volume]) {
+        console.error(`Volume ${bookmark.volume} does not exist in files`);
+        return prevFiles;
+      }
+      const fileIndex = newFiles[bookmark.volume].content[
+        bookmark.path
+      ].findIndex((file) => file.fileName === bookmark.name);
+      if (fileIndex !== -1) {
+        newFiles[bookmark.volume].content[bookmark.path][fileIndex] = {
+          ...newFiles[bookmark.volume].content[bookmark.path][fileIndex],
+          bookmark,
+        };
+      }
+      return newFiles;
+    });
+  };
+
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       {showAlertMessage}
@@ -426,6 +453,7 @@ const Home = () => {
         show={showAddBookmarkModal}
         onHide={() => setShowAddBookmarkModal(false)}
         bookmark={bookmarkSelected}
+        onAddBookmark={onAddBookmarkHandler}
       />
     </Container>
   );

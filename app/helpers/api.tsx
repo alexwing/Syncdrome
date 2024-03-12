@@ -117,7 +117,14 @@ const Api = {
    */
   addBookmark(bookmark) {
     return Axios.post("/bookmark", bookmark);
-  }
+  },
+  /***
+   * Get bookmarks
+   * @returns {object} - response from server
+   */
+  getBookmarks() {
+    return Axios.get("/bookmarks");
+  },
 
 };
 export default Api;

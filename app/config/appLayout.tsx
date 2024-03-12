@@ -7,6 +7,7 @@ import Help from "../views/help";
 import About from "../views/about";
 import Settings from "../views/settings";
 import Sync from "../views/sync";
+import bookmarks from "../views/bookmarks";
 
 const AppLayout = () => {
 
@@ -19,6 +20,7 @@ const AppLayout = () => {
       <Navbar />
       <Route path="/" exact component={Home} />
       <Route path="/sync" component={Sync} />
+      <Route path="/bookmarks" component={bookmarks} />
       <Route path="/settings" component={Settings} />
       <Route path="/help" component={Help} />
       <Route path="/about" component={About} />

@@ -43,6 +43,13 @@ const Navbar = () => {
         }}
       />
       <NavBarLink
+        text="Bookmarks"
+        icon={<i className="icons10-bookmark"></i>}
+        onClick={() => {
+          history.push("/bookmarks");
+        }}
+      />      
+      <NavBarLink
         text="Settings"
         icon={<i className="icons10-settings"></i>}
         onClick={() => {

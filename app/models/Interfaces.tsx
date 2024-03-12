@@ -1498,6 +1498,7 @@ export interface IFile {
     fileName: string;
     folder: string;
     extension: string;
+    bookmark?: Bookmark;
 }
 
 export interface IFileList {

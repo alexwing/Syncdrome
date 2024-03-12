@@ -6,7 +6,7 @@ import Api from "../helpers/api";
 import { Bookmark } from "../models/Interfaces";
 import { Col, Row } from "react-bootstrap";
 
-function AddBookmarkModal({ show = false, onHide, bookmark }) {
+function AddBookmarkModal({ show = false, onHide, bookmark , onAddBookmark }) {
   const [bookmarkLocal, setBookmarkLocal] = useState({} as Bookmark);
 
   useEffect(() => {
@@ -20,8 +20,9 @@ function AddBookmarkModal({ show = false, onHide, bookmark }) {
   async function handleSubmit(event) {
     event.preventDefault();
     try {
-      await Api.addBookmark(bookmarkLocal);
+      const result = await Api.addBookmark(bookmarkLocal);
       onHide();
+      onAddBookmark(result.data);
     } catch (error) {
       console.error(error);
     }
@@ -46,7 +47,7 @@ function AddBookmarkModal({ show = false, onHide, bookmark }) {
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          Añadir Bookmark
+          {bookmarkLocal.id ? "Edit" : "Add"} Bookmark
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="m-0 p-0">
