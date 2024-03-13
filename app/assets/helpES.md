@@ -100,7 +100,11 @@ Los discos que estan conectados al equipo, se muestran con un icono de `ok` verd
 
 Adicionalmente, se puede filtrar por archivos multimedia, para ello, puede seleccionar uno o varios tipos de archivos en el selector y hacer clic en el botón `Search`.
 
+A la derecha de los archivos, se muestra un icono para añadir a favoritos, que permite añadir el archivo a la lista de favoritos, que se muestra en la sección `Bookmarks` del menú de la aplicación. Este favorito además permite un comentario.
 
+### Favoritos
 
+En la sección `Bookmarks` del menú de la aplicación, se muestra una lista de los archivos favoritos, permite filtrar por nombre del archivo y por comentario. Además se puede eliminar el favorito, pulsando el icono de la papelera.
 
+Los favoritos se almacenan en una base de datos SQLite, en la carpeta de la aplicación, en el fichero `db.sqlite`.
 

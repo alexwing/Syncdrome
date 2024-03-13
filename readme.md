@@ -70,6 +70,14 @@ To search for a file, simply enter a keyword in the search field and press `Ente
 
 Connected drives are shown with a green `ok` icon. For folders and files on connected drives, an `Open` button is displayed, allowing you to open the file with the system's default program or show the folder in the file explorer.
 
+To the right of the files, an icon is displayed to add to favorites, which allows you to add the file to the favorites list, which is displayed in the `Bookmarks` section of the application menu. This favorite also allows a comment.
+
+### Bookmarks
+
+In the `Bookmarks` section of the application menu, a list of favorite files is displayed, allowing you to filter by file name and comment. You can also delete the favorite by clicking the trash can icon.
+
+Favorites are stored in an SQLite database, in the application folder, in the `db.sqlite` file.
+
 Batch File Version
 ------------------
 

@@ -97,3 +97,10 @@ Drives that are connected to the computer are displayed with a green `ok` icon. 
 
 Additionally, you can filter by multimedia files, for this, you can select one or several types of files in the selector and click on the `Search` button.
 
+To the right of the files, an icon is displayed to add to favorites, which allows you to add the file to the favorites list, which is displayed in the `Bookmarks` section of the application menu. This favorite also allows a comment.
+
+### Bookmarks
+
+In the `Bookmarks` section of the application menu, a list of favorite files is displayed, allowing you to filter by file name and comment. You can also delete the favorite by clicking the trash can icon.
+
+Favorites are stored in an SQLite database, in the application folder, in the `db.sqlite` file.
