@@ -1,11 +1,8 @@
-/* 
-This file list all the bookmarks agrouped by volume and file. It also has a search bar to filter the bookmarks by name.
-*/
-
 import { useEffect, useState } from "react";
 import { Breadcrumb, Card, Col, Form, Row } from "react-bootstrap";
 import { Bookmark } from "../models/Interfaces";
 import React from "react";
+import * as Icon from "react-bootstrap-icons";
 import {
   Accordion,
   Alert,
@@ -13,11 +10,10 @@ import {
   Button,
   Container,
   ListGroup,
-  OverlayTrigger,
   Spinner,
-  Tooltip,
 } from "react-bootstrap";
 import Api from "../helpers/api";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 interface bookmarksByVolume {
   volume: string;
@@ -33,9 +29,14 @@ const bookmarks = () => {
     [] as bookmarksByVolume[]
   );
   const [loading, setLoading] = useState(true);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [bookmarkToDelete, setBookmarkToDelete] = useState<Number | null>(null);
+  
 
-  useEffect(() => {
+  const loadBookmarks = async () => {
+    setLoading(true);
     Api.getBookmarks().then((response) => {
+      console.log(response.data);
       const volumes = response.data
         .map((bookmark) => bookmark.path.split("\\")[0])
         .filter((value, index, self) => self.indexOf(value) === index);
@@ -48,12 +49,26 @@ const bookmarks = () => {
         };
       });
       setBookmarksByVolume(bookmarksByVolume);
-      setBookmarksByVolumeFiltered(bookmarksByVolume);
+      filterBookmarks(bookmarksByVolume);
+      setLoading(false);
+    }).finally(() => {
       setLoading(false);
     });
+  };
+
+  const deleteBookmark = (id: Number | null) => {
+    if (id === null) {
+      return;
+    }
+    Api.deleteBookmark(id).then(() => {
+      loadBookmarks();
+    });
+  };
+  useEffect(() => {
+    loadBookmarks();
   }, []);
 
-  useEffect(() => {
+  const filterBookmarks = (bookmarksByVolume) => {
     if (search === "" || search === null) {
       setBookmarksByVolumeFiltered(bookmarksByVolume);
       return;
@@ -75,10 +90,22 @@ const bookmarks = () => {
       }
     });
     setBookmarksByVolumeFiltered(filteredBookmarks);
+  };
+  useEffect(() => {
+    filterBookmarks(bookmarksByVolume);
   }, [search]);
 
+  const handleOK = () => {
+    setShowConfirmDialog(false);
+    deleteBookmark(bookmarkToDelete);
+  };
+
+  const handleCancel = () => {
+    setShowConfirmDialog(false);
+  };
+
   return (
-    <Container style={{ overflowY: "scroll", height: "100vh" }}>
+    <Container style={{ overflowY: "scroll", height: "100vh" }}>    
       <Breadcrumb className="mt-3">
         <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
         <Breadcrumb.Item active>Bookmarks</Breadcrumb.Item>
@@ -96,6 +123,18 @@ const bookmarks = () => {
           </Form.Group>
         </Col>
       </Row>
+      {!loading && bookmarksByVolumeFiltered.length === 0 && (
+          <Alert variant="warning" className="text-center">
+            <h3>
+              <Icon.ExclamationTriangleFill
+                size={30}
+                className="me-3"
+                color="orange"
+              />
+              No bookmarks found
+            </h3>
+          </Alert>
+        )}        
       {loading && (
         <Spinner animation="border" role="status">
           <span className="visually-hidden">Loading...</span>
@@ -115,8 +154,19 @@ const bookmarks = () => {
                       key={`bookmark-${bookmarkIndex}`}
                       className="d-flex justify-content-between"
                     >
-                      <span><small>{bookmark.path}\</small><strong>{bookmark.name}</strong></span>
-                      <Badge bg="secondary">{bookmark.description}</Badge>
+                      <span>
+                        <small>{bookmark.path}\</small>
+                        <strong>{bookmark.name}</strong>
+                      </span>
+                      <div>
+                        <Badge bg="secondary" className="me-2">{bookmark.description}</Badge>
+                        <Button
+                          variant="link"
+                          onClick={() => { setShowConfirmDialog(true); setBookmarkToDelete(bookmark.id); }}
+                        >
+                          <Icon.Trash color="red" size={20} />
+                        </Button>
+                      </div>
                     </ListGroup.Item>
                   ))}
                 </ListGroup>
@@ -125,6 +175,13 @@ const bookmarks = () => {
           ))}
         </Col>
       </Row>
+      <ConfirmDialog
+        title="Delete bookmark"
+        message="Are you sure you want to delete this bookmark?"
+        show={showConfirmDialog}
+        handleOK={handleOK}
+        handleCancel={handleCancel}
+      />      
     </Container>
   );
 };

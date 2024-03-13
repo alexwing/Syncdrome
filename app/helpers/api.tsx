@@ -7,7 +7,8 @@ const Api = {
    * @param {string} searchParam - search param
    * @returns {object} - response from server
    */
-  getFind: (searchParam, extSelected) => Axios.get(`/find/${searchParam}/${extSelected}`),
+  getFind: (searchParam, extSelected) =>
+    Axios.get(`/find/${searchParam}/${extSelected}`),
 
   getDrives: () => Axios.get("/drives"),
 
@@ -100,7 +101,7 @@ const Api = {
     );
   },
 
-  /*** get local resource 
+  /*** get local resource
    * @param {string} path - path to resource
    * @returns {object} - response from server
    * */
@@ -108,7 +109,6 @@ const Api = {
     return Axios.get(path);
   },
 
-  //    app.post("/bookmark", (req, res) => {
 
   /***
    * Add bookmark
@@ -126,5 +126,13 @@ const Api = {
     return Axios.get("/bookmarks");
   },
 
+  /***
+   * Delete bookmark
+   * @param {string} id - bookmark id
+   * @returns {object} - response from server
+   */
+  deleteBookmark(id) {
+    return Axios.delete(`/bookmark/${id}`);
+  }
 };
 export default Api;
