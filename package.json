@@ -7,7 +7,9 @@
     "dev": "set NODE_ENV=development && concurrently \"webpack --watch\" \"electron --inspect .\"",
     "build": "rimraf ./public && mkdir public && webpack --progress -p",
     "windows": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=app/assets/icon.png --prune=true --out=release-builds",
+    "windows64": "electron-packager . --overwrite --platform=win32 --arch=x64 --icon=app/assets/icon.png --prune=true --out=release-builds",
     "windows-asar": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=app/assets/icon.png --prune=true --asar --out=release-builds --extra-resource=config.json",
+    "windows64-asar": "electron-packager . --overwrite --platform=win32 --arch=x64 --icon=app/assets/icon.png --prune=true --asar --out=release-builds --extra-resource=config.json",
     "linux": "electron-packager . --overwrite --platform=linux --arch=x64 --icon=app/assets/icon.png --prune=true --out=release-builds"
   },
   "repository": "https://github.com/alexwing/content-drives-finder",
