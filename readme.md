@@ -139,6 +139,8 @@ If you find value in Syncdrome and want to contribute to its continuous developm
 
 GitHub Sponsors is a new way to support open-source developers contributing to projects like Syncdrome. If Syncdrome is a useful tool for you, consider supporting my work with a donation. Your support allows me to dedicate more time to open-source projects like this one.
 
+If you like Syncdrome, please consider leaving a review on [Product Hunt](https://www.producthunt.com/posts/syncdrome?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-syncdrome). Your feedback is highly appreciated! 🚀✨
+
 Copyleft © 2024 [Alejandro Aranda](https://aaranda.es/).
 
 ### Issues
