@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Badge,
   Breadcrumb,
   Button,
   Card,
@@ -30,6 +31,25 @@ function ChatRtx() {
         .then((response) => {
           setLoading(false);
           console.log("Respuesta del servidor:", response);
+          //extract <br>Reference files:<br>ExternoHP.txt
+          const filesContent = response.match(/<br>Reference files:<br>(.*)/);
+          //remove after  <br>Reference files:<br> from response
+          response = response.replace(/<br>Reference files:<br>(.*)/, "");
+          if (filesContent.length > 1) {
+            console.log("filesContent:", filesContent[1]);
+            //split the files by <br>
+            const fileNames = filesContent[1].split("<br>");
+            if (fileNames.length > 0) {
+              // remove .txt from the file names
+              fileNames.forEach((file, i) => {
+                fileNames[i] = file.replace(".txt", "");
+              });
+            } else {
+              fileNames.push(filesContent[1].replace(".txt", ""));
+            }
+            console.log("fileNames:", fileNames);
+            setFiles(fileNames);
+          }
           setResponse(response);
         })
         .catch((error) => {
@@ -40,6 +60,25 @@ function ChatRtx() {
     }
   };
 
+  // component to show the files
+  // <Badge bg="secondary" className="me-2">{file}</Badge>
+  const Files = () => {
+    return (
+      <div>
+        {files && Array.isArray(files)
+          ? files.map((file, i) => (
+              <Badge key={i} bg="secondary" className="me-2 p-2 fs-6">
+                  <Icon.DeviceHddFill
+                    size={20}
+                    className="me-2"
+                  />                
+                {file.toString()}
+              </Badge>
+            ))
+          : null}
+      </div>
+    );
+  };
 
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
@@ -110,6 +149,7 @@ function ChatRtx() {
                   </span>
                 ))}
               </Card.Text>
+              {Files()}
             </Card.Body>
           </Card>
         </Col>
