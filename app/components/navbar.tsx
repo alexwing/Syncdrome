@@ -50,6 +50,13 @@ const Navbar = () => {
         }}
       />      
       <NavBarLink
+        text="Chat"
+        icon={<i className="icons10-chat"></i>}
+        onClick={() => {
+          history.push("/chat");
+        }}
+      ></NavBarLink>
+      <NavBarLink
         text="Settings"
         icon={<i className="icons10-settings"></i>}
         onClick={() => {
