@@ -18,7 +18,7 @@ function ChatRtx() {
     "Can you give me the list of Asimov's books?"
   );
   const [response, setResponse] = useState("");
-  const [port, setPort] = useState(11365); // Reemplazar con el puerto correcto
+  const [port, setPort] = useState(8101); // Reemplazar con el puerto correcto
   const [files, setFiles] = useState([] as File[]);
   const [loading, setLoading] = useState(false);
 
@@ -68,10 +68,7 @@ function ChatRtx() {
         {files && Array.isArray(files)
           ? files.map((file, i) => (
               <Badge key={i} bg="secondary" className="me-2 p-2 fs-6">
-                  <Icon.DeviceHddFill
-                    size={20}
-                    className="me-2"
-                  />                
+                <Icon.DeviceHddFill size={20} className="me-2" />
                 {file.toString()}
               </Badge>
             ))
@@ -88,7 +85,7 @@ function ChatRtx() {
       </Breadcrumb>
       <h2>Chat</h2>
       <Row className="p-3 m-0">
-        <Col xs={9} className="p-0">
+        <Col xs={12} className="p-0">
           <Form.Group controlId="search">
             <Form.Label>Message</Form.Label>
             <Form.Control
@@ -100,7 +97,8 @@ function ChatRtx() {
             />
           </Form.Group>
         </Col>
-        <Col xs={3}>
+        {/* set visibility if not pre-configured port in the server */}
+        <Col xs={3} style={{ display: "none" }}>
           <Form.Group controlId="port" className="mb-3">
             <Form.Label>Port</Form.Label>
             <Form.Control

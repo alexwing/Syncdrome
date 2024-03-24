@@ -1,5 +1,4 @@
-import * as request from 'request';
-import * as crypto from 'crypto';
+import axios from 'axios';
 
 interface PythonObject {
     data: any[];
@@ -24,59 +23,50 @@ class chatApi {
     }
 
     private generateSessionHash(): string {
-        return crypto.randomBytes(5).toString('hex');
+        const array = new Uint32Array(5);
+        window.crypto.getRandomValues(array);
+        return Array.from(array).map(val => val.toString(16)).join('');
     }
+    private async joinQueue(sessionHash: string, fnIndex: number, chatData: any[]): Promise<void> {
+        console.log("joinQueue:", sessionHash, fnIndex, chatData);
+        const pythonObject: PythonObject = {
+            data: chatData,
+            event_data: null,
+            fn_index: fnIndex,
+            trigger_id: 46,
+            session_hash: sessionHash
+        };
 
-    private joinQueue(sessionHash: string, fnIndex: number, chatData: any[]): Promise<void> {
-        console.log("joinQueue");
-        return new Promise((resolve, reject) => {
-            const pythonObject: PythonObject = {
-                data: chatData,
-                event_data: null,
-                fn_index: fnIndex,
-                trigger_id: 46,
-                session_hash: sessionHash
-            };
+        const url = `${this.baseUrl}/queue/join?__theme=dark`;
 
-            const jsonString = JSON.stringify(pythonObject);
-
-            const url = `${this.baseUrl}/queue/join?__theme=dark`;
-
-            request.post(url, { body: jsonString }, (error, response) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve();
-                }
-            });
-        });
+        try {
+            await axios.post(url, pythonObject);
+        } catch (error) {
+            throw error;
+        }
     }
 
     private async listenForUpdates(sessionHash: string): Promise<any> {
         const url = `${this.baseUrl}/queue/data?session_hash=${sessionHash}`;
-        return new Promise((resolve, reject) => {
-            request.get(url, { json: true }, (error, response, body) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    const lines: string[] = body.split('\n');
-                    for (const line of lines) {
-                        if (line) {
-                            try {
-                                const data: QueueData = JSON.parse(line.slice(5));
-                                if (data.msg === 'process_completed') {
-                                    resolve(data.output.data[0][0][1]);
-                                    return;
-                                }
-                            } catch (e) {
-                                // Ignore parsing errors
-                            }
+        try {
+            const response = await axios.get(url);
+            const lines: string[] = response.data.split('\n');
+            for (const line of lines) {
+                if (line) {
+                    try {
+                        const data: QueueData = JSON.parse(line.slice(5));
+                        if (data.msg === 'process_completed') {
+                            return data.output.data[0][0][1];
                         }
+                    } catch (e) {
+                        // Ignore parsing errors
                     }
-                    resolve('');
                 }
-            });
-        });
+            }
+            return '';
+        } catch (error) {
+            throw error;
+        }
     }
 
     async sendMessage(message: string): Promise<any> {
