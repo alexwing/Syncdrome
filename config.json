@@ -1,5 +1,6 @@
 {
   "folder": "C:\\Users\\Windows\\Mi unidad\\Software\\DiscosDuros",
+  "NODE_ENV": "production",
   "extensions": {
     "document": {
       "icon": "File",

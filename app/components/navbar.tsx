@@ -1,11 +1,18 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { NavBar, NavBarThemeSwitch, NavBarLink } from "react-windows-ui";
 import { ThemeContext } from "../context/themeContext";
+import Api from "../helpers/api";
+import { Settings } from "../models/Interfaces";
 
 const Navbar = () => {
   const history = useHistory();
   const { theme, setLightTheme, setDarkTheme } = useContext(ThemeContext);
+  const [config, setConfig] = useState({
+    folder: "",
+    NODE_ENV: "",
+    extensions: {},
+  } as Settings);
 
   const setTheme = () => {
     if (theme === "light") {
@@ -14,6 +21,15 @@ const Navbar = () => {
       setLightTheme();
     }
   };
+
+  //useEffect config
+
+  useEffect(() => {
+    //get local config from api
+    Api.getSettings().then((response) => {
+      setConfig(response.data);
+    });
+  }, []);
 
   return (
     <NavBar
@@ -49,7 +65,7 @@ const Navbar = () => {
           history.push("/bookmarks");
         }}
       />
-      {process.env.NODE_ENV === "development" && (
+      {config.NODE_ENV === "development" && (
         <NavBarLink
           text="Chat"
           icon={<i className="icons10-chat"></i>}
