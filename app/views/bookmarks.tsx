@@ -34,6 +34,8 @@ const bookmarks = () => {
   const [bookmarkToDelete, setBookmarkToDelete] = useState<Number | null>(null);
   const [bookmarkSelected, setBookmarkSelected] = useState({} as Bookmark);
   const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
+  const [drives, setDrives] = useState([]);
+
   const [alert, setAlert] = useState({
     title: "",
     message: "",
@@ -41,19 +43,40 @@ const bookmarks = () => {
   } as AlertModel);
   const [showAlert, setShowAlert] = useState(false);
 
+  /***
+ *  Load bookmarks from server
+ * [
+    {
+        "id": 6,
+        "name": "Padre.de.familia.12x13.Tres.actos.de.fuerza.mayor.(Spanish.English.Subs).WEB-DL.1080p.x264-AAC.by.mokesky.(hispashare.org).mkv",
+        "path": "Backup\\Pendiente\\Padre de familia\\no vistos",
+        "volume": "HD",
+        "description": "Ultimo visto prueba de texto muy largo, pero lo quiero más largo todavia, y más y más largo, tanto que no quepa, por que te quieres ir por ahi, si yo no puedo caber tu tampoco pedazo de bestia inhumana"
+    },
+    {
+        "id": 7,
+        "name": "Oppenheimer (2023).mkv",
+        "path": "Peliculas",
+        "volume": "Peliculas",
+        "description": "Vista le doy un 7"
+    }
+]
+ */
+
   const loadBookmarks = async () => {
     setLoading(true);
     Api.getBookmarks()
       .then((response) => {
         console.log(response.data);
         const volumes = response.data
-          .map((bookmark) => bookmark.path.split("\\")[0])
-          .filter((value, index, self) => self.indexOf(value) === index);
+          .map((bookmark) => bookmark.volume)
+          .filter((value, index, self) => self.indexOf(value) === index)
+          .sort();
         const bookmarksByVolume = volumes.map((volume) => {
           return {
             volume: volume,
             bookmarks: response.data.filter((bookmark) =>
-              bookmark.path.startsWith(volume)
+              bookmark.volume.includes(volume)
             ),
           };
         });
@@ -76,7 +99,24 @@ const bookmarks = () => {
   };
   useEffect(() => {
     loadBookmarks();
+    getDrives();
   }, []);
+
+  const getDrives = () => {
+    Api.getDrives()
+      .then((res) => {
+        setDrives(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        setAlert({
+          title: "Error",
+          message: "Error getting drives list, verify if config file exists",
+          type: "danger",
+        });
+        setShowAlert(true);
+      });
+  };
 
   const filterBookmarks = (bookmarksByVolume) => {
     if (search === "" || search === null) {
@@ -124,6 +164,42 @@ const bookmarks = () => {
 
   const handleCancel = () => {
     setShowConfirmDialog(false);
+  };
+
+  //open file in windows explorer
+  const onConnectedElementHandler = (bookmark) => {
+    const driveLetter = drives.find(
+      (drive: any) => drive.name === bookmark.volume
+    ) as any;
+    if (driveLetter) {
+      Api.openFile(bookmark.name, bookmark.path, driveLetter.letter).then(
+        (res) => {
+          console.log(res);
+        }
+      );
+    }
+  };
+
+  //button to open file in windows explorer
+  const openFile = (bookmark) => {
+    //check if drive is connected
+    const driveLetter = drives.find(
+      (drive: any) => drive.name === bookmark.volume
+    ) as any;
+    if (!driveLetter) {
+      return null;
+    } else if (!driveLetter.conected) {
+      return null;
+    }
+    return (
+      <Button
+        className="m-0 p-0 me-2"
+        variant="link"
+        onClick={() => onConnectedElementHandler(bookmark)}
+      >
+        <Icon.PlayCircle color="green" size={20} />
+      </Button>
+    );
   };
 
   return (
@@ -181,9 +257,13 @@ const bookmarks = () => {
                         <strong>{bookmark.name}</strong>
                       </span>
                       <ListGroup.Item className="d-flex justify-content-between p-0 m-0 border-0">
-                        <Badge bg="warning" className="me-2 bookmark-desc text-dark">
+                        <Badge
+                          bg="warning"
+                          className="me-2 bookmark-desc text-dark"
+                        >
                           {bookmark.description}
                         </Badge>
+                        {openFile(bookmark)}
                         <Button
                           className="m-0 p-0 me-2"
                           variant="link"
@@ -195,7 +275,7 @@ const bookmarks = () => {
                           <Icon.PencilSquare color="blue" size={20} />
                         </Button>
                         <Button
-                         className="m-0 p-0"
+                          className="m-0 p-0"
                           variant="link"
                           onClick={() => {
                             setShowConfirmDialog(true);
