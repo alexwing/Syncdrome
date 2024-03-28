@@ -126,6 +126,43 @@ As someone who tends to accumulate digital files in a disorganized manner, I fel
 
 This intuitive tool streamlines the search and organization of your files on specific hard drives. With a simple yet powerful interface, Syncdrome allows quick keyword searches and presents results organized by folders.
 
+
+
+# Chat-With-RTX-typeScript-api
+
+This project has a test of a chat with "Chat to RTX" API, you can try this in development mode, you need to have the ChatRTX server running in your local machine.
+
+In the menu of the application you can find the option "Chat" to test the chat with the RTX server.
+
+## What is ChatRTX?
+
+ChatRTX is a demonstration application that allows you to customize a large language model (LLM) GPT connected to your own content: documents, notes, videos, or other data. By leveraging retrieval-augmented generation (RAG), TensorRT-LLM, and RTX acceleration, you can query a customized chatbot for contextually relevant answers quickly. Since everything runs locally on your RTX Windows PC or workstation, you'll get fast, secure results.
+
+You can find more information about ChatRTX in the following link: [ChatRTX](https://www.nvidia.com/en-us/ai-on-rtx/chatrtx/)
+
+## API Documentation
+
+**File**: chatApi.ts
+
+**Description**: This class is used to send a message to the RTX chat server and get the response.
+
+**Usage**:
+```javascript
+    const port = 5000;
+    const queueManager = new chatApi(port);
+    queueManager
+        .sendMessage(message)
+        .then((response) => {
+            console.log("Server response: ", response);
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
+```
+
+This code is a TypeScript version of the original Python code at the following link: [Chat-With-RTX-python-api](https://github.com/rpehkone/Chat-With-RTX-python-api)
+
+
 License
 -------
 

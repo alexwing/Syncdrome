@@ -11,15 +11,25 @@ let mainWindow;
 
 //require('electron-reload')(__dirname);
 //only fron require electron-reload in development mode at app folder and backend folder
-if (process.env.NODE_ENV !== undefined && process.env.NODE_ENV.trim() === "development") {
+if (
+  process.env.NODE_ENV !== undefined &&
+  process.env.NODE_ENV.trim() === "development"
+) {
   require("electron-reload")(`${__dirname}/app`);
   require("electron-reload")(`${__dirname}/backend`);
 }
 function createWindow() {
   //enabled showOpenDialog in renderer
-  mainWindow = new BrowserWindow({ width: 800, height: 600, webPreferences: { nodeIntegration: true, contextIsolation: false
-    
-  } });
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true,
+      webSecurity: false,
+    },
+  });
   //full screen
   mainWindow.maximize();
 
@@ -34,7 +44,10 @@ function createWindow() {
 
   // Open the DevTools if run in development mode.
   console.log("process.env.NODE_ENV", process.env.NODE_ENV);
-  if (process.env.NODE_ENV !== undefined && process.env.NODE_ENV.trim() === "development") {
+  if (
+    process.env.NODE_ENV !== undefined &&
+    process.env.NODE_ENV.trim() === "development"
+  ) {
     mainWindow.webContents.openDevTools();
   } else {
     //remove menu

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Breadcrumb, Card, Col, Form, Row } from "react-bootstrap";
-import { Bookmark } from "../models/Interfaces";
+import { AlertModel, Bookmark } from "../models/Interfaces";
 import React from "react";
 import * as Icon from "react-bootstrap-icons";
 import {
@@ -14,6 +14,7 @@ import {
 } from "react-bootstrap";
 import Api from "../helpers/api";
 import ConfirmDialog from "../components/ConfirmDialog";
+import AddBookmarkModal from "../components/AddBookmarkModal";
 
 interface bookmarksByVolume {
   volume: string;
@@ -31,29 +32,38 @@ const bookmarks = () => {
   const [loading, setLoading] = useState(true);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [bookmarkToDelete, setBookmarkToDelete] = useState<Number | null>(null);
-  
+  const [bookmarkSelected, setBookmarkSelected] = useState({} as Bookmark);
+  const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
+  const [alert, setAlert] = useState({
+    title: "",
+    message: "",
+    type: "danger",
+  } as AlertModel);
+  const [showAlert, setShowAlert] = useState(false);
 
   const loadBookmarks = async () => {
     setLoading(true);
-    Api.getBookmarks().then((response) => {
-      console.log(response.data);
-      const volumes = response.data
-        .map((bookmark) => bookmark.path.split("\\")[0])
-        .filter((value, index, self) => self.indexOf(value) === index);
-      const bookmarksByVolume = volumes.map((volume) => {
-        return {
-          volume: volume,
-          bookmarks: response.data.filter((bookmark) =>
-            bookmark.path.startsWith(volume)
-          ),
-        };
+    Api.getBookmarks()
+      .then((response) => {
+        console.log(response.data);
+        const volumes = response.data
+          .map((bookmark) => bookmark.path.split("\\")[0])
+          .filter((value, index, self) => self.indexOf(value) === index);
+        const bookmarksByVolume = volumes.map((volume) => {
+          return {
+            volume: volume,
+            bookmarks: response.data.filter((bookmark) =>
+              bookmark.path.startsWith(volume)
+            ),
+          };
+        });
+        setBookmarksByVolume(bookmarksByVolume);
+        filterBookmarks(bookmarksByVolume);
+        setLoading(false);
+      })
+      .finally(() => {
+        setLoading(false);
       });
-      setBookmarksByVolume(bookmarksByVolume);
-      filterBookmarks(bookmarksByVolume);
-      setLoading(false);
-    }).finally(() => {
-      setLoading(false);
-    });
   };
 
   const deleteBookmark = (id: Number | null) => {
@@ -91,6 +101,18 @@ const bookmarks = () => {
     });
     setBookmarksByVolumeFiltered(filteredBookmarks);
   };
+
+  /***
+   *  Add/Edit bookmark to file
+   *  @param bookmark
+   *  This function is called when the user adds/edit a bookmark
+   *  It updates the file state with the new bookmark
+   */
+  const onAddBookmarkHandler = () => {
+    setShowAddBookmarkModal(false);
+    loadBookmarks();
+  };
+
   useEffect(() => {
     filterBookmarks(bookmarksByVolume);
   }, [search]);
@@ -105,7 +127,7 @@ const bookmarks = () => {
   };
 
   return (
-    <Container style={{ overflowY: "scroll", height: "100vh" }}>    
+    <Container style={{ overflowY: "scroll", height: "100vh" }}>
       <Breadcrumb className="mt-3">
         <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
         <Breadcrumb.Item active>Bookmarks</Breadcrumb.Item>
@@ -124,17 +146,17 @@ const bookmarks = () => {
         </Col>
       </Row>
       {!loading && bookmarksByVolumeFiltered.length === 0 && (
-          <Alert variant="warning" className="text-center">
-            <h3>
-              <Icon.ExclamationTriangleFill
-                size={30}
-                className="me-3"
-                color="orange"
-              />
-              No bookmarks found
-            </h3>
-          </Alert>
-        )}        
+        <Alert variant="warning" className="text-center">
+          <h3>
+            <Icon.ExclamationTriangleFill
+              size={30}
+              className="me-3"
+              color="orange"
+            />
+            No bookmarks found
+          </h3>
+        </Alert>
+      )}
       {loading && (
         <Spinner animation="border" role="status">
           <span className="visually-hidden">Loading...</span>
@@ -158,15 +180,31 @@ const bookmarks = () => {
                         <small>{bookmark.path}\</small>
                         <strong>{bookmark.name}</strong>
                       </span>
-                      <div>
-                        <Badge bg="secondary" className="me-2">{bookmark.description}</Badge>
+                      <ListGroup.Item className="d-flex justify-content-between p-0 m-0 border-0">
+                        <Badge bg="warning" className="me-2 bookmark-desc text-dark">
+                          {bookmark.description}
+                        </Badge>
                         <Button
+                          className="m-0 p-0 me-2"
                           variant="link"
-                          onClick={() => { setShowConfirmDialog(true); setBookmarkToDelete(bookmark.id); }}
+                          onClick={() => {
+                            setBookmarkSelected(bookmark);
+                            setShowAddBookmarkModal(true);
+                          }}
+                        >
+                          <Icon.PencilSquare color="blue" size={20} />
+                        </Button>
+                        <Button
+                         className="m-0 p-0"
+                          variant="link"
+                          onClick={() => {
+                            setShowConfirmDialog(true);
+                            setBookmarkToDelete(bookmark.id);
+                          }}
                         >
                           <Icon.Trash color="red" size={20} />
                         </Button>
-                      </div>
+                      </ListGroup.Item>
                     </ListGroup.Item>
                   ))}
                 </ListGroup>
@@ -181,7 +219,13 @@ const bookmarks = () => {
         show={showConfirmDialog}
         handleOK={handleOK}
         handleCancel={handleCancel}
-      />      
+      />
+      <AddBookmarkModal
+        show={showAddBookmarkModal}
+        onHide={() => setShowAddBookmarkModal(false)}
+        bookmark={bookmarkSelected}
+        onAddBookmark={onAddBookmarkHandler}
+      />
     </Container>
   );
 };
