@@ -48,14 +48,16 @@ const Navbar = () => {
         onClick={() => {
           history.push("/bookmarks");
         }}
-      />      
-      <NavBarLink
-        text="Chat"
-        icon={<i className="icons10-chat"></i>}
-        onClick={() => {
-          history.push("/chat");
-        }}
-      ></NavBarLink>
+      />
+      {process.env.NODE_ENV === "development" && (
+        <NavBarLink
+          text="Chat"
+          icon={<i className="icons10-chat"></i>}
+          onClick={() => {
+            history.push("/chat");
+          }}
+        />
+      )}
       <NavBarLink
         text="Settings"
         icon={<i className="icons10-settings"></i>}

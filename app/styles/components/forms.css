@@ -154,3 +154,15 @@ textarea {
   max-width: 550px;
   width: auto; 
 }
+
+.bookmark-desc {
+  max-width: 500px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	white-space: normal;
+	line-height: normal;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-weight: 400;
+  }
