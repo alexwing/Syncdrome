@@ -16,6 +16,16 @@ ipcMain.handle("open-directory-dialog", async (event, defaultPath) => {
   });
   return result.filePaths[0];
 });
+
+ipcMain.handle("open-file-dialog", async (event, defaultPath) => {
+  const result = await dialog.showOpenDialog({
+    properties: ["openFile"],
+    defaultPath,
+  });
+  return result.filePaths[0];
+}
+);
+
 const app = express();
 const fs = require("fs");
 

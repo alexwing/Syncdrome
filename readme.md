@@ -117,6 +117,17 @@ Code Details
 *   Each result includes information such as line number, clean file name, type (file or folder), file name, and folder path.
 
 
+
+Todo
+----
+
+*   Add a drag and drop feature to the bookmark list, add a comment to the file, and save the comment in the database.
+*   Sincronize a folder specified by the user, not a drive.
+*   Add file explorer option, to browse the files in all drives connected to the computer.
+*   Add a real search option to search for a file in all drives connected to the computer.
+*   Rename utility to rename files and folders.
+
+
 About
 -----
 

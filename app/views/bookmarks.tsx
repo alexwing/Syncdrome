@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Breadcrumb, Card, Col, Form, Row } from "react-bootstrap";
-import { AlertModel, Bookmark } from "../models/Interfaces";
+import { AlertModel, Bookmark, FileTypes } from "../models/Interfaces";
 import React from "react";
 import * as Icon from "react-bootstrap-icons";
 import {
@@ -15,6 +15,10 @@ import {
 import Api from "../helpers/api";
 import ConfirmDialog from "../components/ConfirmDialog";
 import AddBookmarkModal from "../components/AddBookmarkModal";
+import { ipcRenderer } from "electron";
+import { file } from "vfile-message";
+import AlertMessage from "../components/AlertMessage";
+import { getFileIcon } from "../helpers/utils";
 
 interface bookmarksByVolume {
   volume: string;
@@ -35,33 +39,76 @@ const bookmarks = () => {
   const [bookmarkSelected, setBookmarkSelected] = useState({} as Bookmark);
   const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
   const [drives, setDrives] = useState([]);
-
   const [alert, setAlert] = useState({
     title: "",
     message: "",
     type: "danger",
   } as AlertModel);
-  const [showAlert, setShowAlert] = useState(false);
+  const [fileIconMappings, setFileIconMappings] = useState({} as FileTypes);
 
-  /***
- *  Load bookmarks from server
- * [
-    {
-        "id": 6,
-        "name": "Padre.de.familia.12x13.Tres.actos.de.fuerza.mayor.(Spanish.English.Subs).WEB-DL.1080p.x264-AAC.by.mokesky.(hispashare.org).mkv",
-        "path": "Backup\\Pendiente\\Padre de familia\\no vistos",
-        "volume": "HD",
-        "description": "Ultimo visto prueba de texto muy largo, pero lo quiero más largo todavia, y más y más largo, tanto que no quepa, por que te quieres ir por ahi, si yo no puedo caber tu tampoco pedazo de bestia inhumana"
-    },
-    {
-        "id": 7,
-        "name": "Oppenheimer (2023).mkv",
-        "path": "Peliculas",
-        "volume": "Peliculas",
-        "description": "Vista le doy un 7"
+  const [showAlert, setShowAlert] = useState(false);
+  const [file, setFile] = useState("");
+  const [draggingOver, setDraggingOver] = useState(false);
+
+  const onChangeFile = async () => {
+    const path = await ipcRenderer.invoke("open-file-dialog", file);
+    setFile(path);
+    createBookmark(path);
+  };
+
+  // Agrega un manejador de eventos para el evento de soltar en el contenedor adecuado
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    setDraggingOver(false);
+
+    // Obtenemos la ruta del archivo soltado
+    const filePath = event.dataTransfer.files[0].path;
+    console.log("Ruta del archivo:", filePath);
+
+    // Llama a la función para crear el marcador de libro con la ruta del archivo
+    createBookmark(filePath);
+  };
+
+  // Agrega un manejador de eventos para el evento de arrastrar sobre el contenedor
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDraggingOver(true); // Establece el estado para indicar que se está arrastrando sobre la ventana
+  };
+
+  // Agrega un manejador de eventos para el evento de dejar de arrastrar sobre el contenedor
+  const handleDragLeave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDraggingOver(false); // Establece el estado para indicar que se ha dejado de arrastrar sobre la ventana
+  };
+
+  const createBookmark = async (path) => {
+    const letter = path.split("\\")[0];
+    const drives = await Api.getDrives();
+    const drive = drives.data.find((drive) => drive.letter === letter);
+    if (!drive || !drive.conected) {
+      setAlert({
+        title: "Error",
+        message: "Drive not connected",
+        type: "danger",
+      });
+      setShowAlert(true);
+      return;
     }
-]
- */
+    const bookmark = {
+      name: path.split("\\").pop(),
+      path: path.split("\\").slice(0, -1).join("\\").slice(3),
+      volume: drive.name,
+      description: "",
+    };
+    console.log("bookmark: ", bookmark);
+    Api.addBookmark(bookmark).then(() => {
+      loadBookmarks();
+    });
+  };
 
   const loadBookmarks = async () => {
     setLoading(true);
@@ -98,8 +145,21 @@ const bookmarks = () => {
     });
   };
   useEffect(() => {
-    loadBookmarks();
-    getDrives();
+    Api.getSettings()
+      .then((response) => {
+        setFileIconMappings(response.data.extensions);
+        loadBookmarks();
+        getDrives();
+      })
+      .catch((error) => {
+        setAlert({
+          title: "Error",
+          message: "Config file not found or corrupted",
+          type: "danger",
+        });
+        setShowAlert(true);
+        return;
+      });
   }, []);
 
   const getDrives = () => {
@@ -117,8 +177,13 @@ const bookmarks = () => {
         setShowAlert(true);
       });
   };
+  // set Icon component from url extension
+  const getIcon = (file: Bookmark) => {
+    const extension = file.name.split(".").pop();
+    return getFileIcon(extension, fileIconMappings).icon;
+  };
 
-  const filterBookmarks = (bookmarksByVolume) => {
+  const filterBookmarks = (bookmarksByVolume:bookmarksByVolume[]) => {
     if (search === "" || search === null) {
       setBookmarksByVolumeFiltered(bookmarksByVolume);
       return;
@@ -167,7 +232,7 @@ const bookmarks = () => {
   };
 
   //open file in windows explorer
-  const onConnectedElementHandler = (bookmark) => {
+  const onConnectedElementHandler = (bookmark:Bookmark) => {
     const driveLetter = drives.find(
       (drive: any) => drive.name === bookmark.volume
     ) as any;
@@ -180,37 +245,95 @@ const bookmarks = () => {
     }
   };
 
-  //button to open file in windows explorer
-  const openFile = (bookmark) => {
-    //check if drive is connected
-    const driveLetter = drives.find(
-      (drive: any) => drive.name === bookmark.volume
-    ) as any;
-    if (!driveLetter) {
-      return null;
-    } else if (!driveLetter.conected) {
+  //print count of files as  <Badge>
+  const openFileEye = (bookmark: Bookmark) => {
+    if (!isConnect(bookmark)) {
       return null;
     }
     return (
       <Button
         className="m-0 p-0 me-2"
         variant="link"
-        onClick={() => onConnectedElementHandler(bookmark)}
+        onClick={() => {
+          onConnectedElementHandler(bookmark);
+        }}
       >
-        <Icon.PlayCircle color="green" size={20} />
+        <Icon.Eye size={18} color="green" />
       </Button>
     );
   };
 
+  const isConnect = (bookmark: Bookmark) => {
+    const driveLetter = drives.find(
+      (drive: any) => drive.name === bookmark.volume
+    ) as any;
+    return driveLetter && driveLetter.conected;
+  };
+
+  //button to open file in windows explorer
+  const openFile = (bookmark: Bookmark) => {
+    const isConnected = isConnect(bookmark);
+    return (
+      <Button
+        className="m-0 p-0 me-2"
+        variant="link"
+        disabled={!isConnected}
+        onClick={
+          isConnected ? () => onConnectedElementHandler(bookmark) : undefined
+        }
+      >
+        {bookmark.name.includes(".") ? (
+          getIcon(bookmark)
+        ) : (
+          <Icon.Folder2Open color="DarkOrange" size={20} />
+        )}
+      </Button>
+    );
+  };
+  // alert message
+  const showAlertMessage = (
+    <AlertMessage
+      show={showAlert}
+      alertMessage={alert}
+      onHide={() => setShowAlert(false)}
+      autoClose={2000}
+    />
+  );
+
+  //badge to show drive letter if volume in drives is connected
+  const driveBadge = (volume) => {
+    const drive = drives.find((drive: any) => drive.name === volume) as any;
+    if (drive && drive.conected) {
+      return (
+        <span className="me-1 text-success">
+          <Icon.Plug size={20} className="me-1" />
+          {drive.letter}
+        </span>
+      );
+    }
+  };
+
   return (
-    <Container style={{ overflowY: "scroll", height: "100vh" }}>
+    <Container
+      style={{ overflowY: "scroll", height: "100vh" }}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+    >
+      {draggingOver && (
+        <div className="d-flex flex-column justify-content-center align-items-center upload-area">
+          <p className="text-center fs-1 text-primary">Drop Here</p>
+          <Icon.ArrowUpCircle size={50} className="text-primary" />
+        </div>
+      )}
+      {showAlertMessage}
       <Breadcrumb className="mt-3">
         <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
         <Breadcrumb.Item active>Bookmarks</Breadcrumb.Item>
       </Breadcrumb>
       <h2>Bookmarks</h2>
       <Row className="p-3 m-0">
-        <Col xs={12} className="p-0">
+        <Col xs={10} className="p-0">
           <Form.Group controlId="search">
             <Form.Control
               type="text"
@@ -219,6 +342,17 @@ const bookmarks = () => {
               onChange={(e) => setSearch(e.target.value)}
             />
           </Form.Group>
+        </Col>
+        <Col xs={2} className="p-0">
+          <Button
+            className="w-100"
+            variant="outline-primary"
+            type="button"
+            onClick={onChangeFile}
+          >
+            <Icon.PlusCircle size={16} className="me-2" />
+            Add bookmark
+          </Button>
         </Col>
       </Row>
       {!loading && bookmarksByVolumeFiltered.length === 0 && (
@@ -243,16 +377,20 @@ const bookmarks = () => {
           {bookmarksByVolumeFiltered.map((volume, index) => (
             <Card key={index}>
               <Card.Header>
-                <h5 className="m-0">{volume.volume}</h5>
+                <h5 className="m-0">
+                  <span className="me-3">{volume.volume}</span>
+                  {driveBadge(volume.volume)}
+                </h5>
               </Card.Header>
               <Card.Body>
                 <ListGroup>
                   {volume.bookmarks.map((bookmark, bookmarkIndex) => (
                     <ListGroup.Item
                       key={`bookmark-${bookmarkIndex}`}
-                      className="d-flex justify-content-between"
+                      className="d-flex justify-content-between inline-block"
                     >
-                      <span>
+                      {openFile(bookmark)}
+                      <span className="file-path">
                         <small>{bookmark.path}\</small>
                         <strong>{bookmark.name}</strong>
                       </span>
@@ -263,7 +401,7 @@ const bookmarks = () => {
                         >
                           {bookmark.description}
                         </Badge>
-                        {openFile(bookmark)}
+                        {openFileEye(bookmark)}
                         <Button
                           className="m-0 p-0 me-2"
                           variant="link"

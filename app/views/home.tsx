@@ -22,6 +22,7 @@ import {
 import AlertMessage from "../components/AlertMessage";
 import ExtensionSelect from "../components/ExtensionSelect";
 import AddBookmarkModal from "../components/AddBookmarkModal";
+import { getFileIcon } from "../helpers/utils";
 
 const Home = () => {
   const initialSearchTerm = localStorage.getItem("searchTerm") || "";
@@ -144,32 +145,13 @@ const Home = () => {
     }
   };
 
-  // get Icon component from extension
-  const getFileIcon = (extension) => {
-    for (const category in fileIconMappings) {
-      if (
-        fileIconMappings[category].extensions.includes(extension.toLowerCase())
-      ) {
-        const { icon, color } = fileIconMappings[category];
-        const IconComponent = Icon[icon];
-        return {
-          category,
-          icon: <IconComponent size={20} className="me-4" color={color} />,
-        };
-      }
-    }
-    // Si no encuentra una categoría, usa la categoría predeterminada
-    const { icon, color } = fileIconMappings["default"];
-    const IconComponent = Icon[icon];
-    return {
-      category: "default",
-      icon: <IconComponent size={20} className="me-4" color={color} />,
-    };
-  };
-
   // set Icon component from url extension
   const getIcon = (extension) => {
-    return getFileIcon(extension).icon;
+    return (
+      <span className="me-2">
+        {getFileIcon(extension, fileIconMappings).icon}
+      </span>
+    );
   };
 
   //print count of files as  <Badge>
@@ -180,9 +162,6 @@ const Home = () => {
         <Badge
           bg="secondary"
           style={{
-            position: "absolute",
-            right: "60px",
-            top: "13px",
             width: "50px",
           }}
         >
@@ -245,42 +224,33 @@ const Home = () => {
     );
   };
 
-  //print count of files as  <Badge>
-  const openFile = (item, key2, key, connected) => {
+  /***
+   * Open file in windows explorer
+   * @param fileName
+   * @param folder
+   * @param connected
+   * @returns {JSX.Element}
+  */
+  const openFileEye = (fileName: string, folder: string, connected: any): JSX.Element => {
     return (
       <Badge
-        bg="info"
-        style={{
-          position: "absolute",
-          right: "15px",
-          top: "10px",
-          width: "50px",
-          cursor: "pointer",
-        }}
+        bg="none"
         className="ms-4"
-        onClick={() =>
-          onConnectedElementHandler(item.fileName, key2, connected)
-        }
+        style={{ cursor: "pointer", height: "28px" }}
+        onClick={() => onConnectedElementHandler(fileName, folder, connected)}
       >
-        Open
+        <Icon.Eye size={18} color="green" />
       </Badge>
     );
   };
-  const openFolder = (folder, driveLetter) => {
+  const openFolder = (folder: string, driveLetter: any) => {
     if (driveLetter) {
       return (
         <Badge
-          bg="info"
-          style={{
-            position: "absolute",
-            right: "114px",
-            top: "13px",
-            width: "50px",
-          }}
-          className="ms-4"
+          bg="none"
           onClick={(e) => onConnectedFolderHandler(folder, driveLetter, e)}
         >
-          Open
+          <Icon.Folder2Open size={18} color="green" />
         </Badge>
       );
     }
@@ -288,6 +258,24 @@ const Home = () => {
   const onExtSelectChange = (values: string[]) => {
     setExtSelected(values);
     localStorage.setItem("extSelected", values.join(","));
+  };
+
+  //button to open file in windows explorer
+  const openFileIcon = (file: IFile, connected: any, folder: string) => {
+    return (
+      <Button
+        className="m-0 p-0 me-2"
+        variant="link"
+        disabled={!connected}
+        onClick={
+          connected
+            ? () => onConnectedElementHandler(file.fileName, folder, connected)
+            : undefined
+        }
+      >
+        {getIcon(file.extension)}
+      </Button>
+    );
   };
 
   /***
@@ -378,12 +366,12 @@ const Home = () => {
                 <Accordion.Header>
                   <Icon.DeviceHddFill
                     size={20}
-                    className="me-4"
+                    className="me-2"
                     color={files[key].connected ? "#16ab9c" : "dodgerblue"}
                   />
                   {key}
                   {files[key].connected && (
-                    <Icon.CheckCircleFill
+                    <Icon.Plug
                       style={{
                         position: "absolute",
                         right: "25px",
@@ -405,13 +393,13 @@ const Home = () => {
                             eventKey={index2.toString()}
                             key={index2}
                           >
-                            <Accordion.Header>
+                            <Accordion.Header className="d-flex justify-content-between folder-header">
                               <Icon.FolderFill
                                 size={20}
-                                className="me-4"
+                                className="me-2"
                                 color="DarkOrange"
                               />
-                              {key2}
+                              <span className="folder-header-text">{key2}</span>
                               {getFilesLength(files[key].content[key2])}
                               {files[key].connected &&
                                 openFolder(key2, files[key].connected)}
@@ -419,9 +407,20 @@ const Home = () => {
                             <Accordion.Body>
                               <ListGroup as="ul">
                                 {files[key].content[key2].map((item: IFile) => (
-                                  <ListGroup.Item as="li" key={item.fileName}>
-                                    {getIcon(item.extension)}
-                                    {item.fileName}
+                                  <ListGroup.Item
+                                    as="li"
+                                    key={item.fileName}
+                                    className="d-flex justify-content-between"
+                                  >
+                                    {openFileIcon(
+                                      item,
+                                      files[key].connected,
+                                      key2,
+                                    )}
+                                    <span className="file-path">
+                                      <small>{item.folder}\</small>
+                                      <strong>{item.fileName}</strong>
+                                    </span>
                                     {addBookmark(
                                       item,
                                       key2,
@@ -429,10 +428,9 @@ const Home = () => {
                                       files[key].connected
                                     )}
                                     {files[key].connected &&
-                                      openFile(
-                                        item,
+                                      openFileEye(
+                                        item.fileName,
                                         key2,
-                                        key,
                                         files[key].connected
                                       )}
                                   </ListGroup.Item>
