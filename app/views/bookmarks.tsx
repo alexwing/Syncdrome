@@ -18,7 +18,7 @@ import AddBookmarkModal from "../components/AddBookmarkModal";
 import { ipcRenderer } from "electron";
 import { file } from "vfile-message";
 import AlertMessage from "../components/AlertMessage";
-import { getFileIcon } from "../helpers/utils";
+import { connectedIcon, getFileIcon } from "../helpers/utils";
 
 interface bookmarksByVolume {
   volume: string;
@@ -183,7 +183,7 @@ const bookmarks = () => {
     return getFileIcon(extension, fileIconMappings).icon;
   };
 
-  const filterBookmarks = (bookmarksByVolume:bookmarksByVolume[]) => {
+  const filterBookmarks = (bookmarksByVolume: bookmarksByVolume[]) => {
     if (search === "" || search === null) {
       setBookmarksByVolumeFiltered(bookmarksByVolume);
       return;
@@ -231,11 +231,13 @@ const bookmarks = () => {
     setShowConfirmDialog(false);
   };
 
+  const getDriveLetter = (volume: string, drives: any[]) => {
+    const drive = drives.find((drive: any) => drive.name === volume) as any;
+    return drive ? drive.letter : "";
+  };
   //open file in windows explorer
-  const onConnectedElementHandler = (bookmark:Bookmark) => {
-    const driveLetter = drives.find(
-      (drive: any) => drive.name === bookmark.volume
-    ) as any;
+  const onConnectedElementHandler = (bookmark: Bookmark) => {
+    const driveLetter = getDriveLetter(bookmark.volume, drives);
     if (driveLetter) {
       Api.openFile(bookmark.name, bookmark.path, driveLetter.letter).then(
         (res) => {
@@ -304,12 +306,7 @@ const bookmarks = () => {
   const driveBadge = (volume) => {
     const drive = drives.find((drive: any) => drive.name === volume) as any;
     if (drive && drive.conected) {
-      return (
-        <span className="me-1 text-success">
-          <Icon.Plug size={20} className="me-1" />
-          {drive.letter}
-        </span>
-      );
+      return connectedIcon(drive.letter);
     }
   };
 
@@ -376,11 +373,11 @@ const bookmarks = () => {
         <Col xs={12} className="p-0">
           {bookmarksByVolumeFiltered.map((volume, index) => (
             <Card key={index}>
-              <Card.Header>
-                <h5 className="m-0">
+              <Card.Header className="d-flex justify-content-between inline-block">
+                <h5 className="my-auto">
                   <span className="me-3">{volume.volume}</span>
-                  {driveBadge(volume.volume)}
                 </h5>
+                {driveBadge(volume.volume)}
               </Card.Header>
               <Card.Body>
                 <ListGroup>

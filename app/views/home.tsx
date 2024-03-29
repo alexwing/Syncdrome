@@ -22,7 +22,7 @@ import {
 import AlertMessage from "../components/AlertMessage";
 import ExtensionSelect from "../components/ExtensionSelect";
 import AddBookmarkModal from "../components/AddBookmarkModal";
-import { getFileIcon } from "../helpers/utils";
+import { connectedIcon, getFileIcon, openFileEvent, openFileEye } from "../helpers/utils";
 
 const Home = () => {
   const initialSearchTerm = localStorage.getItem("searchTerm") || "";
@@ -117,19 +117,6 @@ const Home = () => {
       });
   };
 
-  // open file on click
-  const onConnectedElementHandler = (filename, folder, driveLetter) => {
-    if (driveLetter) {
-      Api.openFile(filename, folder, driveLetter);
-    } else {
-      setAlert({
-        title: "Error",
-        message: "Drive not connected",
-        type: "danger",
-      });
-    }
-  };
-
   // open folder on click
   const onConnectedFolderHandler = (folder, driveLetter, event) => {
     event.preventDefault();
@@ -142,6 +129,7 @@ const Home = () => {
         message: "Drive not connected",
         type: "danger",
       });
+      setShowAlert(true);
     }
   };
 
@@ -224,25 +212,7 @@ const Home = () => {
     );
   };
 
-  /***
-   * Open file in windows explorer
-   * @param fileName
-   * @param folder
-   * @param connected
-   * @returns {JSX.Element}
-  */
-  const openFileEye = (fileName: string, folder: string, connected: any): JSX.Element => {
-    return (
-      <Badge
-        bg="none"
-        className="ms-4"
-        style={{ cursor: "pointer", height: "28px" }}
-        onClick={() => onConnectedElementHandler(fileName, folder, connected)}
-      >
-        <Icon.Eye size={18} color="green" />
-      </Badge>
-    );
-  };
+
   const openFolder = (folder: string, driveLetter: any) => {
     if (driveLetter) {
       return (
@@ -269,7 +239,7 @@ const Home = () => {
         disabled={!connected}
         onClick={
           connected
-            ? () => onConnectedElementHandler(file.fileName, folder, connected)
+            ? () => openFileEvent(file.fileName, folder, connected)
             : undefined
         }
       >
@@ -363,25 +333,19 @@ const Home = () => {
           <Accordion>
             {Object.keys(files).map((key, index) => (
               <Accordion.Item eventKey={index.toString()} key={index}>
-                <Accordion.Header>
-                  <Icon.DeviceHddFill
-                    size={20}
-                    className="me-2"
-                    color={files[key].connected ? "#16ab9c" : "dodgerblue"}
-                  />
-                  {key}
-                  {files[key].connected && (
-                    <Icon.Plug
-                      style={{
-                        position: "absolute",
-                        right: "25px",
-                        top: "15px",
-                      }}
+                <Accordion.Header >
+                  <div className="d-flex justify-content-between inline-block w-100">
+                    <Icon.DeviceHddFill
                       size={20}
-                      className="me-4"
-                      color="green"
+                      className="me-2 my-auto"
+                      color={files[key].connected ? "#16ab9c" : "dodgerblue"}
                     />
-                  )}
+                    <h5 className="me-auto my-auto"
+                    >{key}</h5>
+                    <span>
+                    {connectedIcon(files[key].connected)}
+                    </span>
+                  </div>
                 </Accordion.Header>
                 <Accordion.Body>
                   <Accordion>
@@ -415,7 +379,7 @@ const Home = () => {
                                     {openFileIcon(
                                       item,
                                       files[key].connected,
-                                      key2,
+                                      key2
                                     )}
                                     <span className="file-path">
                                       <small>{item.folder}\</small>
