@@ -188,7 +188,7 @@ const bookmarks = () => {
       setBookmarksByVolumeFiltered(bookmarksByVolume);
       return;
     }
-    const filteredBookmarks = bookmarksByVolume.map((volume) => {
+    let filteredBookmarks = bookmarksByVolume.map((volume) => {
       return {
         volume: volume.volume,
         bookmarks: volume.bookmarks.filter(
@@ -199,11 +199,7 @@ const bookmarks = () => {
       };
     });
     //remove empty volumes
-    filteredBookmarks.forEach((volume, index) => {
-      if (volume.bookmarks.length === 0) {
-        filteredBookmarks.splice(index, 1);
-      }
-    });
+    filteredBookmarks = filteredBookmarks.filter(volume => volume.bookmarks.length !== 0);
     setBookmarksByVolumeFiltered(filteredBookmarks);
   };
 
