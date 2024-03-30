@@ -193,8 +193,7 @@ const Sync = () => {
       show={showAlert}
       alertMessage={alert}
       onHide={() => setShowAlert(false)}
-      autoClose={2000}
-    />
+      autoClose={2000} ok={undefined}    />
   );
 
   return (

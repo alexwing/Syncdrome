@@ -30,13 +30,14 @@ export interface AlertMessageProps {
   show: boolean;
   alertMessage: AlertModel;
   onHide: () => void;
-  autoClose?: number;
+  autoClose?: number;ok
 }
 
 export interface FileType {
   icon: string;
   color: string;
   extensions: string[];
+  media: string[];
 }
 
 export interface FileTypes {

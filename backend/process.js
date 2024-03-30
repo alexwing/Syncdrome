@@ -22,9 +22,6 @@ const util = require("util");
 const execPromise = util.promisify(require("child_process").exec);
 const fsPromise = { writeFile: util.promisify(require("fs").writeFile) };
 
-
-
-
 module.exports = function (app) {
 
   app.get("/executeNodeNEW/:driveLetter", async (req, res) => {

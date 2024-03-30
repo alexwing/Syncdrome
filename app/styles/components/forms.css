@@ -152,54 +152,68 @@ textarea {
 
 .tooltip-bookmark .tooltip-inner {
   max-width: 550px;
-  width: auto; 
+  width: auto;
 }
 
 .bookmark-desc {
   max-width: 500px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-	white-space: normal;
-	line-height: normal;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  white-space: normal;
+  line-height: normal;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
   font-weight: 400;
-  }
+}
 
+.upload-area {
+  position: absolute;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.8);
+  top: 0;
+  left: 0;
+  width: 90%;
+  height: 85%;
+  pointer-events: none;
+  border: 2px dashed #007bff;
+  margin: 5%;
+}
 
-  .upload-area {
-    position: absolute;
-    z-index: 1000;
-    background-color: rgba(255,255,255,0.8);
-    top: 0;
-    left: 0;
-    width: 90%;
-    height: 85%;
-    pointer-events: none;
-    border: 2px dashed #007bff;
-    margin: 5%;
-  }
+.file-path {
+  word-wrap: break-word;
+  word-break: break-all;
+  width: -webkit-fill-available;
+  margin: auto;
+  padding-right: 5px;
+}
+.file-path small {
+  color: gray;
+  font-style: italic;
+  line-height: 1.5em;
+}
+.file-path strong {
+  font-size: 0.9em;
+  color: black;
+  line-height: 1.5em;
+}
+.folder-header .folder-header-text {
+  word-wrap: break-word;
+  word-break: break-all;
+  width: -webkit-fill-available;
+}
 
-  .file-path {
-    word-wrap: break-word;
-    word-break: break-all;
-    width: -webkit-fill-available;
-    margin: auto;
-    padding-right: 5px;
-  }
-  .file-path small {
-    color: gray;
-    font-style: italic;
-    line-height: 1.5em;
-  }
-  .file-path strong {
-    font-size: 0.9em;
-    color: black;
-    line-height: 1.5em;
-  }
-  .folder-header .folder-header-text {
-    word-wrap: break-word;
-    word-break: break-all;
-    width: -webkit-fill-available;
-  }
+.extension-check {
+  display: flex;
+  padding-left: 0.5em;
+}
+.extension-check .form-check-input {
+  margin-right: 0.5em;
+  padding: 10px;
+}
+
+.extension-check.selected {
+  background-color: hsl(211, 88%, 76%);
+  color: white;
+}

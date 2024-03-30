@@ -292,8 +292,7 @@ const bookmarks = () => {
       show={showAlert}
       alertMessage={alert}
       onHide={() => setShowAlert(false)}
-      autoClose={2000}
-    />
+      autoClose={2000} ok={undefined}    />
   );
 
   //badge to show drive letter if volume in drives is connected

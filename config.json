@@ -15,10 +15,9 @@
         "txt",
         "odt",
         "ods",
-        "odp"
+        "md"
       ],
       "media": [
-        "doc",
         "docx",
         "xls",
         "xlsx",
@@ -27,7 +26,7 @@
         "txt",
         "odt",
         "ods",
-        "odp"
+        "doc"
       ]
     },
     "image": {
@@ -48,7 +47,18 @@
         "ps",
         "xcf"
       ],
-      "media": ["jpg", "jpeg", "bmp", "tif", "tiff", "png", "gif", "psd"]
+      "media": [
+        "jpg",
+        "jpeg",
+        "bmp",
+        "tif",
+        "tiff",
+        "png",
+        "gif",
+        "psd",
+        "arw",
+        "raw"
+      ]
     },
     "video": {
       "icon": "FileEarmarkPlayFill",
@@ -65,18 +75,47 @@
         "mpeg",
         "3gp"
       ],
-      "media": ["mov", "mkv", "mp4", "avi", "wmv", "webm", "mpg", "mpeg"]
+      "media": [
+        "mov",
+        "mkv",
+        "mp4",
+        "avi",
+        "wmv",
+        "webm",
+        "mpg",
+        "mpeg"
+      ]
     },
     "audio": {
       "icon": "FileEarmarkMusicFill",
       "color": "green",
-      "extensions": ["mp3", "wav", "wma", "mpa", "aif", "iff", "m3u", "m4a"],
-      "media": ["mp3", "wav", "wma"]
+      "extensions": [
+        "mp3",
+        "wav",
+        "wma",
+        "mpa",
+        "aif",
+        "iff",
+        "m3u",
+        "m4a"
+      ],
+      "media": [
+        "mp3",
+        "wav",
+        "wma"
+      ]
     },
     "executable": {
       "icon": "FiletypeExe",
       "color": "blue",
-      "extensions": ["exe", "msi", "apk", "app", "bat", "jar"],
+      "extensions": [
+        "exe",
+        "msi",
+        "apk",
+        "app",
+        "bat",
+        "jar"
+      ],
       "media": []
     },
     "font": {
@@ -102,19 +141,21 @@
         "csv",
         "json",
         "xml",
-        "db",
-        "sql",
-        "dbf",
-        "mdb",
-        "accdb",
-        "dbx",
-        "pdb",
         "pst",
         "odt",
         "ods",
-        "odp"
+        "odp",
+        "xls",
+        "xlsx"
       ],
-      "media": []
+      "media": [
+        "pdb",
+        "dbx",
+        "sql",
+        "db",
+        "accdb",
+        "dbf"
+      ]
     },
     "database": {
       "icon": "Database",
@@ -136,7 +177,17 @@
     "code": {
       "icon": "FileEarmarkCodeFill",
       "color": "blue",
-      "extensions": ["ini", "conf", "cfg", "config", "properties"],
+      "extensions": [
+        "ini",
+        "conf",
+        "cfg",
+        "config",
+        "properties",
+        "vue",
+        "ts",
+        "js",
+        "java"
+      ],
       "media": []
     },
     "compressed": {
@@ -161,31 +212,75 @@
     "book": {
       "icon": "Book",
       "color": "blue",
-      "extensions": ["pdf", "epub", "mobi", "azw", "azw3"],
-      "media": ["pdf", "epub", "mobi", "azw", "azw3"]
+      "extensions": [
+        "pdf",
+        "epub",
+        "mobi",
+        "azw",
+        "azw3"
+      ],
+      "media": [
+        "pdf",
+        "epub",
+        "mobi",
+        "azw",
+        "azw3"
+      ]
     },
     "presentation": {
       "icon": "FileEarmarkSlidesFill",
       "color": "red",
-      "extensions": ["key", "odp", "pps", "ppt", "pptx"],
-      "media": ["pps", "ppt", "pptx"]
+      "extensions": [
+        "key",
+        "odp",
+        "pps",
+        "ppt",
+        "pptx"
+      ],
+      "media": [
+        "pps",
+        "ppt",
+        "pptx"
+      ]
     },
     "vector": {
       "icon": "FiletypeAi",
       "color": "blue",
-      "extensions": ["ai", "eps", "svg", "sketch", "cdr"],
-      "media": ["eps", "svg", "cdr"]
+      "extensions": [
+        "ai",
+        "eps",
+        "svg",
+        "sketch",
+        "cdr"
+      ],
+      "media": [
+        "eps",
+        "svg",
+        "cdr"
+      ]
     },
     "cad": {
       "icon": "Badge3d",
       "color": "blue",
-      "extensions": ["dwg", "dxf", "dws", "dwt"],
+      "extensions": [
+        "dwg",
+        "dxf",
+        "dws",
+        "dwt"
+      ],
       "media": []
     },
     "3d": {
       "icon": "Badge3dFill",
       "color": "blue",
-      "extensions": ["stl", "obj", "fbx", "blend", "ply", "3mf"],
+      "extensions": [
+        "stl",
+        "obj",
+        "fbx",
+        "blend",
+        "ply",
+        "3mf"
+      ],
       "media": []
     },
     "default": {
