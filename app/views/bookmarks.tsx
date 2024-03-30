@@ -239,9 +239,9 @@ const bookmarks = () => {
   const onConnectedElementHandler = (bookmark: Bookmark) => {
     const driveLetter = getDriveLetter(bookmark.volume, drives);
     if (driveLetter) {
-      Api.openFile(bookmark.name, bookmark.path, driveLetter.letter).then(
+      Api.openFile(bookmark.name, bookmark.path, driveLetter).then(
         (res) => {
-          console.log(res);
+          // console.log(res);
         }
       );
     }
@@ -249,7 +249,7 @@ const bookmarks = () => {
 
   //print count of files as  <Badge>
   const openFileEye = (bookmark: Bookmark) => {
-    if (!isConnect(bookmark)) {
+    if (!isConnect(bookmark.volume)) {
       return null;
     }
     return (
@@ -265,16 +265,16 @@ const bookmarks = () => {
     );
   };
 
-  const isConnect = (bookmark: Bookmark) => {
+  const isConnect = (volume: String) => {
     const driveLetter = drives.find(
-      (drive: any) => drive.name === bookmark.volume
+      (drive: any) => drive.name === volume
     ) as any;
     return driveLetter && driveLetter.conected;
   };
 
   //button to open file in windows explorer
   const openFile = (bookmark: Bookmark) => {
-    const isConnected = isConnect(bookmark);
+    const isConnected = isConnect(bookmark.volume);
     return (
       <Button
         className="m-0 p-0 me-2"
@@ -374,7 +374,12 @@ const bookmarks = () => {
           {bookmarksByVolumeFiltered.map((volume, index) => (
             <Card key={index}>
               <Card.Header className="d-flex justify-content-between inline-block">
-                <h5 className="my-auto">
+                <Icon.DeviceHddFill
+                  size={20}
+                  className="me-2 my-auto"
+                  color={isConnect(volume.volume) ? "#16ab9c" : "dodgerblue"}
+                />
+                <h5 className="my-auto me-auto">
                   <span className="me-3">{volume.volume}</span>
                 </h5>
                 {driveBadge(volume.volume)}
