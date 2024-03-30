@@ -337,7 +337,7 @@ const openFolder = (folder) => {
 const getExtensions = (config) => {
   let extensions = [];
   Object.keys(config.extensions).forEach((key) => {
-    extensions.push(...config.extensions[key].extensions);
+    extensions.push(...config.extensions[key].media);
   });
   //trim and lowercase
   extensions = extensions.map((ext) => ext.trim().toLowerCase());

@@ -16,6 +16,18 @@
         "odt",
         "ods",
         "odp"
+      ],
+      "media": [
+        "doc",
+        "docx",
+        "xls",
+        "xlsx",
+        "ppt",
+        "pptx",
+        "txt",
+        "odt",
+        "ods",
+        "odp"
       ]
     },
     "image": {
@@ -33,10 +45,10 @@
         "psd",
         "png",
         "gif",
-        "ai",
         "ps",
         "xcf"
-      ]
+      ],
+      "media": ["jpg", "jpeg", "bmp", "tif", "tiff", "png", "gif", "psd"]
     },
     "video": {
       "icon": "FileEarmarkPlayFill",
@@ -52,33 +64,20 @@
         "mpg",
         "mpeg",
         "3gp"
-      ]
+      ],
+      "media": ["mov", "mkv", "mp4", "avi", "wmv", "webm", "mpg", "mpeg"]
     },
     "audio": {
       "icon": "FileEarmarkMusicFill",
       "color": "green",
-      "extensions": [
-        "mp3",
-        "wav",
-        "wma",
-        "mpa",
-        "aif",
-        "iff",
-        "m3u",
-        "m4a"
-      ]
+      "extensions": ["mp3", "wav", "wma", "mpa", "aif", "iff", "m3u", "m4a"],
+      "media": ["mp3", "wav", "wma"]
     },
     "executable": {
       "icon": "FiletypeExe",
       "color": "blue",
-      "extensions": [
-        "exe",
-        "msi",
-        "apk",
-        "app",
-        "bat",
-        "jar"
-      ]
+      "extensions": ["exe", "msi", "apk", "app", "bat", "jar"],
+      "media": []
     },
     "font": {
       "icon": "FileEarmarkFontFill",
@@ -93,7 +92,8 @@
         "fnt",
         "odttf",
         "ttc"
-      ]
+      ],
+      "media": []
     },
     "spreadsheet": {
       "icon": "FileEarmarkSpreadsheetFill",
@@ -113,7 +113,8 @@
         "odt",
         "ods",
         "odp"
-      ]
+      ],
+      "media": []
     },
     "database": {
       "icon": "Database",
@@ -129,18 +130,14 @@
         "pst",
         "sqlite",
         "sqlite3"
-      ]
+      ],
+      "media": []
     },
     "code": {
       "icon": "FileEarmarkCodeFill",
       "color": "blue",
-      "extensions": [
-        "ini",
-        "conf",
-        "cfg",
-        "config",
-        "properties"
-      ]
+      "extensions": ["ini", "conf", "cfg", "config", "properties"],
+      "media": []
     },
     "compressed": {
       "icon": "FileEarmarkZipFill",
@@ -158,67 +155,44 @@
         "deb",
         "rpm",
         "tgz"
-      ]
+      ],
+      "media": []
     },
     "book": {
       "icon": "Book",
       "color": "blue",
-      "extensions": [
-        "pdf",
-        "epub",
-        "mobi",
-        "azw",
-        "azw3"
-      ]
+      "extensions": ["pdf", "epub", "mobi", "azw", "azw3"],
+      "media": ["pdf", "epub", "mobi", "azw", "azw3"]
     },
     "presentation": {
       "icon": "FileEarmarkSlidesFill",
       "color": "red",
-      "extensions": [
-        "key",
-        "odp",
-        "pps",
-        "ppt",
-        "pptx"
-      ]
+      "extensions": ["key", "odp", "pps", "ppt", "pptx"],
+      "media": ["pps", "ppt", "pptx"]
     },
     "vector": {
       "icon": "FiletypeAi",
       "color": "blue",
-      "extensions": [
-        "ai",
-        "eps",
-        "svg",
-        "sketch",
-        "cdr"
-      ]
+      "extensions": ["ai", "eps", "svg", "sketch", "cdr"],
+      "media": ["eps", "svg", "cdr"]
     },
     "cad": {
       "icon": "Badge3d",
       "color": "blue",
-      "extensions": [
-        "dwg",
-        "dxf",
-        "dws",
-        "dwt"
-      ]
+      "extensions": ["dwg", "dxf", "dws", "dwt"],
+      "media": []
     },
     "3d": {
       "icon": "Badge3dFill",
       "color": "blue",
-      "extensions": [
-        "stl",
-        "obj",
-        "fbx",
-        "blend",
-        "ply",
-        "3mf"
-      ]
+      "extensions": ["stl", "obj", "fbx", "blend", "ply", "3mf"],
+      "media": []
     },
     "default": {
       "icon": "File",
       "color": "black",
-      "extensions": []
+      "extensions": [],
+      "media": []
     }
   }
 }

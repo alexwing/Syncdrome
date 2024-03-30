@@ -20,7 +20,7 @@ const ExtensionSelect: React.FC<ExtensionSelectProps> = ({
 }) => {
   //FileTypes sorted by key
   const [sorted, setSorted] = useState<FileTypes>({});
-  const [selected, setSelected] = useState<any>([]);	
+  const [selected, setSelected] = useState<any>([]);
   const handleSelect = (values: any) => {
     const selected = values.map((value: any) => value.value);
     onValuesChange?.(selected);
@@ -28,9 +28,16 @@ const ExtensionSelect: React.FC<ExtensionSelectProps> = ({
   // get Icon component from extension
   const getFileIcon = (fileType: FileType) => {
     const IconComponent = Icon[fileType.icon];
-    return {
-      icon: <IconComponent size={20} className="me-2" color={fileType.color} />,
-    };
+    if (IconComponent) {
+      return {
+        icon: (
+          <IconComponent size={20} className="me-2" color={fileType.color} />
+        ),
+      };
+    } else {
+      console.warn(`Icon not found: ${fileType.icon}`);
+      return null;
+    }
   };
   useEffect(() => {
     if (values && sorted && Object.keys(sorted).length > 0) {

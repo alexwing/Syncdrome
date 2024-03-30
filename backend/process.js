@@ -57,7 +57,7 @@ module.exports = function (app) {
       });
 
       lineStream.on('line', (line) => {
-        if (!line.includes('$RECYCLE.BIN') && line.trim() !== "") {
+        if (!line.toLocaleUpperCase.includes('$RECYCLE.BIN') && line.trim() !== "") {
           let output = iconv.decode(line, "cp850");
           if (onlyMedia) {
             if (line.indexOf(".") > -1) {
@@ -114,7 +114,7 @@ module.exports = function (app) {
       });
       // Remove $RECYCLE.BIN folder and empty lines
       let output = stdout
-        .replace(/.*\$RECYCLE\.BIN.*/g, "")
+        .replace(/.*\$recycle\.bin.*/gi, "")
         .split("\n")
         .filter((line) => line.trim() !== "")
         .join("\n");

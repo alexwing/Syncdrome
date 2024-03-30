@@ -104,7 +104,6 @@ const bookmarks = () => {
       volume: drive.name,
       description: "",
     };
-    console.log("bookmark: ", bookmark);
     Api.addBookmark(bookmark).then(() => {
       loadBookmarks();
     });
@@ -114,7 +113,6 @@ const bookmarks = () => {
     setLoading(true);
     Api.getBookmarks()
       .then((response) => {
-        console.log(response.data);
         const volumes = response.data
           .map((bookmark) => bookmark.volume)
           .filter((value, index, self) => self.indexOf(value) === index)
