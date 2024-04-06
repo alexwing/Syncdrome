@@ -121,11 +121,11 @@ Code Details
 Todo
 ----
 
-*   Add a drag and drop feature to the bookmark list, add a comment to the file, and save the comment in the database.
-*   Sincronize a folder specified by the user, not a drive.
-*   Add file explorer option, to browse the files in all drives connected to the computer.
-*   Add a real search option to search for a file in all drives connected to the computer.
-*   Rename utility to rename files and folders.
+- [x]  Add a drag and drop feature to the bookmark list, add a comment to the file, and save the comment in the database.
+- [ ]  Sincronize a folder specified by the user, not a drive.
+- [ ]  Add file explorer option, to browse the files in all drives connected to the computer.
+- [ ]   Add a real search option to search for a file in all drives connected to the computer.
+- [ ]   Rename utility to rename files and folders.
 
 
 About
@@ -138,20 +138,19 @@ As someone who tends to accumulate digital files in a disorganized manner, I fel
 This intuitive tool streamlines the search and organization of your files on specific hard drives. With a simple yet powerful interface, Syncdrome allows quick keyword searches and presents results organized by folders.
 
 
+## Chat With RTX option in Syncdrome
 
-# Chat-With-RTX-typeScript-api
-
-This project has a test of a chat with "Chat to RTX" API, you can try this in development mode, you need to have the ChatRTX server running in your local machine.
+This section has a test of a chat with "Chat to RTX" API, you can try this in development mode, you need to have the ChatRTX server running in your local machine.
 
 In the menu of the application you can find the option "Chat" to test the chat with the RTX server.
 
-## What is ChatRTX?
+### What is ChatRTX?
 
 ChatRTX is a demonstration application that allows you to customize a large language model (LLM) GPT connected to your own content: documents, notes, videos, or other data. By leveraging retrieval-augmented generation (RAG), TensorRT-LLM, and RTX acceleration, you can query a customized chatbot for contextually relevant answers quickly. Since everything runs locally on your RTX Windows PC or workstation, you'll get fast, secure results.
 
 You can find more information about ChatRTX in the following link: [ChatRTX](https://www.nvidia.com/en-us/ai-on-rtx/chatrtx/)
 
-## API Documentation
+### API Documentation
 
 **File**: chatApi.ts
 

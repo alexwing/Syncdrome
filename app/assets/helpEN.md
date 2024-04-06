@@ -23,7 +23,8 @@ This working folder is stored within the application folder in the `resources\co
     "document": { // File type name
       "icon": "File", // Extension icon
       "color": "black", // Icon color
-      "extensions": ["doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "odt", "ods", "odp"] // File extensions
+      "extensions": ["doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "odt", "ods", "odp"], // File extensions
+      "media": ["doc", "docx"] // Extensions to save in multimedia-only synchronization
     },
     ...
   },

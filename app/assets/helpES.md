@@ -25,7 +25,8 @@ Esta carpeta de trabajo, se almacena dentro de la carpeta de la aplicación, en 
     "document": { // Nombre del tipo de archivo
       "icon": "File", // Icono de la extensión
       "color": "black", // Color del icono
-      "extensions": ["doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "odt", "ods", "odp"] // Extensiones de archivo
+      "extensions": ["doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "odt", "ods", "odp"], // Extensiones de archivo
+      "media": ["doc", "docx"] // Extensiones para guardar en la sincronización de solo multimedia
     },
     ...
     },
