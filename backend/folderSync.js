@@ -1,26 +1,11 @@
-const fs = require("fs");
+const { app } = require("electron");
 const path = require("path");
-const readline = require("readline");
-const iconv = require("iconv-lite");
-const stream = require("stream");
-const {
-  getSpaceDisk,
-  getDriveSync,
-  getVolumeName,
-  getDriveSyncDate,
-  getDrivesInfo,
-  getDriveOptions,
-  writeSize,
-  deleteDriveOptions,
-  getExtensions,
-  getConfig,
-} = require("./Utils/utils");
-
 // Convert exec and writeFile to return promises
 const util = require("util");
 const execPromise = util.promisify(require("child_process").exec);
 
-const logFilePath = path.join(__dirname, "syncTofolder.log");
+const logFilePath = path.join(app.getPath("userData"), "syncTofolder.log");
+const { deleteFile } = require("./Utils/utils");
 
 module.exports = function (app) {
   /***
@@ -36,6 +21,8 @@ module.exports = function (app) {
   app.post("/syncToFolder", async (req, res) => {
     const source = req.body.source;
     const target = req.body.target;
+    //delete previous log file
+    await deleteFile(logFilePath);
     const command = `robocopy "${source}" "${target}" /MIR /R:3 /W:10 /LOG:${logFilePath}`;
     try {
       const { stdout, stderr } = await execPromise(command);

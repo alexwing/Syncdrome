@@ -6,6 +6,7 @@ const settings = require("./backend/settings");
 const search = require("./backend/search");
 const process = require("./backend/process");
 const bookmarks = require("./backend/bookmarks");
+const folderSync = require("./backend/folderSync");
 
 const { ipcMain, dialog } = require("electron");
 
@@ -41,6 +42,7 @@ settings(app);
 search(app);
 process(app);
 bookmarks(app);
+folderSync(app);
 
 app.listen(port, () => {
   console.log(

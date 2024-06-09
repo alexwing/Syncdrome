@@ -109,7 +109,6 @@ const Api = {
     return Axios.get(path);
   },
 
-
   /***
    * Add bookmark
    * @param {object} bookmark - bookmark to add
@@ -133,6 +132,19 @@ const Api = {
    */
   deleteBookmark(id) {
     return Axios.delete(`/bookmark/${id}`);
-  }
+  },
+
+  /***
+   * endpoint to sync a folder into another folder, using robocopy parameters:
+   * @param {string} source - source folder
+   * @param {string} target - target folder
+   *
+   * @returns {void}
+   * @example
+   * syncToFolder("D:\\Pictures", "F:\\backup\\Pictures")
+   */
+  syncToFolder: (source, target) => {
+    return Axios.post("/syncToFolder", { source, target });
+  },
 };
 export default Api;
