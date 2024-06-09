@@ -75,6 +75,13 @@ const Navbar = () => {
         />
       )}
       <NavBarLink
+        text="Folder Sync"
+        icon={<i className="icons10-folder"></i>}
+        onClick={() => {
+          history.push("/folderSync");
+        }}
+      />
+      <NavBarLink
         text="Settings"
         icon={<i className="icons10-settings"></i>}
         onClick={() => {

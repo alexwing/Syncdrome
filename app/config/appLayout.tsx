@@ -9,6 +9,7 @@ import Settings from "../views/settings";
 import Sync from "../views/sync";
 import bookmarks from "../views/bookmarks";
 import ChatRtx from "../components/ChatRtx";
+import FolderSync from "../views/folderSync";
 
 const AppLayout = () => {
 
@@ -23,6 +24,7 @@ const AppLayout = () => {
       <Route path="/sync" component={Sync} />
       <Route path="/bookmarks" component={bookmarks} />
       <Route path="/chat" component={ChatRtx} />
+      <Route path="/folderSync" component={FolderSync} />
       <Route path="/settings" component={Settings} />
       <Route path="/help" component={Help} />
       <Route path="/about" component={About} />

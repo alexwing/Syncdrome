@@ -19,7 +19,6 @@ import { ipcRenderer } from "electron";
 import { AlertModel, DrivesProps, FileTypes } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import * as Icon from "react-bootstrap-icons";
-import { colors } from "react-select/dist/declarations/src/theme";
 
 const Comfig = () => {
   const [folder, setFolder] = useState("");
