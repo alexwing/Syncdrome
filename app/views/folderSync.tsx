@@ -24,13 +24,13 @@ const FolderSync = () => {
   // Función para simular la adición de logs
   const handleSync = () => {
     Api.syncToFolder(originFolder, destinationFolder)
-      .then((response) => {
-        const newLog = `Log ${logs.length + 1}: Sync completed successfully.`; // Simula un nuevo log
-        setLogs([...logs, newLog]); // Añade el nuevo log al estado
+      .then((response:any) => {
+        const newLog = response.data.message
+        setLogs([ newLog]); // Añade el nuevo log al estado
       })
       .catch((error) => {
-        const newLog = `Log ${logs.length + 1}: Sync failed.`; // Simula un nuevo log
-        setLogs([...logs, newLog]); // Añade el nuevo log al estado
+        const newLog = `Sync failed. ${error.message}`;
+        setLogs([ newLog]); // Añade el nuevo log al estado
       });
   };
 

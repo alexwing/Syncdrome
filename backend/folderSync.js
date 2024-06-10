@@ -6,6 +6,7 @@ const execPromise = util.promisify(require("child_process").exec);
 
 const logFilePath = path.join(app.getPath("userData"), "syncTofolder.log");
 const { deleteFile } = require("./Utils/utils");
+const { exec } = require("child_process");
 
 module.exports = function (app) {
   /***
@@ -18,23 +19,31 @@ module.exports = function (app) {
    * @example
    * syncToFolder("D:\\Pictures", "F:\\backup\\Pictures")
    */
-  app.post("/syncToFolder", async (req, res) => {
+
+  app.post("/syncToFolder", (req, res) => {
     const source = req.body.source;
     const target = req.body.target;
     //delete previous log file
-    await deleteFile(logFilePath);
-    const command = `robocopy "${source}" "${target}" /MIR /R:3 /W:10 /LOG:${logFilePath}`;
-    try {
-      const { stdout, stderr } = await execPromise(command);
-      console.log(`stdout: ${stdout}`);
-      console.error(`stderr: ${stderr}`);
-      res.json({
-        success: true,
-        message: `Sync ${source} to ${target} success`,
+    deleteFile(logFilePath)
+      .then(() => {
+        const command = `robocopy "${source}" "${target}" /MIR /R:3 /W:10 /LOG:${logFilePath}`;
+        exec(command, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`Error: ${error}`);
+            return;
+          }
+          console.log(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
+        });
+      })
+      .catch((error) => {
+        console.error(`Error deleting log file: ${error}`);
       });
-    } catch (error) {
-      console.error(`Error: ${error}`);
-      res.json({ success: false, error: error.message });
-    }
+
+    // Respond immediately
+    res.json({
+      success: true,
+      message: `Sync ${source} to ${target} initiated`,
+    });
   });
 };
