@@ -4,6 +4,7 @@ import * as Icon from "react-bootstrap-icons";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { ipcRenderer } from "electron";
 import Api from "../helpers/api";
+import { LogFile } from "../models/Interfaces";
 
 const FolderSync = () => {
   // Estado para almacenar los logs
@@ -15,6 +16,8 @@ const FolderSync = () => {
     localStorage.getItem("destinationFolder") || "";
   const [originFolder, setOriginFolder] = useState("");
   const [destinationFolder, setDestinationFolder] = useState("");
+  const [refreshFlag, setRefreshFlag] = useState(false);
+  const syncTime = 2000; // Tiempo de refresco de logs
 
   useEffect(() => {
     setOriginFolder(initialOriginFolder);
@@ -24,15 +27,31 @@ const FolderSync = () => {
   // Función para simular la adición de logs
   const handleSync = () => {
     Api.syncToFolder(originFolder, destinationFolder)
-      .then((response:any) => {
-        const newLog = response.data.message
-        setLogs([ newLog]); // Añade el nuevo log al estado
+      .then((response: any) => {
+        const newLog = response.data.message;
+        setLogs([newLog]); // Añade el nuevo log al estado
+        setRefreshFlag(true);
       })
       .catch((error) => {
         const newLog = `Sync failed. ${error.message}`;
-        setLogs([ newLog]); // Añade el nuevo log al estado
+        setLogs([newLog]); // Añade el nuevo log al estado
+        setRefreshFlag(false);
       });
   };
+
+  //refrescar logs cada 5 segundos para obtener los logs en tiempo real
+  useEffect(() => {
+    if (!refreshFlag) return;
+    const interval = setInterval(() => {
+      Api.getSyncLog().then((fileLog: LogFile) => {
+        setLogs([fileLog.info, fileLog.refresh, fileLog.summary]);
+        if (fileLog.summary.length > 0) {
+          setRefreshFlag(false);
+        }
+      });
+    }, syncTime);
+    return () => clearInterval(interval);
+  }, [refreshFlag]);
 
   const handleCloseConfirm = () => {
     setShowConfirm(false);
@@ -213,7 +232,9 @@ const FolderSync = () => {
                 }}
               >
                 {logs.map((log, index) => (
-                  <div key={index}>{log}</div>
+                  <p style={{ whiteSpace: "pre-wrap" }} key={index}>
+                    {log}
+                  </p>
                 ))}
               </code>
             </div>

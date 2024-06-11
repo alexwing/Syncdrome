@@ -1,4 +1,5 @@
 import Axios from "axios";
+import { LogFile } from "../models/Interfaces";
 const repoOwner = "alexwing";
 const repoName = "Syncdrome";
 const Api = {
@@ -146,5 +147,15 @@ const Api = {
   syncToFolder: (source, target) => {
     return Axios.post("/syncToFolder", { source, target });
   },
+
+  /***
+   * getSyncLog - get sync log
+   * @returns {object} - response from server 
+   * 
+   */
+
+  getSyncLog: (): Promise<LogFile> => {
+    return Axios.get("/getSyncLog").then((response) => response.data);
+  }
 };
 export default Api;

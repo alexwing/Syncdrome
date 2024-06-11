@@ -8,6 +8,7 @@ const logFilePath = path.join(app.getPath("userData"), "syncTofolder.log");
 const { deleteFile } = require("./Utils/utils");
 const { exec } = require("child_process");
 
+
 module.exports = function (app) {
   /***
    * endpoint to sync a folder into another folder, using robocopy parameters:
@@ -44,6 +45,42 @@ module.exports = function (app) {
     res.json({
       success: true,
       message: `Sync ${source} to ${target} initiated`,
+    });
+  });
+
+
+  /***
+   * endpoint to get the log file content
+   * 
+   * split log file in !------------------------------------------------------------------------------! 
+   * the element 0 is the sync information
+   * the element 1 is the refresh line status
+   * the element 2 is the summary
+   * @returns {
+   * info : string,
+   * refresh : string,
+   * sumary : string,
+   * 
+   * }
+   * @example
+   * getSyncLog()
+   */
+  app.get("/getSyncLog", (req, res) => {
+    const fs = require("fs");
+    const logFile = fs.readFileSync(logFilePath, "utf8");
+    //delete 3 first lines
+    const i = 2;
+    const logArray = logFile.split("------------------------------------------------------------------------------");
+    const info = logArray.length > i ? logArray[i] : "";
+    const content = logArray.length > i+1 ? logArray[i+1] : "";
+    //remove lines with % 
+    const refreshLastArray = content.split("\r").filter((line) => !line.includes("%"));
+    const refresh = refreshLastArray.join("\r");
+    const summary = logArray.length > i+2 ? logArray[i+2] : "";
+    res.json({
+      info: info,
+      refresh: refresh,
+      summary: summary,
     });
   });
 };
