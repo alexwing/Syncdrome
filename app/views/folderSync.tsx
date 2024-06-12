@@ -125,7 +125,7 @@ const FolderSync = () => {
         <Breadcrumb.Item active>Folder Sync</Breadcrumb.Item>
       </Breadcrumb>
       <h2>Folder Sync</h2>
-      <small>Select origin and destination folders to sync.</small>
+      <small>Select folders to synchronize. Existing files in the destination that match the source will be preserved; those missing in the destination will be added; and those not present in the source will be deleted.</small>
       <Row>
         <Col md={6}>
           <Form>
@@ -227,7 +227,7 @@ const FolderSync = () => {
                 style={{
                   display: "block",
                   width: "100%",
-                  height: "calc(100vh - 27em)",
+                  height: "calc(100vh - 32em)",
                   overflowY: "scroll",
                 }}
               >
