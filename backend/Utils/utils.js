@@ -369,6 +369,26 @@ const getExtensionsByType = (extensions, config) => {
   return [...new Set(ext)];
 };
 
+/***
+ * Delete a file
+ * @param {String} filePath - The file path
+ */
+const deleteFile = async (filePath) => {
+  try {
+    await fs
+      .unlink(filePath)
+      .then(() => {
+        console.log(`Deleted ${filePath}`);
+      })
+      .catch((err) => {
+        console.error(`Error: ${err}`);
+      });
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+}
+
+
 module.exports = {
   getSpaceDisk,
   getDriveSync,
@@ -388,4 +408,5 @@ module.exports = {
   saveConfig,
   getExtensionsByType,
   getSqlitePath,
+  deleteFile,
 };

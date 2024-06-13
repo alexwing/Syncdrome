@@ -1,4 +1,5 @@
 import Axios from "axios";
+import { LogFile } from "../models/Interfaces";
 const repoOwner = "alexwing";
 const repoName = "Syncdrome";
 const Api = {
@@ -109,7 +110,6 @@ const Api = {
     return Axios.get(path);
   },
 
-
   /***
    * Add bookmark
    * @param {object} bookmark - bookmark to add
@@ -133,6 +133,29 @@ const Api = {
    */
   deleteBookmark(id) {
     return Axios.delete(`/bookmark/${id}`);
+  },
+
+  /***
+   * endpoint to sync a folder into another folder, using robocopy parameters:
+   * @param {string} source - source folder
+   * @param {string} target - target folder
+   *
+   * @returns {void}
+   * @example
+   * syncToFolder("D:\\Pictures", "F:\\backup\\Pictures")
+   */
+  syncToFolder: (source, target) => {
+    return Axios.post("/syncToFolder", { source, target });
+  },
+
+  /***
+   * getSyncLog - get sync log
+   * @returns {object} - response from server 
+   * 
+   */
+
+  getSyncLog: (): Promise<LogFile> => {
+    return Axios.get("/getSyncLog").then((response) => response.data);
   }
 };
 export default Api;

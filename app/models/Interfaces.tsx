@@ -69,3 +69,9 @@ export interface IFile {
 export interface IFileList {
   [key: string]: IFile[];
 }
+
+export interface LogFile{
+  info: string;
+  refresh: string;
+  summary: string;
+}

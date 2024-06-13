@@ -105,3 +105,11 @@ To the right of the files, an icon is displayed to add to favorites, which allow
 In the `Bookmarks` section of the application menu, a list of favorite files is displayed, allowing you to filter by file name and comment. You can also delete the favorite by clicking the trash can icon.
 
 Favorites are stored in an SQLite database, in the application folder, in the `db.sqlite` file.
+
+### Folder Sync
+
+In the `Folder Sync` section of the application menu, you can synchronize folders between two locations by selecting the source folder and the destination folder, and clicking the `Sync` button.
+
+The source folder is selected on the left side and the destination folder on the right side. Existing files in the destination that match the source will be preserved; those missing in the destination will be added; and those not in the source will be deleted.
+
+At the bottom, a log of the operations performed is displayed, with the date and time of the operation, the type of operation, and the affected files.

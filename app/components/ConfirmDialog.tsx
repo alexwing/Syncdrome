@@ -7,6 +7,7 @@ import * as Icon from "react-bootstrap-icons";
 interface ConfirmDialogProps {
   title: string;
   message: string;
+  subMessage?: string;
   show: boolean;
   handleCancel: () => void;
   handleOK: () => void;
@@ -15,6 +16,7 @@ interface ConfirmDialogProps {
 function ConfirmDialog({
   title,
   message,
+  subMessage,
   show,
   handleCancel,
   handleOK,
@@ -34,7 +36,18 @@ function ConfirmDialog({
             {title}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>{message}</Modal.Body>
+        <Modal.Body>
+          {message}
+          {subMessage && (
+            <p
+              style={{ fontStyle: "italic", color: "darkred" }}
+              className="mt-3"
+            >
+              {subMessage}
+            </p>
+          )}
+        </Modal.Body>
+
         <Modal.Footer>
           <Button variant="primary" onClick={handleOK} size="lg">
             <Icon.Check size={32} className="me-2" />

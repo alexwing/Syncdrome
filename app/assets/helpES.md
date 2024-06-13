@@ -109,3 +109,10 @@ En la sección `Bookmarks` del menú de la aplicación, se muestra una lista de 
 
 Los favoritos se almacenan en una base de datos SQLite, en la carpeta de la aplicación, en el fichero `db.sqlite`.
 
+### Sincronización de carpetas
+
+En la sección `Folder Sync` del menú de la aplicación, se puede sincronizar carpetas entre dos ubicaciones, seleccionando la carpeta de origen y la carpeta de destino, y haciendo clic en el botón `Sync`.
+
+La carpeta de origen se selecciona se situa en la parte izquierda y la carpeta de destino en la parte derecha. Los archivos existentes en el destino que coincidan con el origen se conservarán; los que falten en el destino se añadirán; y los que no estén en el origen se eliminarán.
+
+En la parte inferior se muestra un log de las operaciones realizadas, con la fecha y hora de la operación, el tipo de operación y los archivos afectados.
