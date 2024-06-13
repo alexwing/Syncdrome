@@ -1,6 +1,6 @@
 {
   "name": "syncdrome",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Create a catalog of all files on specified hard drives",
   "main": "electron.js",
   "scripts": {
