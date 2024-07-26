@@ -156,6 +156,16 @@ const Api = {
 
   getSyncLog: (): Promise<LogFile> => {
     return Axios.get("/getSyncLog").then((response) => response.data);
+  },
+
+  /***
+   * getFilesInFolder - get files in folder
+   * @param {string} folder - folder to get files from
+   * @returns {object} - response from server
+   * 
+   */
+  getFilesInFolder: (folder,): Promise<string[]> => {
+    return Axios.get(`/filesInFolder/${folder}`).then((response) => response.data);
   }
 };
 export default Api;

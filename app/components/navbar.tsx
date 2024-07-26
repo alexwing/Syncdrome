@@ -82,6 +82,13 @@ const Navbar = () => {
         }}
       />
       <NavBarLink
+        text="File Cleaner"
+        icon={<i className="icons10-file"></i>}
+        onClick={() => {
+          history.push("/fileCleaner");
+        }}
+      />
+      <NavBarLink
         text="Settings"
         icon={<i className="icons10-settings"></i>}
         onClick={() => {
