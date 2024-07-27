@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { LogFile } from "../models/Interfaces";
+import { FileCleanerProps, LogFile } from "../models/Interfaces";
 const repoOwner = "alexwing";
 const repoName = "Syncdrome";
 const Api = {
@@ -159,13 +159,15 @@ const Api = {
   },
 
   /***
-   * getFilesInFolder - get files in folder
-   * @param {string} folder - folder to get files from
+   * getFilesInFolder - get files in folder use post method
+   * @param {string} folder - folder to get files from convert 
    * @returns {object} - response from server
    * 
    */
-  getFilesInFolder: (folder,): Promise<string[]> => {
-    return Axios.get(`/filesInFolder/${folder}`).then((response) => response.data);
+  getFilesInFolder: (folder,): Promise<FileCleanerProps[]> => {
+    return Axios.post("/getFilesInFolder", { folder }).then(
+      (response) => response.data
+    );
   }
 };
 export default Api;

@@ -11,7 +11,8 @@ import {
 import * as Icon from "react-bootstrap-icons";
 import { ipcRenderer } from "electron";
 import Api from "../helpers/api";
-import '../styles/components/fileCleaner.css';
+import "../styles/components/fileCleaner.css";
+import { FileCleanerProps } from "../models/Interfaces";
 
 const defaultSubstitutions = [
   { find: "720p", replace: "" },
@@ -26,12 +27,28 @@ const defaultSubstitutions = [
   { find: "10bit", replace: "" },
   { find: "8bit", replace: "" },
   { find: "6ch", replace: "" },
+  { find: "5.1", replace: "" },
+  { find: "Spanish", replace: "" },
+  { find: "English", replace: "" },
+  { find: "Latino", replace: "" },
+  { find: "Castellano", replace: "" },
+  { find: "Español", replace: "" },
+  { find: "Dual", replace: "" },
+  { find: "Subtitulado", replace: "" },
+  { find: "Subs", replace: "" },
+  { find: "Sub", replace: "" },
+  { find: "Subtitulos", replace: "" },
+  { find: "AC3", replace: "" },
+  { find: "AAC", replace: "" },
+  { find: "( )", replace: "" },
+  { find: "()", replace: "" },
 ];
 
 const FileCleaner = () => {
   const [originFolder, setOriginFolder] = useState("");
-  const [fileNames, setFileNames] = useState<string[]>([]);
+  const [fileNames, setFileNames] = useState<FileCleanerProps[]>([]);
   const [substitutions, setSubstitutions] = useState(defaultSubstitutions);
+  const [loading, setLoading] = useState(false);
 
   const changeOriginFolder = async () => {
     const path = await ipcRenderer.invoke(
@@ -42,14 +59,24 @@ const FileCleaner = () => {
   };
 
   const loadFileNames = async () => {
+    setLoading(true);
     if (originFolder) {
       const files = await Api.getFilesInFolder(originFolder);
       setFileNames(files);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadFileNames();
+    if (fileNames.length > 0 && !loading) {
+      cleanFileNames();
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    if (originFolder) {
+      loadFileNames();
+    }
   }, [originFolder]);
 
   const handleAddSubstitution = () => {
@@ -64,12 +91,18 @@ const FileCleaner = () => {
 
   const cleanFileNames = () => {
     const cleanedFileNames = fileNames.map((fileName) => {
-      let newFileName = fileName;
+      let newFileName = fileName.filename;
+      let extension = newFileName.split(".").pop();
+      //remove extension
+      newFileName = newFileName.slice(0, newFileName.lastIndexOf("."));
+      //replace all '.' with space
       substitutions.forEach(({ find, replace }) => {
-        const regex = new RegExp(find, "g");
-        newFileName = newFileName.replace(regex, replace);
+        const regex = new RegExp(find, "gi");
+        newFileName = newFileName.replace(regex, replace).trim();
       });
-      return newFileName;
+      // Remove extra spaces
+      newFileName = newFileName.replace(/\s+/g, " ");
+      return { ...fileName, fixed: newFileName + "." + extension };
     });
     setFileNames(cleanedFileNames);
   };
@@ -107,8 +140,9 @@ const FileCleaner = () => {
         </Col>
         <Col md={6}>
           <Form.Label>
-          <Icon.Scissors className="me-2" size={20} color="blue" />
-            Substitution Rules</Form.Label>
+            <Icon.Scissors className="me-2" size={20} color="blue" />
+            Substitution Rules
+          </Form.Label>
           <div className="table-container">
             <Table striped bordered hover>
               <thead className="table-header">
@@ -132,7 +166,7 @@ const FileCleaner = () => {
                           )
                         }
                         className="form-control-flat"
-                        />
+                      />
                     </td>
                     <td className="cell-no-padding">
                       <Form.Control
@@ -172,7 +206,7 @@ const FileCleaner = () => {
             Clean File Names
           </Button>
         </Col>
-      </Row>      
+      </Row>
       <Row>
         <Col md={12}>
           <h4>File Names</h4>
@@ -184,18 +218,23 @@ const FileCleaner = () => {
               </tr>
             </thead>
             <tbody>
-              {fileNames.map((fileName, index) => (
+              {fileNames.map((file, index) => (
                 <tr key={index}>
                   <td>{index + 1}</td>
-                  <td>{fileName}</td>
+                  <td>
+                    <div className="file-name">
+                      <strong>Original:</strong> {file.filename}
+                    </div>
+                    <div className="fixed-name">
+                      <strong>Fixed:</strong> {file.fixed}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </Table>
         </Col>
       </Row>
-
-
     </Container>
   );
 };

@@ -75,3 +75,8 @@ export interface LogFile{
   refresh: string;
   summary: string;
 }
+
+export interface FileCleanerProps {
+  path: string;
+  filename: string;
+}
