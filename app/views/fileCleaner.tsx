@@ -12,7 +12,8 @@ import * as Icon from "react-bootstrap-icons";
 import { ipcRenderer } from "electron";
 import Api from "../helpers/api";
 import "../styles/components/fileCleaner.css";
-import { FileCleanerProps } from "../models/Interfaces";
+import { FileCleanerProps, Substitution } from "../models/Interfaces";
+import { cleanFileNames } from "../helpers/utils";
 
 const defaultSubstitutions = [
   { find: "720p", replace: "" },
@@ -40,9 +41,8 @@ const defaultSubstitutions = [
   { find: "Subtitulos", replace: "" },
   { find: "AC3", replace: "" },
   { find: "AAC", replace: "" },
-  { find: "( )", replace: "" },
   { find: "()", replace: "" },
-];
+] as Substitution[];
 
 const FileCleaner = () => {
   const [originFolder, setOriginFolder] = useState("");
@@ -69,7 +69,7 @@ const FileCleaner = () => {
 
   useEffect(() => {
     if (fileNames.length > 0 && !loading) {
-      cleanFileNames();
+      cleanFileNamesHandler();
     }
   }, [loading]);
 
@@ -89,21 +89,8 @@ const FileCleaner = () => {
     setSubstitutions(newSubstitutions);
   };
 
-  const cleanFileNames = () => {
-    const cleanedFileNames = fileNames.map((fileName) => {
-      let newFileName = fileName.filename;
-      let extension = newFileName.split(".").pop();
-      //remove extension
-      newFileName = newFileName.slice(0, newFileName.lastIndexOf("."));
-      //replace all '.' with space
-      substitutions.forEach(({ find, replace }) => {
-        const regex = new RegExp(find, "gi");
-        newFileName = newFileName.replace(regex, replace).trim();
-      });
-      // Remove extra spaces
-      newFileName = newFileName.replace(/\s+/g, " ");
-      return { ...fileName, fixed: newFileName + "." + extension };
-    });
+  const cleanFileNamesHandler = () => {
+    const cleanedFileNames = cleanFileNames(fileNames, substitutions);
     setFileNames(cleanedFileNames);
   };
 
@@ -199,7 +186,7 @@ const FileCleaner = () => {
             type="button"
             size="lg"
             className="mx-auto d-block mt-3"
-            onClick={cleanFileNames}
+            onClick={cleanFileNamesHandler}
             disabled={!originFolder}
           >
             <Icon.FileEarmarkText className="me-2" size={20} color="white" />

@@ -79,4 +79,10 @@ export interface LogFile{
 export interface FileCleanerProps {
   path: string;
   filename: string;
+  fixed?: string;
+}
+
+export interface Substitution {
+  find: string;
+  replace: string;
 }

@@ -2,6 +2,7 @@ import React from "react";
 import * as Icon from "react-bootstrap-icons";
 import Api from "./api";
 import { Badge, Button } from "react-bootstrap";
+import { FileCleanerProps, Substitution } from "../models/Interfaces";
 
 /***
  * get Icon component from extension
@@ -86,4 +87,47 @@ export const connectedIcon = (connected) => {
       {connected}
     </Button>
   );
+};
+
+/***
+ * Clean file names based on substitutions list
+ * @param fileNames
+ * @param substitutions
+ * @returns {[]}
+ */
+export const cleanFileNames = (
+  fileNames: FileCleanerProps[],
+  substitutions: Substitution[]
+) => {
+  const cleanedFileNames = fileNames.map((fileName) => {
+    let newFileName = fileName.filename;
+    const extension = newFileName.split(".").pop();
+
+    // Remove extension
+    newFileName = newFileName.slice(0, newFileName.lastIndexOf("."));
+
+    // Replace all '.' with space
+    newFileName = newFileName.split(".").join(" ");
+
+    // Apply substitutions
+    substitutions.forEach(({ find, replace }) => {
+      const regex = new RegExp(find, "gi");
+      newFileName = newFileName.replace(regex, replace).trim();
+    });
+
+    // Remove empty parentheses
+    newFileName = newFileName.replace(/\(\s*\)/g, "");
+
+    // Remove extra double spaces
+    newFileName = newFileName.replace(/\s+/g, " ");
+
+    //remove leading and trailing spaces
+    newFileName = newFileName.trim();
+
+    //remove no utf-8 characters
+    newFileName = newFileName.replace(/[^\x00-\x7F]/g, "");
+
+    return { ...fileName, fixed: newFileName + "." + extension };
+  });
+  return cleanedFileNames;
 };
