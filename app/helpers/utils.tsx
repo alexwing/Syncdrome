@@ -97,7 +97,8 @@ export const connectedIcon = (connected) => {
  */
 export const cleanFileNames = (
   fileNames: FileCleanerProps[],
-  substitutions: Substitution[]
+  substitutions: Substitution[],
+  pattern: string
 ) => {
   const cleanedFileNames = fileNames.map((fileName) => {
     let newFileName = fileName.filename;
@@ -105,6 +106,12 @@ export const cleanFileNames = (
 
     // Remove extension
     newFileName = newFileName.slice(0, newFileName.lastIndexOf("."));
+
+    // Remove pattern
+    if (pattern) {
+      const parts = newFileName.split(pattern);
+      newFileName = parts[0] || newFileName;
+    }
 
     // Replace all '.' with space
     newFileName = newFileName.split(".").join(" ");
@@ -121,13 +128,14 @@ export const cleanFileNames = (
     // Remove extra double spaces
     newFileName = newFileName.replace(/\s+/g, " ");
 
-    //remove leading and trailing spaces
+    // Remove leading and trailing spaces
     newFileName = newFileName.trim();
 
-    //remove no utf-8 characters
+    // Remove non-UTF-8 characters
     newFileName = newFileName.replace(/[^\x00-\x7F]/g, "");
 
     return { ...fileName, fixed: newFileName + "." + extension };
   });
+
   return cleanedFileNames;
 };
