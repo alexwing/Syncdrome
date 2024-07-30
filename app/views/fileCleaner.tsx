@@ -50,6 +50,7 @@ const defaultSubstitutions = [
 ] as Substitution[];
 
 const FileCleaner = () => {
+  const initialPattenrTerm = localStorage.getItem("patternTerm") || "";
   const [originFolder, setOriginFolder] = useState("");
   const [substitutions, setSubstitutions] =
     useState<Substitution[]>(defaultSubstitutions);
@@ -57,7 +58,7 @@ const FileCleaner = () => {
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(0);
-  const [pattern, setPattern] = useState("");
+  const [pattern, setPattern] = useState(initialPattenrTerm);
   const [showAlert, setShowAlert] = useState(false);
   const [alert, setAlert] = useState({} as AlertModel);
 
@@ -125,6 +126,7 @@ const FileCleaner = () => {
   };
 
   const handlePatternChange = (event) => {
+    localStorage.setItem("patternTerm", event.target.value);  
     setPattern(event.target.value);
   };
 
