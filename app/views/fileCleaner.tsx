@@ -14,8 +14,13 @@ import { ipcRenderer } from "electron";
 import Api from "../helpers/api";
 import "../styles/components/fileCleaner.css";
 import ConfirmDialog from "../components/ConfirmDialog";
-import { FileCleanerProps, Substitution } from "../models/Interfaces";
+import {
+  AlertModel,
+  FileCleanerProps,
+  Substitution,
+} from "../models/Interfaces";
 import { cleanFileNames } from "../helpers/utils";
+import AlertMessage from "../components/AlertMessage";
 
 const defaultSubstitutions = [
   { find: "720p", replace: "" },
@@ -53,6 +58,8 @@ const FileCleaner = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(0);
   const [pattern, setPattern] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alert, setAlert] = useState({} as AlertModel);
 
   const changeOriginFolder = async () => {
     const path = await ipcRenderer.invoke(
@@ -63,8 +70,8 @@ const FileCleaner = () => {
   };
 
   const loadFileNames = async () => {
-    setLoading(true);
     if (originFolder) {
+      setLoading(true);
       const files = await Api.getFilesInFolder(originFolder);
       setFileNames(files);
       setLoading(false);
@@ -121,6 +128,44 @@ const FileCleaner = () => {
     setPattern(event.target.value);
   };
 
+  // alert message
+  const showAlertMessage = (
+    <AlertMessage
+      show={showAlert}
+      alertMessage={alert}
+      onHide={() => setShowAlert(false)}
+      autoClose={2000}
+      ok={true}
+    />
+  );
+
+  const applyChanges = () => {
+    //use api to rename files send fileNames to api, is success show alert message and reload folder
+    /*** rename files in folder use post method renameFilesInFolder
+     * @param FileCleanerProps [{ path: string; filename: string; fixed: string;},...]
+     * @returns FileCleanerProps [{ path: string; filename: string; fixed:string, status: string;},...]
+     * @example renameFilesInFolder([{ path: "D:\\Pictures\\IMG_0001.jpg", filename: "IMG_0001.jpg", fixed: "IMG_0001.jpg" },...])
+     * */
+    Api.renameFilesInFolder(fileNames)
+      .then((response) => {
+        setAlert({
+          title: "Files renamed successfully",
+          message: "",
+          type: "success",
+        });
+        setShowAlert(true);
+        setFileNames(response);
+      })
+      .catch((error) => {
+        setAlert({
+          title: "Error renaming files",
+          message: error.message,
+          type: "danger",
+        });
+        setShowAlert(true);
+      });
+  };
+
   return (
     <Container className="container-scroll">
       <Breadcrumb className="mt-3">
@@ -130,7 +175,7 @@ const FileCleaner = () => {
       <h2>File Name Cleaner</h2>
       <Row style={{ backgroundColor: "#f8f9fa", padding: "20px" }}>
         <Col md={6}>
-          <Form >
+          <Form>
             <Form.Group controlId="formOriginFolder" className="mt-2">
               <Form.Label>
                 <Icon.Folder2Open className="me-2" size={20} color="blue" />
@@ -233,17 +278,39 @@ const FileCleaner = () => {
         </Col>
       </Row>
       <Row>
-        <Col md={12}>
+        <Col md={12} className="d-flex justify-content-center">
           <Button
             variant="primary"
             type="button"
             size="lg"
-            className="mx-auto d-block mt-3"
+            className="mx-2 mt-3"
+            onClick={loadFileNames}
+            disabled={!originFolder}
+          >
+            <Icon.ArrowRepeat className="me-2" size={20} color="white" />
+            Reload
+          </Button>
+          <Button
+            variant="primary"
+            type="button"
+            size="lg"
+            className="mx-2 mt-3"
             onClick={cleanFileNamesHandler}
             disabled={!originFolder}
           >
             <Icon.FileEarmarkText className="me-2" size={20} color="white" />
             Clean File Names
+          </Button>
+          <Button
+            variant="success"
+            type="button"
+            size="lg"
+            className="mx-2 mt-3"
+            onClick={applyChanges}
+            disabled={!originFolder}
+          >
+            <Icon.Check2All className="me-2" size={20} color="white" />
+            Apply Changes
           </Button>
         </Col>
       </Row>
@@ -283,10 +350,15 @@ const FileCleaner = () => {
                         <strong>Fixed:</strong>
                         <Form.Control
                           type="text"
-                          value={file.fixed}
+                          value={file.fixed || ""}
                           onChange={(event) => handleInputChange(index, event)}
                         />
                       </div>
+                      {file.status && (
+                        <div className="file-status">
+                          <strong>Status:</strong> {file.status}
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -295,7 +367,6 @@ const FileCleaner = () => {
           </Col>
         </Row>
       )}
-
       <ConfirmDialog
         title="Delete Substitution Rule"
         message="Are you sure you want to delete this substitution rule?"
@@ -303,6 +374,7 @@ const FileCleaner = () => {
         handleCancel={() => setShowConfirm(false)}
         handleOK={() => deleteSubstitution(deleteIndex)}
       />
+      {showAlertMessage}
     </Container>
   );
 };

@@ -132,7 +132,7 @@ export const cleanFileNames = (
     newFileName = newFileName.trim();
 
     // Remove non-UTF-8 characters
-    newFileName = newFileName.replace(/[^\x00-\x7F]/g, "");
+    newFileName = newFileName.replace(/[^\x00-\x7F\u00C0-\u00FF]/g, "");
 
     return { ...fileName, fixed: newFileName + "." + extension };
   });

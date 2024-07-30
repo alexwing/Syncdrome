@@ -16,7 +16,7 @@ module.exports = function (app) {
    * @example
    * getFilesInFolder("D:\\Pictures")
    */
-  const fs = require("fs");
+  const fs = require("fs-extra");
   const path = require("path");
 
   app.post("/getFilesInFolder", async (req, res) => {
@@ -38,6 +38,31 @@ module.exports = function (app) {
           res.status(200).send(fileList);
         }
       });
+    } catch (err) {
+      res.status(500).send(err.message);
+    }
+  });
+  /*** rename files in folder use post method renameFilesInFolder
+   * @param FileCleanerProps [{ path: string; filename: string; fixed: string;},...]
+   * @returns FileCleanerProps [{ path: string; filename: string; fixed:string, status: string;},...]
+   * @example renameFilesInFolder([{ path: "D:\\Pictures\\IMG_0001.jpg", filename: "IMG_0001.jpg", fixed: "IMG_0001.jpg" },...])
+   * */
+  app.post("/renameFilesInFolder", async (req, res) => {
+    const files = req.body;
+    const results = [];
+
+    try {
+      const renamePromises = files.map(async (file) => {
+        try {
+          const newPath = path.join(path.dirname(file.path), file.fixed);
+          await fs.rename(file.path, newPath);
+          results.push({ ...file, status: "success" });
+        } catch (err) {
+          results.push({ ...file, status: "error", message: err.message });
+        }
+      });
+      await Promise.all(renamePromises);
+      res.status(200).send(results);
     } catch (err) {
       res.status(500).send(err.message);
     }
