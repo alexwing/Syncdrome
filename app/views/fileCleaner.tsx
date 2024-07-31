@@ -22,38 +22,11 @@ import {
 import { cleanFileNames } from "../helpers/utils";
 import AlertMessage from "../components/AlertMessage";
 
-const defaultSubstitutions = [
-  { find: "720p", replace: "" },
-  { find: "1080p", replace: "" },
-  { find: "720", replace: "" },
-  { find: "1080", replace: "" },
-  { find: "4K", replace: "" },
-  { find: "(Spanish English)", replace: "" },
-  { find: "web-dl", replace: "" },
-  { find: "x264", replace: "" },
-  { find: "x265", replace: "" },
-  { find: "h264", replace: "" },
-  { find: "h265", replace: "" },
-  { find: "10bit", replace: "" },
-  { find: "8bit", replace: "" },
-  { find: "6ch", replace: "" },
-  { find: "Spanish", replace: "" },
-  { find: "English", replace: "" },
-  { find: "Latino", replace: "" },
-  { find: "Castellano", replace: "" },
-  { find: "Español", replace: "" },
-  { find: "Dual", replace: "" },
-  { find: "Subtitulado", replace: "" },
-  { find: "Subtitulos", replace: "" },
-  { find: "AC3", replace: "" },
-  { find: "()", replace: "" },
-] as Substitution[];
-
 const FileCleaner = () => {
   const initialPattenrTerm = localStorage.getItem("patternTerm") || "";
   const [originFolder, setOriginFolder] = useState("");
   const [substitutions, setSubstitutions] =
-    useState<Substitution[]>(defaultSubstitutions);
+    useState<Substitution[]>([] as Substitution[]);
   const [fileNames, setFileNames] = useState<FileCleanerProps[]>([]);
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -62,6 +35,31 @@ const FileCleaner = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [alert, setAlert] = useState({} as AlertModel);
 
+
+
+  // get config from server
+  const getConfig = async () => {
+    try {
+      const response = await Api.getSettings();
+      if (response.data.pattern) {
+        setPattern(response.data.pattern);
+      }
+      if (response.data.defaultSubstitutions) {
+      setSubstitutions(response.data.defaultSubstitutions);
+      }
+    } catch (error) {
+      setAlert({
+        title: "Error",
+        message: "Config file not found or corrupted",
+        type: "danger",
+      });
+      setShowAlert(true);
+      return;
+    }
+  }; 
+  useEffect(() => {
+    getConfig();
+  }, []); 
   const changeOriginFolder = async () => {
     const path = await ipcRenderer.invoke(
       "open-directory-dialog",

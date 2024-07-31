@@ -75,47 +75,18 @@
         "mpeg",
         "3gp"
       ],
-      "media": [
-        "mov",
-        "mkv",
-        "mp4",
-        "avi",
-        "wmv",
-        "webm",
-        "mpg",
-        "mpeg"
-      ]
+      "media": ["mov", "mkv", "mp4", "avi", "wmv", "webm", "mpg", "mpeg"]
     },
     "audio": {
       "icon": "FileEarmarkMusicFill",
       "color": "green",
-      "extensions": [
-        "mp3",
-        "wav",
-        "wma",
-        "mpa",
-        "aif",
-        "iff",
-        "m3u",
-        "m4a"
-      ],
-      "media": [
-        "mp3",
-        "wav",
-        "wma"
-      ]
+      "extensions": ["mp3", "wav", "wma", "mpa", "aif", "iff", "m3u", "m4a"],
+      "media": ["mp3", "wav", "wma"]
     },
     "executable": {
       "icon": "FiletypeExe",
       "color": "blue",
-      "extensions": [
-        "exe",
-        "msi",
-        "apk",
-        "app",
-        "bat",
-        "jar"
-      ],
+      "extensions": ["exe", "msi", "apk", "app", "bat", "jar"],
       "media": []
     },
     "font": {
@@ -148,14 +119,7 @@
         "xls",
         "xlsx"
       ],
-      "media": [
-        "pdb",
-        "dbx",
-        "sql",
-        "db",
-        "accdb",
-        "dbf"
-      ]
+      "media": ["pdb", "dbx", "sql", "db", "accdb", "dbf"]
     },
     "database": {
       "icon": "Database",
@@ -212,75 +176,31 @@
     "book": {
       "icon": "Book",
       "color": "blue",
-      "extensions": [
-        "pdf",
-        "epub",
-        "mobi",
-        "azw",
-        "azw3"
-      ],
-      "media": [
-        "pdf",
-        "epub",
-        "mobi",
-        "azw",
-        "azw3"
-      ]
+      "extensions": ["pdf", "epub", "mobi", "azw", "azw3"],
+      "media": ["pdf", "epub", "mobi", "azw", "azw3"]
     },
     "presentation": {
       "icon": "FileEarmarkSlidesFill",
       "color": "red",
-      "extensions": [
-        "key",
-        "odp",
-        "pps",
-        "ppt",
-        "pptx"
-      ],
-      "media": [
-        "pps",
-        "ppt",
-        "pptx"
-      ]
+      "extensions": ["key", "odp", "pps", "ppt", "pptx"],
+      "media": ["pps", "ppt", "pptx"]
     },
     "vector": {
       "icon": "FiletypeAi",
       "color": "blue",
-      "extensions": [
-        "ai",
-        "eps",
-        "svg",
-        "sketch",
-        "cdr"
-      ],
-      "media": [
-        "eps",
-        "svg",
-        "cdr"
-      ]
+      "extensions": ["ai", "eps", "svg", "sketch", "cdr"],
+      "media": ["eps", "svg", "cdr"]
     },
     "cad": {
       "icon": "Badge3d",
       "color": "blue",
-      "extensions": [
-        "dwg",
-        "dxf",
-        "dws",
-        "dwt"
-      ],
+      "extensions": ["dwg", "dxf", "dws", "dwt"],
       "media": []
     },
     "3d": {
       "icon": "Badge3dFill",
       "color": "blue",
-      "extensions": [
-        "stl",
-        "obj",
-        "fbx",
-        "blend",
-        "ply",
-        "3mf"
-      ],
+      "extensions": ["stl", "obj", "fbx", "blend", "ply", "3mf"],
       "media": []
     },
     "default": {
@@ -289,5 +209,31 @@
       "extensions": [],
       "media": []
     }
-  }
+  },
+  "defaultSubstitutions": [
+    { "find": "720p", "replace": "" },
+    { "find": "1080p", "replace": "" },
+    { "find": "720", "replace": "" },
+    { "find": "1080", "replace": "" },
+    { "find": "4K", "replace": "" },
+    { "find": "(Spanish English)", "replace": "" },
+    { "find": "web-dl", "replace": "" },
+    { "find": "x264", "replace": "" },
+    { "find": "x265", "replace": "" },
+    { "find": "h264", "replace": "" },
+    { "find": "h265", "replace": "" },
+    { "find": "10bit", "replace": "" },
+    { "find": "8bit", "replace": "" },
+    { "find": "6ch", "replace": "" },
+    { "find": "Spanish", "replace": "" },
+    { "find": "English", "replace": "" },
+    { "find": "Latino", "replace": "" },
+    { "find": "Castellano", "replace": "" },
+    { "find": "Español", "replace": "" },
+    { "find": "Dual", "replace": "" },
+    { "find": "Subtitulado", "replace": "" },
+    { "find": "Subtitulos", "replace": "" },
+    { "find": "AC3", "replace": "" },
+    { "find": "()", "replace": "" }
+  ]
 }

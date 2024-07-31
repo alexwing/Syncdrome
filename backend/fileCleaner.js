@@ -3,7 +3,6 @@ const path = require("path");
 // Convert exec and writeFile to return promises
 const util = require("util");
 
-const logFilePath = path.join(app.getPath("userData"), "syncTofolder.log");
 const { deleteFile } = require("./Utils/utils");
 const { exec } = require("child_process");
 
