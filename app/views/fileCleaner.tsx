@@ -21,12 +21,14 @@ import {
 } from "../models/Interfaces";
 import { cleanFileNames } from "../helpers/utils";
 import AlertMessage from "../components/AlertMessage";
+import { saveConfig } from "../../backend/Utils/utils";
 
 const FileCleaner = () => {
   const initialPattenrTerm = localStorage.getItem("patternTerm") || "";
   const [originFolder, setOriginFolder] = useState("");
-  const [substitutions, setSubstitutions] =
-    useState<Substitution[]>([] as Substitution[]);
+  const [substitutions, setSubstitutions] = useState<Substitution[]>(
+    [] as Substitution[]
+  );
   const [fileNames, setFileNames] = useState<FileCleanerProps[]>([]);
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -34,8 +36,6 @@ const FileCleaner = () => {
   const [pattern, setPattern] = useState(initialPattenrTerm);
   const [showAlert, setShowAlert] = useState(false);
   const [alert, setAlert] = useState({} as AlertModel);
-
-
 
   // get config from server
   const getConfig = async () => {
@@ -45,7 +45,7 @@ const FileCleaner = () => {
         setPattern(response.data.pattern);
       }
       if (response.data.defaultSubstitutions) {
-      setSubstitutions(response.data.defaultSubstitutions);
+        setSubstitutions(response.data.defaultSubstitutions);
       }
     } catch (error) {
       setAlert({
@@ -56,10 +56,26 @@ const FileCleaner = () => {
       setShowAlert(true);
       return;
     }
-  }; 
+  };
+
+  const saveConfig = async (newConfig) => {
+    try {
+      const response = await Api.saveSettings(newConfig);
+      return response;
+    } catch (error) {
+      setAlert({
+        title: "Error",
+        message: "Error saving config file",
+        type: "danger",
+      });
+      setShowAlert(true);
+      throw new Error("Error saving config file");
+    }
+  };
+
   useEffect(() => {
     getConfig();
-  }, []); 
+  }, []);
   const changeOriginFolder = async () => {
     const path = await ipcRenderer.invoke(
       "open-directory-dialog",
@@ -104,6 +120,7 @@ const FileCleaner = () => {
     setSubstitutions(newSubstitutions);
     setShowConfirm(false);
     setDeleteIndex(0);
+    saveConfig({ pattern: pattern, defaultSubstitutions: newSubstitutions });
   };
 
   const handleSubstitutionChange = (index, field, value) => {
@@ -124,7 +141,7 @@ const FileCleaner = () => {
   };
 
   const handlePatternChange = (event) => {
-    localStorage.setItem("patternTerm", event.target.value);  
+    localStorage.setItem("patternTerm", event.target.value);
     setPattern(event.target.value);
   };
 
@@ -220,6 +237,18 @@ const FileCleaner = () => {
               className="mt-1"
             >
               <Icon.PlusCircle size={20} color="green" />
+            </Button>
+            <Button
+              variant="none"
+              onClick={() =>
+                saveConfig({
+                  pattern: pattern,
+                  defaultSubstitutions: substitutions,
+                })
+              }
+              className="mt-1"
+            >
+              <Icon.Save size={20} color="blue" />
             </Button>
           </Form.Label>
           <div className="table-container">
