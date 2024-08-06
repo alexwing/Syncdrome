@@ -113,3 +113,11 @@ In the `Folder Sync` section of the application menu, you can synchronize folder
 The source folder is selected on the left side and the destination folder on the right side. Existing files in the destination that match the source will be preserved; those missing in the destination will be added; and those not in the source will be deleted.
 
 At the bottom, a log of the operations performed is displayed, with the date and time of the operation, the type of operation, and the affected files.
+
+### File Name Cleaner
+
+In the `File Name Cleaner` section of the application menu, you can clean and modify file names in a specific folder using user-defined patterns and substitution rules.
+
+The source folder is selected in the `Origin Folder` field. You can define a pattern in the `Pattern` field from which the text will be deleted, you can also add substitution rules in the `Substitution Rules` table. File names are loaded by clicking the `Reload` button, and cleaned by clicking the `Clean File Names` button. Changes are applied with the `Apply Changes` button.
+
+At the bottom, a table is shown with the original file names and the modified names, allowing you to manually edit the names before applying the changes. Relevant messages and alerts for the user are also shown.

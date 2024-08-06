@@ -116,3 +116,12 @@ En la sección `Folder Sync` del menú de la aplicación, se puede sincronizar c
 La carpeta de origen se selecciona se situa en la parte izquierda y la carpeta de destino en la parte derecha. Los archivos existentes en el destino que coincidan con el origen se conservarán; los que falten en el destino se añadirán; y los que no estén en el origen se eliminarán.
 
 En la parte inferior se muestra un log de las operaciones realizadas, con la fecha y hora de la operación, el tipo de operación y los archivos afectados.
+
+### Limpiado de nombres de archivos
+
+En la sección `File Name Cleaner` del menú de la aplicación, se puede limpiar y modificar nombres de archivos en una carpeta específica utilizando patrones y reglas de sustitución definidas por el usuario.
+
+La carpeta de origen se selecciona en el campo `Origin Folder`. Se puede definir un patrón en el campo `Pattern` a partir del cual se borrará el texto,
+ también se pueden agregar reglas de sustitución en la tabla de `Substitution Rules`. Los nombres de archivos se cargan haciendo clic en el botón `Reload`, y se limpian haciendo clic en el botón `Clean File Names`. Los cambios se aplican con el botón `Apply Changes`.
+
+En la parte inferior se muestra una tabla con los nombres de archivos originales y los nombres modificados, permitiendo editar manualmente los nombres antes de aplicar los cambios. También se muestran mensajes y alertas relevantes para el usuario.
