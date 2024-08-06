@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { LogFile } from "../models/Interfaces";
+import { FileCleanerProps, LogFile } from "../models/Interfaces";
 const repoOwner = "alexwing";
 const repoName = "Syncdrome";
 const Api = {
@@ -150,12 +150,35 @@ const Api = {
 
   /***
    * getSyncLog - get sync log
-   * @returns {object} - response from server 
-   * 
+   * @returns {object} - response from server
+   *
    */
 
   getSyncLog: (): Promise<LogFile> => {
     return Axios.get("/getSyncLog").then((response) => response.data);
-  }
+  },
+
+  /***
+   * getFilesInFolder - get files in folder use post method
+   * @param {string} folder - folder to get files from convert
+   * @returns {object} - response from server
+   *
+   */
+  getFilesInFolder: (folder): Promise<FileCleanerProps[]> => {
+    return Axios.post("/getFilesInFolder", { folder }).then(
+      (response) => response.data
+    );
+  },
+
+  /*** rename files in folder use post method renameFilesInFolder
+   * @param FileCleanerProps [{ path: string; filename: string; fixed: string;},...]
+   * @returns FileCleanerProps [{ path: string; filename: string; fixed:string, status: string;},...]
+   * @example renameFilesInFolder([{ path: "D:\\Pictures\\IMG_0001.jpg", filename: "IMG_0001.jpg", fixed: "IMG_0001.jpg" },...])
+   * */
+  renameFilesInFolder: (files: FileCleanerProps[]) => {
+    return Axios.post("/renameFilesInFolder", files).then(
+      (response) => response.data
+    );
+  },
 };
 export default Api;

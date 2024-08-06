@@ -75,3 +75,15 @@ export interface LogFile{
   refresh: string;
   summary: string;
 }
+
+export interface FileCleanerProps {
+  path: string;
+  filename: string;
+  fixed?: string;
+  status?: string;
+}
+
+export interface Substitution {
+  find: string;
+  replace: string;
+}
