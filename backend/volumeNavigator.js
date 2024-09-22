@@ -2,6 +2,9 @@ const express = require("express");
 const fs = require("fs-extra");
 const path = require("path");
 
+const app = express();
+app.use(express.json());
+
 /**
  * buildFileSystem - Parses the input file and builds a nested dictionary representing the file system.
  * @param {string} filename - The name of the file to parse.
@@ -10,13 +13,15 @@ const path = require("path");
 function buildFileSystem(filename) {
   const fileSystem = {};
   const data = fs.readFileSync(filename, "utf-8");
-  const lines = data.split("\n");
+  //and remove the tree first character from the string "C:\"
+  const lines = data.split("\n").map((line) => line.slice(3));
 
   lines.forEach((line) => {
     const parts = line.trim().split("\\");
     let currentLevel = fileSystem;
 
     parts.forEach((part, i) => {
+      //console.log("*"+part+"*");
       if (i === parts.length - 1) {
         currentLevel[part] = null; // File
       } else {
@@ -28,77 +33,80 @@ function buildFileSystem(filename) {
     });
   });
 
+  //print fileSystem in json format
+  // console.log(JSON.stringify(fileSystem, null, 2));
   return fileSystem;
 }
 
-/**
- * displayDirectory - Displays the contents of a directory.
- * @param {object} directory - The directory to display.
- * @returns {array} - The contents of the directory.
- */
-function displayDirectory(directory) {
-  if (directory === null) {
-    return ["File"];
-  } else {
-    return Object.keys(directory);
-  }
-}
 
 /**
  * navigate - Handles navigation commands.
  * @param {object} fileSystem - The file system to navigate.
  * @param {string} currentPath - The current path in the file system.
- * @returns {object} - The current directory and path.
+ * @param {string} command - The navigation command (e.g., "cd ..", "cd FolderName").
+ * @returns {object} - An object containing the current directory, path, and a list of files/directories.
  */
-function navigate(fileSystem, currentPath) {
+function navigate(fileSystem, currentPath, command) {
+  let newPath = currentPath;
   let currentDir = fileSystem;
-  const parts = currentPath.split("\\");
 
+  console.log("Current path: " + currentPath);
+  console.log("Command: " + command);
+
+  if (command === "cd ..") {
+    const parts = currentPath.split("\\");
+    if (parts.length > 1) {
+      parts.pop();
+      newPath = parts.join("\\");
+    } else {
+      throw new Error("Already at root");
+    }
+  } else if (command.startsWith("cd")) {
+    const targetDir = command.slice(3);
+    const parts = currentPath.split("\\");
+    parts.push(targetDir);
+    newPath = parts.join("\\");
+  } else {
+    throw new Error("Invalid command");
+  }
+  const parts = newPath.split("\\").filter((part) => part !== "");
+  
   for (const part of parts) {
-    if (currentDir[part]) {
+    console.log("Part: " + part);
+    if (currentDir && currentDir[part]) {
       currentDir = currentDir[part];
     } else {
-      return { error: "Invalid path" };
+      throw new Error("Invalid path");
     }
   }
 
-  return { currentDir, currentPath };
+  const filesAAndDirs = Object.keys(currentDir).map((key) => ({
+    name: key,
+    type: currentDir[key] === null ? "file" : "directory",
+  }));
+
+  return {
+    currentPath: newPath,
+    directoryContents: filesAAndDirs
+  };
 }
 
 module.exports = function (app) {
-  const fileSystem = buildFileSystem("C:\\Users\\Windows\\Mi unidad\\Software\\DiscosDuros\\Almacenamiento.txt"); // Reemplaza con tu archivo
-
+  const fileSystem = buildFileSystem(
+    "C:\\Users\\Windows\\Mi unidad\\Software\\DiscosDuros\\PENDRIVE128.txt"
+  ); // Reemplaza con tu archivo
   app.post("/navigate", (req, res) => {
     const { currentPath, command } = req.body;
-    let { currentDir } = navigate(fileSystem, currentPath);
 
-    if (currentDir.error) {
-      return res.status(400).send(currentDir.error);
+    console.log("Command: " + command);
+    console.log("Current path: " + currentPath);
+
+    try {
+      const navigationResult = navigate(fileSystem, currentPath, command);
+      res.status(200).send(navigationResult);
+    } catch (error) {
+      res.status(400).send({ error: error.message });
     }
-
-    if (command === "cd ..") {
-      const parts = currentPath.split("\\");
-      if (parts.length > 1) {
-        parts.pop();
-        currentDir = navigate(fileSystem, parts.join("\\")).currentDir;
-      } else {
-        return res.status(400).send("Already at root");
-      }
-    } else if (command.startsWith("cd ")) {
-      const targetDir = command.slice(3);
-      if (currentDir[targetDir]) {
-        currentPath += "\\" + targetDir;
-        currentDir = currentDir[targetDir];
-      } else {
-        return res.status(400).send("Invalid directory");
-      }
-    } else if (currentDir[command] !== undefined) {
-      return res.status(200).send({ message: "Selected: " + command });
-    } else {
-      return res.status(400).send("Invalid command");
-    }
-
-    res.status(200).send({ currentDir: displayDirectory(currentDir), currentPath });
   });
 
   app.listen(3000, () => {

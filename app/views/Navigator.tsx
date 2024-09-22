@@ -10,11 +10,13 @@ import {
   OverlayTrigger,
   Spinner,
   Tooltip,
+  Table,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 import AlertMessage from "../components/AlertMessage";
 import AddBookmarkModal from "../components/AddBookmarkModal";
 import { AlertModel } from "../models/Interfaces";
+import Api from "../helpers/api";
 
 const Navigator = () => {
   const [currentPath, setCurrentPath] = useState("");
@@ -28,51 +30,65 @@ const Navigator = () => {
   const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
-    navigate("");
+    navigate("cd", currentPath);
   }, []);
 
-  const navigate = async (command) => {
+  const navigate = async (command, path = "") => {
     setIsLoading(true);
     try {
-      const response = await axios.post("http://localhost:3000/navigate", {
-        currentPath,
-        command,
-      });
-      setDirectoryContents(response.data.currentDir);
-      setCurrentPath(response.data.currentPath);
+      const response = await Api.navigate(path, command);
+
+      //clean response.currentPath \\ at the end
+      setCurrentPath(response.currentPath);
+      setDirectoryContents(response.directoryContents);
       setAlert({ title: "", message: "", type: "success" });
       setShowAlert(false);
     } catch (err) {
+      //catch 400 error with send mensaje no trouth error{"error":"Already at root"}
+      console.log("Error", err);
+      const errorMessage =
+        err.response?.data?.error === "Already at root"
+          ? "Already at root"
+          : err.response?.data || "An error occurred";
       setAlert({
         title: "Error",
-        message: err.response.data,
+        message: errorMessage,
         type: "danger",
       });
       setShowAlert(true);
+      setIsLoading(false);
+      return;
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleItemClick = (item) => {
-    if (directoryContents[item] === null) {
+    if (item.type === "file") {
       setAlert({
         title: "Selected file",
-        message: item,
-        type: "warning", 
+        message: item.name,
+        type: "warning",
       });
       setShowAlert(true);
     } else {
-      navigate(`cd ${item}`);
+      // if currentPath is root, don't add \\ at the end
+      if (currentPath.match(/\\$/)) {
+        navigate("cd", `${currentPath}${item.name}`);
+      } else {
+        navigate("cd", `${currentPath}\\${item.name}`);
+      }
     }
   };
 
   const showAlertMessage = (
     <AlertMessage
-          show={showAlert}
-          alertMessage={alert}
-          onHide={() => setShowAlert(false)}
-          autoClose={2000} ok={undefined}    />
+      show={showAlert}
+      alertMessage={alert}
+      onHide={() => setShowAlert(false)}
+      autoClose={2000}
+      ok={undefined}
+    />
   );
 
   return (
@@ -94,20 +110,35 @@ const Navigator = () => {
           />
         </div>
       )}
+      <Button
+        onClick={() => navigate("cd ..", currentPath.replace(/\\[^\\]*$/, ""))}
+      >
+        <Icon.ArrowLeftCircle /> Go Back
+      </Button>
       {!isLoading && (
-        <div className="directory">
-          {Object.keys(directoryContents).map((item) => (
-            <div
-              key={item}
-              className={directoryContents[item] === null ? "file" : "folder"}
-              onClick={() => handleItemClick(item)}
-            >
-              {item}
-            </div>
-          ))}
-        </div>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {directoryContents.map((item: any) => (
+              <tr key={item.name} onClick={() => handleItemClick(item)}>
+                <td>
+                  {item.type === "file" ? (
+                    <Icon.FileEarmarkText />
+                  ) : (
+                    <Icon.Folder />
+                  )}
+                </td>
+                <td>{item.name}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       )}
-      <Button onClick={() => navigate("cd ..")}>Go Up</Button>
     </Container>
   );
 };
