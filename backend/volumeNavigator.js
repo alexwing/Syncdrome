@@ -54,12 +54,12 @@ function navigate(fileSystem, currentPath, command) {
   console.log("Command: " + command);
 
   if (command === "cd ..") {
-    const parts = currentPath.split("\\");
+    const parts = currentPath.split("\\").filter((part) => part !== "");
     if (parts.length > 1) {
       parts.pop();
       newPath = parts.join("\\");
     } else {
-      throw new Error("Already at root");
+      newPath = "";
     }
   } else if (command.startsWith("cd")) {
     const targetDir = command.slice(3);
@@ -85,6 +85,17 @@ function navigate(fileSystem, currentPath, command) {
     type: currentDir[key] === null ? "file" : "directory",
   }));
 
+  //Sort directories first, then files by name
+
+  filesAAndDirs.sort((a, b) => {
+    if (a.type === b.type) {
+      return a.name.localeCompare(b.name);
+    } else {
+      return a.type === "directory" ? -1 : 1;
+    }
+  });
+
+
   return {
     currentPath: newPath,
     directoryContents: filesAAndDirs
@@ -93,7 +104,7 @@ function navigate(fileSystem, currentPath, command) {
 
 module.exports = function (app) {
   const fileSystem = buildFileSystem(
-    "C:\\Users\\Windows\\Mi unidad\\Software\\DiscosDuros\\PENDRIVE128.txt"
+    "C:\\Users\\Windows\\Mi unidad\\Software\\DiscosDuros\\CrucialX6.txt"
   ); // Reemplaza con tu archivo
   app.post("/navigate", (req, res) => {
     const { currentPath, command } = req.body;

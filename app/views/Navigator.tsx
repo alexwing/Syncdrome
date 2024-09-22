@@ -11,17 +11,20 @@ import {
   Spinner,
   Tooltip,
   Table,
+  Breadcrumb,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 import AlertMessage from "../components/AlertMessage";
 import AddBookmarkModal from "../components/AddBookmarkModal";
-import { AlertModel } from "../models/Interfaces";
+import { AlertModel, FileTypes } from "../models/Interfaces";
 import Api from "../helpers/api";
+import { getFileIcon } from "../helpers/utils";
 
 const Navigator = () => {
   const [currentPath, setCurrentPath] = useState("");
   const [directoryContents, setDirectoryContents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [fileIconMappings, setFileIconMappings] = useState({} as FileTypes);
   const [alert, setAlert] = useState<AlertModel>({
     title: "",
     message: "",
@@ -30,8 +33,30 @@ const Navigator = () => {
   const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
+    getConfig();
     navigate("cd", currentPath);
   }, []);
+
+  // get config from server
+  const getConfig = async () => {
+    try {
+      const response = await Api.getSettings();
+      setFileIconMappings(response.data.extensions);
+    } catch (error) {
+      setAlert({
+        title: "Error",
+        message: "Config file not found or corrupted",
+        type: "danger",
+      });
+      setShowAlert(true);
+      return;
+    }
+  };
+
+  // set Icon component from url extension
+  const getIcon = (extension) => {
+    return <span>{getFileIcon(extension, fileIconMappings).icon}</span>;
+  };
 
   const navigate = async (command, path = "") => {
     setIsLoading(true);
@@ -92,53 +117,66 @@ const Navigator = () => {
   );
 
   return (
-    <Container style={{ overflowY: "scroll", height: "100vh" }}>
-      {showAlertMessage}
-      <div className="centered pt-3">
-        <img src="./assets/icon.png" alt="logo" className="logo" />
-        <h1>File Navigator</h1>
-      </div>
-      <div className="path">Current Path: {currentPath}</div>
-      {isLoading && (
-        <div className="loading-icon">
-          <Spinner
-            className="loading-icon"
-            variant="primary"
-            animation="grow"
-            role="status"
-            aria-hidden="true"
-          />
-        </div>
-      )}
-      <Button
-        onClick={() => navigate("cd ..", currentPath.replace(/\\[^\\]*$/, ""))}
-      >
-        <Icon.ArrowLeftCircle /> Go Back
-      </Button>
-      {!isLoading && (
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Name</th>
-            </tr>
-          </thead>
-          <tbody>
-            {directoryContents.map((item: any) => (
-              <tr key={item.name} onClick={() => handleItemClick(item)}>
-                <td>
-                  {item.type === "file" ? (
-                    <Icon.FileEarmarkText />
-                  ) : (
-                    <Icon.Folder />
-                  )}
-                </td>
-                <td>{item.name}</td>
+    <Container
+      style={{ overflowY: "scroll", height: "100vh" }}
+      className="sync"
+    >
+      <Breadcrumb className="mt-3">
+        <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
+        <Breadcrumb.Item active>Volumen Explorer</Breadcrumb.Item>
+      </Breadcrumb>
+      <h2>Volumen Explorer</h2>
+      <Container fluid className="mt-3 mb-3">
+        {showAlertMessage}
+        <Breadcrumb>
+          <Breadcrumb.Item onClick={() => navigate("cd ..", "")}>
+            <Icon.HouseDoorFill />
+          </Breadcrumb.Item>
+          <Breadcrumb.Item active>
+            {currentPath.replace(/\\/g, "/").substring(1)}
+          </Breadcrumb.Item>
+        </Breadcrumb>
+        {isLoading && (
+          <div className="loading-icon">
+            <Spinner
+              className="loading-icon"
+              variant="primary"
+              animation="grow"
+              role="status"
+              aria-hidden="true"
+            />
+          </div>
+        )}
+
+        {!isLoading && (
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th style={{ width: "3%" }}>
+                  <Icon.ThreeDots
+                    onClick={() => navigate("cd ..", currentPath)}
+                  />
+                </th>
+                <th style={{ width: "97%" }}>Name</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
+            </thead>
+            <tbody>
+              {directoryContents.map((item: any) => (
+                <tr key={item.name} onClick={() => handleItemClick(item)}>
+                  <td>
+                    {item.type === "file" ? (
+                      getIcon(item.name.split(".").pop())
+                    ) : (
+                      <Icon.Folder />
+                    )}
+                  </td>
+                  <td>{item.name}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        )}
+      </Container>
     </Container>
   );
 };

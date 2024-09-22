@@ -59,6 +59,7 @@ export interface Settings {
 }
 
 export interface IFile {
+  type: string;
   name: string;
   fileName: string;
   folder: string;
