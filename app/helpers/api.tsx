@@ -180,15 +180,5 @@ const Api = {
       (response) => response.data
     );
   },
-
-  navigate: (currentPath, command) => {
-    return Axios.post("/navigate", { currentPath, command }).then(
-      (response) => response.data
-    );
-  },
-  
 };
-
-
-  
 export default Api;

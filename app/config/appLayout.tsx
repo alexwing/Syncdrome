@@ -11,7 +11,6 @@ import bookmarks from "../views/bookmarks";
 import ChatRtx from "../components/ChatRtx";
 import FolderSync from "../views/folderSync";
 import FileCleaner from "../views/fileCleaner";
-import explorer from "../views/Navigator";
 
 const AppLayout = () => {
 
@@ -25,7 +24,6 @@ const AppLayout = () => {
       <Route path="/" exact component={Home} />
       <Route path="/sync" component={Sync} />
       <Route path="/bookmarks" component={bookmarks} />
-      <Route path="/explorer" component={explorer} />
       <Route path="/chat" component={ChatRtx} />
       <Route path="/folderSync" component={FolderSync} />
       <Route path="/fileCleaner" component={FileCleaner} />
