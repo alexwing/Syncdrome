@@ -8,6 +8,7 @@ const process = require("./backend/process");
 const bookmarks = require("./backend/bookmarks");
 const folderSync = require("./backend/folderSync");
 const fileCleaner = require("./backend/fileCleaner");
+const volumeNavigator = require("./backend/volumeNavigator");
 
 const { ipcMain, dialog } = require("electron");
 
@@ -45,6 +46,7 @@ process(app);
 bookmarks(app);
 folderSync(app);
 fileCleaner(app);
+volumeNavigator(app);
 
 app.listen(port, () => {
   console.log(

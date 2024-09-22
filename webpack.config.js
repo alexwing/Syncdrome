@@ -57,5 +57,6 @@ module.exports = {
       // Ignora las advertencias que provienen de archivos CSS
       return /css-loader/.test(warning);
     },
-  },  
+  },
+  watch: true, // Activa la escucha de cambios en los archivos
 };

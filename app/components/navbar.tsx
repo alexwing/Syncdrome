@@ -33,7 +33,7 @@ const Navbar = () => {
 
   return (
     <NavBar
-      title="Syncdrome"
+      title="Synssscdrome"
       shadowOnScroll={true}
       titleBarMobile={
         <div>
@@ -49,6 +49,13 @@ const Navbar = () => {
         icon={<i className="icons10-home"></i>}
         onClick={() => {
           history.push("/");
+        }}
+      />
+      <NavBarLink
+        text="Explorer"
+        icon={<i className="icons10-folder"></i>}
+        onClick={() => {
+          history.push("/explorer");
         }}
       />
       <NavBarLink
