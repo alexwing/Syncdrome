@@ -186,9 +186,17 @@ const Api = {
       (response) => response.data
     );
   },
-  
+
+  /***
+   * Change the file system to use
+   * @param {object} params - parameters containing the filename
+   * @returns {object} - response from server
+   */
+  changeFileSystem: (params) => {
+    return Axios.post("/changeFileSystem", params).then(
+      (response) => response.data
+    );
+  },
 };
 
-
-  
 export default Api;

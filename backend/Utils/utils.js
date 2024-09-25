@@ -88,6 +88,38 @@ const getSpaceDisk = (driveLetter) => {
 };
 
 /***
+ * Get the file path of the volume name
+ * @param {String} file - The file name
+ * @returns {String} - The file path
+ */
+const getFilePath = (file) => {
+  return path.join(getConfig().folder, `${file}.txt`);
+};
+/***
+ * get is volume name is connected, return true or false
+ * @param {String} driveVolumeName - The volume name
+ * @returns {String} - The drive letter
+ */
+const isVolumeConnected = (driveVolumeName) => {
+  const cmd = cp.spawnSync("wmic", [
+    "logicaldisk",
+    "where",
+    `volumename="${driveVolumeName}"`,
+    "get",
+    "DeviceID",
+  ]);
+  const lines = cmd.stdout.toString().split("\n");
+  let letter = null;
+  lines.forEach((line) => {
+    const drive = line.trim();
+    if (drive.length > 0 && drive !== "DeviceID") {
+      letter = drive;
+    }
+  });
+  return letter;
+};
+
+/***
  * get is has a volume name txt file in the root of the drive, return true or false
  * @param {String} driveVolumeName - The volume name
  * @param {String} folder - The folder to search
@@ -386,8 +418,7 @@ const deleteFile = async (filePath) => {
   } catch (error) {
     console.error(`Error: ${error}`);
   }
-}
-
+};
 
 module.exports = {
   getSpaceDisk,
@@ -409,4 +440,6 @@ module.exports = {
   getExtensionsByType,
   getSqlitePath,
   deleteFile,
+  getFilePath,
+  isVolumeConnected,
 };

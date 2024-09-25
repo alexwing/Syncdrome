@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs-extra");
 const path = require("path");
+const { getFilePath, isVolumeConnected } = require("./Utils/utils");
 
 const app = express();
 app.use(express.json());
@@ -103,9 +104,26 @@ function navigate(fileSystem, currentPath, command) {
 }
 
 module.exports = function (app) {
-  const fileSystem = buildFileSystem(
-    "C:\\Users\\Windows\\Mi unidad\\Software\\DiscosDuros\\CrucialX6.txt"
-  ); // Reemplaza con tu archivo
+  let fileSystem = {};
+  let driveLetter = "";
+
+
+
+  app.post("/changeFileSystem", (req, res) => {
+    const { filename } = req.body;
+  
+    try {
+      const filePath = getFilePath(filename);
+
+      driveLetter = isVolumeConnected(filePath);
+  
+      fileSystem = buildFileSystem(filePath);
+      res.status(200).send({ message: "File system updated successfully" });
+    } catch (error) {
+      res.status(400).send({ error: error.message });
+    }
+  });
+    
   app.post("/navigate", (req, res) => {
     const { currentPath, command } = req.body;
 
@@ -114,6 +132,9 @@ module.exports = function (app) {
 
     try {
       const navigationResult = navigate(fileSystem, currentPath, command);
+      //add is connected and drive letter to the response
+      navigationResult.isConnected = driveLetter !== "" && driveLetter !== null;
+      navigationResult.driveLetter = driveLetter;
       res.status(200).send(navigationResult);
     } catch (error) {
       res.status(400).send({ error: error.message });

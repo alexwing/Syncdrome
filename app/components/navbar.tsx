@@ -33,7 +33,7 @@ const Navbar = () => {
 
   return (
     <NavBar
-      title="Synssscdrome"
+      title="Syncdrome"
       shadowOnScroll={true}
       titleBarMobile={
         <div>
@@ -83,7 +83,7 @@ const Navbar = () => {
       )}
       <NavBarLink
         text="Folder Sync"
-        icon={<i className="icons10-folder"></i>}
+        icon={<i className="icons10-columns"></i>}
         onClick={() => {
           history.push("/folderSync");
         }}

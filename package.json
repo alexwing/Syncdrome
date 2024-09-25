@@ -36,7 +36,6 @@
     "electron": "^28.1.0",
     "electron-packager": "^17.1.2",
     "electron-reload": "^2.0.0-alpha.1",
-    "extract-text-webpack-plugin": "3.0.2",
     "file-loader": "6.2.0",
     "html-webpack-plugin": "4.5.0",
     "postcss": "7.0.32",
@@ -71,7 +70,7 @@
     "react-markdown": "^6.0.2",
     "react-router-dom": "5.2.0",
     "react-select": "^5.8.0",
-    "react-windows-ui": "^4.2.2",
+    "react-windows-ui": "^4.2.4",
     "sqlite3": "^5.1.7",
     "webpack-target-electron-renderer": "^0.4.0"
   },
