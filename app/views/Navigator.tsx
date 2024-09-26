@@ -111,12 +111,19 @@ const Navigator = () => {
 
   const handleItemClick = (item) => {
     if (item.type === "file") {
-      setAlert({
-        title: "Selected file",
-        message: item.name,
-        type: "warning",
-      });
-      setShowAlert(true);
+      const driveLetter = drives.find(
+        (drive) => drive.name === selectedDrive
+      )?.letter;
+      if (driveLetter) {
+        let path = currentPath;
+        //  replace / with \
+        path = path.replace(/\//g, "\\");
+        //remove last backslash
+        path = path.replace(/\\$/, "");
+        //remove first backslash
+        path = path.replace(/^\\/, "");
+        Api.openFile(item.name, path, driveLetter);
+      }
     } else {
       if (currentPath.match(/\\$/)) {
         navigate("cd", `${currentPath}${item.name}`);
@@ -170,6 +177,43 @@ const Navigator = () => {
   const pathParts = cleanPath(currentPath)
     .split("/")
     .filter((part) => part);
+
+  // open folder on click
+  const onConnectedFolderHandler = (folder, driveLetter, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (driveLetter) {
+      Api.openFolder(folder, driveLetter);
+    } else {
+      setAlert({
+        title: "Error",
+        message: "Drive not connected",
+        type: "danger",
+      });
+      setShowAlert(true);
+    }
+  };
+
+  const openFolder = (folder: string) => {
+    //get drive letter from selected drive
+    const driveLetter = drives.find(
+      (drive) => drive.name === selectedDrive
+    )?.letter;
+    if (driveLetter) {
+      folder = currentPath + folder;
+      //remove duplicates backslashes and first backslash
+      folder = folder.replace(/\\/g, "/").replace(/^\//, "");
+      return (
+        <Badge
+          bg="none"
+          style={{ cursor: "pointer", height: "28px" }}
+          onClick={(e) => onConnectedFolderHandler(folder, driveLetter, e)}
+        >
+          <Icon.Eye size={18} color="green" />
+        </Badge>
+      );
+    }
+  };
 
   return (
     <Container
@@ -257,15 +301,32 @@ const Navigator = () => {
                 </thead>
                 <tbody>
                   {directoryContents.map((item, index) => (
-                    <tr key={index} onClick={() => handleItemClick(item)}>
+                    <tr key={index}>
                       <td>
                         {item.type === "file" ? (
                           getIcon(item.name.split(".").pop())
                         ) : (
-                          <Icon.Folder />
+                          <Icon.Folder
+                            color="green"
+                            style={{ cursor: "pointer", height: "28px" }}
+                            onClick={() => handleItemClick(item)}
+                          />
                         )}
                       </td>
-                      <td>{item.name}</td>
+                      <td>
+                        <Badge
+                          bg="none"
+                          style={{
+                            cursor: "pointer",
+                            color: item.type === "file" ? "blue" : "green",
+                            fontSize: "1em",
+                          }}
+                          onClick={() => handleItemClick(item)}
+                        >
+                          {item.name}
+                        </Badge>
+                        {item.type === "directory" && openFolder(item.name)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
