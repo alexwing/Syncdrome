@@ -2,7 +2,12 @@ import React from "react";
 import * as Icon from "react-bootstrap-icons";
 import Api from "./api";
 import { Badge, Button } from "react-bootstrap";
-import { FileCleanerProps, Substitution } from "../models/Interfaces";
+import {
+  Bookmark,
+  FileCleanerProps,
+  FileType,
+  Substitution,
+} from "../models/Interfaces";
 
 /***
  * get Icon component from extension
@@ -138,4 +143,43 @@ export const cleanFileNames = (
   });
 
   return cleanedFileNames;
+};
+
+/***
+ *  Add bookmark to file
+ *  @param bookmark
+ *  @param setBookmarkSelected
+ *  @param setFiles
+ *  This function is called when the user adds a bookmark to a file
+ *  It updates the file state with the new bookmark
+ */
+export const addBookmark = (
+  bookmark: { volume: string | number; path: string | number; name: any },
+  setBookmarkSelected: {
+    (value: React.SetStateAction<Bookmark>): void;
+    (arg0: any): void;
+  },
+  setFiles: {
+    (value: React.SetStateAction<FileType>): void;
+    (arg0: (prevFiles: any) => any): void;
+  }
+) => {
+  setBookmarkSelected(bookmark);
+  setFiles((prevFiles) => {
+    const newFiles = { ...prevFiles };
+    if (!newFiles[bookmark.volume]) {
+      console.error(`Volume ${bookmark.volume} does not exist in files`);
+      return prevFiles;
+    }
+    const fileIndex = newFiles[bookmark.volume].content[
+      bookmark.path
+    ].findIndex((file) => file.fileName === bookmark.name);
+    if (fileIndex !== -1) {
+      newFiles[bookmark.volume].content[bookmark.path][fileIndex] = {
+        ...newFiles[bookmark.volume].content[bookmark.path][fileIndex],
+        bookmark,
+      };
+    }
+    return newFiles;
+  });
 };

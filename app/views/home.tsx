@@ -22,7 +22,7 @@ import {
 import AlertMessage from "../components/AlertMessage";
 import ExtensionSelect from "../components/ExtensionSelect";
 import AddBookmarkModal from "../components/AddBookmarkModal";
-import { connectedIcon, getFileIcon, openFileEvent, openFileEye } from "../helpers/utils";
+import { connectedIcon, getFileIcon, addBookmark, openFileEvent, openFileEye } from "../helpers/utils";
 import { AddBookmarkBadge } from "../components/addBookmarkBadge";
 
 const Home = () => {
@@ -196,32 +196,6 @@ const Home = () => {
     );
   };
 
-  /***
-   *  Add bookmark to file
-   *  @param bookmark
-   *  This function is called when the user adds a bookmark to a file
-   *  It updates the file state with the new bookmark
-   */
-  const onAddBookmarkHandler = (bookmark) => {
-    setBookmarkSelected(bookmark);
-    setFiles((prevFiles) => {
-      const newFiles = { ...prevFiles };
-      if (!newFiles[bookmark.volume]) {
-        console.error(`Volume ${bookmark.volume} does not exist in files`);
-        return prevFiles;
-      }
-      const fileIndex = newFiles[bookmark.volume].content[
-        bookmark.path
-      ].findIndex((file) => file.fileName === bookmark.name);
-      if (fileIndex !== -1) {
-        newFiles[bookmark.volume].content[bookmark.path][fileIndex] = {
-          ...newFiles[bookmark.volume].content[bookmark.path][fileIndex],
-          bookmark,
-        };
-      }
-      return newFiles;
-    });
-  };
 
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
@@ -340,6 +314,7 @@ const Home = () => {
                                       volume={key}
                                       setBookmarkSelected={setBookmarkSelected}
                                       setShowAddBookmarkModal={setShowAddBookmarkModal}
+                                      description={item.bookmark?.description}
                                     />
                                     {files[key].connected &&
                                       openFileEye(
@@ -365,7 +340,7 @@ const Home = () => {
         show={showAddBookmarkModal}
         onHide={() => setShowAddBookmarkModal(false)}
         bookmark={bookmarkSelected}
-        onAddBookmark={onAddBookmarkHandler}
+        onAddBookmark={(bookmark) => addBookmark(bookmark, setBookmarkSelected, setFiles)}
       />
     </Container>
   );
