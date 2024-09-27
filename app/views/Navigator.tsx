@@ -39,7 +39,6 @@ const Navigator = () => {
   const [selectedDrive, setSelectedDrive] = useState("");
   const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
 
-
   useEffect(() => {
     getConfig(setFileIconMappings, setAlert, setShowAlert);
     getDrives();
@@ -73,6 +72,19 @@ const Navigator = () => {
     setIsLoading(true);
     try {
       const response = await Api.navigate(path, command);
+  
+      // Verificar si la respuesta es {"isConnected":false,"driveLetter":null}
+      if (!response.directoryContents) {
+        setIsLoading(false);
+        setAlert({
+          title: "Error",
+          message: "Drive is not data synchronized",
+          type: "danger",
+        });
+        setShowAlert(true);
+        return null;
+      }
+  
       setCurrentPath(response.currentPath);
       setDirectoryContents(response.directoryContents);
       setAlert({ title: "", message: "", type: "success" });
@@ -180,15 +192,15 @@ const Navigator = () => {
         <Badge
           bg="none"
           style={{ cursor: "pointer", height: "28px" }}
-          onClick={(e) => callOpenFolder(folder, driveLetter, e, setAlert, setShowAlert)}
+          onClick={(e) =>
+            callOpenFolder(folder, driveLetter, e, setAlert, setShowAlert)
+          }
         >
           <Icon.Eye size={18} color="green" />
         </Badge>
       );
     }
   };
-
-  
 
   return (
     <Container

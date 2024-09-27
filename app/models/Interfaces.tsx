@@ -88,3 +88,8 @@ export interface Substitution {
   find: string;
   replace: string;
 }
+
+export interface BookmarksByVolume {
+  volume: string;
+  bookmarks: Bookmark[];
+}

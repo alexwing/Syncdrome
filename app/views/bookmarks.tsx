@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Breadcrumb, Card, Col, Form, Row } from "react-bootstrap";
-import { AlertModel, Bookmark, FileTypes } from "../models/Interfaces";
+import { AlertModel, Bookmark, BookmarksByVolume, FileTypes } from "../models/Interfaces";
 import React from "react";
 import * as Icon from "react-bootstrap-icons";
 import {
@@ -20,18 +20,15 @@ import { file } from "vfile-message";
 import AlertMessage from "../components/AlertMessage";
 import { connectedIcon, getFileIcon } from "../helpers/utils";
 
-interface bookmarksByVolume {
-  volume: string;
-  bookmarks: Bookmark[];
-}
+
 
 const bookmarks = () => {
   const [search, setSearch] = useState("");
-  const [bookmarksByVolume, setBookmarksByVolume] = useState(
-    [] as bookmarksByVolume[]
+  const [BookmarksByVolume, setBookmarksByVolume] = useState(
+    [] as BookmarksByVolume[]
   );
-  const [bookmarksByVolumeFiltered, setBookmarksByVolumeFiltered] = useState(
-    [] as bookmarksByVolume[]
+  const [BookmarksByVolumeFiltered, setBookmarksByVolumeFiltered] = useState(
+    [] as BookmarksByVolume[]
   );
   const [loading, setLoading] = useState(true);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -117,7 +114,7 @@ const bookmarks = () => {
           .map((bookmark) => bookmark.volume)
           .filter((value, index, self) => self.indexOf(value) === index)
           .sort();
-        const bookmarksByVolume = volumes.map((volume) => {
+        const BookmarksByVolume = volumes.map((volume) => {
           return {
             volume: volume,
             bookmarks: response.data.filter((bookmark) =>
@@ -125,8 +122,8 @@ const bookmarks = () => {
             ),
           };
         });
-        setBookmarksByVolume(bookmarksByVolume);
-        filterBookmarks(bookmarksByVolume);
+        setBookmarksByVolume(BookmarksByVolume);
+        filterBookmarks(BookmarksByVolume);
         setLoading(false);
       })
       .finally(() => {
@@ -181,12 +178,12 @@ const bookmarks = () => {
     return getFileIcon(extension || '', fileIconMappings).icon;
   };
 
-  const filterBookmarks = (bookmarksByVolume: bookmarksByVolume[]) => {
+  const filterBookmarks = (BookmarksByVolume: BookmarksByVolume[]) => {
     if (search === "" || search === null) {
-      setBookmarksByVolumeFiltered(bookmarksByVolume);
+      setBookmarksByVolumeFiltered(BookmarksByVolume);
       return;
     }
-    let filteredBookmarks = bookmarksByVolume.map((volume) => {
+    let filteredBookmarks = BookmarksByVolume.map((volume) => {
       return {
         volume: volume.volume,
         bookmarks: volume.bookmarks.filter(
@@ -213,7 +210,7 @@ const bookmarks = () => {
   };
 
   useEffect(() => {
-    filterBookmarks(bookmarksByVolume);
+    filterBookmarks(BookmarksByVolume);
   }, [search]);
 
   const handleOK = () => {
@@ -345,7 +342,7 @@ const bookmarks = () => {
           </Button>
         </Col>
       </Row>
-      {!loading && bookmarksByVolumeFiltered.length === 0 && (
+      {!loading && BookmarksByVolumeFiltered.length === 0 && (
         <Alert variant="warning" className="text-center">
           <h3>
             <Icon.ExclamationTriangleFill
@@ -364,7 +361,7 @@ const bookmarks = () => {
       )}
       <Row className="p-3 m-0">
         <Col xs={12} className="p-0">
-          {bookmarksByVolumeFiltered.map((volume, index) => (
+          {BookmarksByVolumeFiltered.map((volume, index) => (
             <Card key={index}>
               <Card.Header className="d-flex justify-content-between inline-block">
                 <Icon.DeviceHddFill

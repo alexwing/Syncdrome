@@ -216,7 +216,6 @@ export const callOpenFolder = (
   }
 };
 
-
 /***
  *  Get configuration settings
  *  @param setFileIconMappings
@@ -224,7 +223,11 @@ export const callOpenFolder = (
  *  @param setShowAlert
  *  This function fetches the configuration settings and updates the state accordingly
  */
-export const getConfig = async (setFileIconMappings, setAlert, setShowAlert) => {
+export const getConfig = async (
+  setFileIconMappings,
+  setAlert,
+  setShowAlert
+) => {
   try {
     const response = await Api.getSettings();
     setFileIconMappings(response.data.extensions);
