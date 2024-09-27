@@ -1,11 +1,19 @@
-import React from 'react';
-import { Tooltip, Badge, OverlayTrigger } from 'react-bootstrap';
-import { BookmarkPlusFill } from 'react-bootstrap-icons';
+import React from "react";
+import { Tooltip, Badge, OverlayTrigger } from "react-bootstrap";
+import { BookmarkPlusFill } from "react-bootstrap-icons";
 
-export const AddBookmarkBadge = ({ item, key2, key, connected, setBookmarkSelected, setShowAddBookmarkModal }) => {
+export const AddBookmarkBadge = ({
+  isBookmarked,
+  fileName,
+  path,
+  volume,
+  description,
+  setBookmarkSelected,
+  setShowAddBookmarkModal,
+}) => {
   const renderTooltip = (props) => (
     <Tooltip id="button-tooltip" {...props}>
-      {item.bookmark.description}
+      {description}
     </Tooltip>
   );
 
@@ -19,18 +27,18 @@ export const AddBookmarkBadge = ({ item, key2, key, connected, setBookmarkSelect
         width: "28px",
         height: "28px",
         cursor: "pointer",
-        color: item.bookmark ? "#16ab9c" : "#cdcdcd",
+        color: isBookmarked ? "#16ab9c" : "#cdcdcd",
       }}
       className="ms-4"
       onClick={() => {
         setBookmarkSelected(
-          item.bookmark
-            ? item.bookmark
+          isBookmarked
+            ? isBookmarked
             : {
                 id: null,
-                name: item.fileName,
-                path: key2,
-                volume: key,
+                name: fileName,
+                path: path,
+                volume: volume,
                 description: "",
               }
         );
@@ -41,7 +49,7 @@ export const AddBookmarkBadge = ({ item, key2, key, connected, setBookmarkSelect
     </Badge>
   );
 
-  return item.bookmark && item.bookmark.description ? (
+  return isBookmarked && description ? (
     <OverlayTrigger
       placement="left"
       delay={{ show: 250, hide: 400 }}

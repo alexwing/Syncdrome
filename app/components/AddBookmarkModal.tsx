@@ -6,7 +6,7 @@ import Api from "../helpers/api";
 import { Bookmark } from "../models/Interfaces";
 import { Col, Row } from "react-bootstrap";
 
-function AddBookmarkModal({ show = false, onHide, bookmark , onAddBookmark }) {
+function AddBookmarkModal({ show = false, onHide, bookmark, onAddBookmark }) {
   const [bookmarkLocal, setBookmarkLocal] = useState({} as Bookmark);
 
   useEffect(() => {

@@ -334,10 +334,10 @@ const Home = () => {
                                       <strong>{item.fileName}</strong>
                                     </span>
                                     <AddBookmarkBadge
-                                      item={item}
-                                      key2={key2}
-                                      key={key}
-                                      connected={files[key].connected}
+                                      isBookmarked={item.bookmark}
+                                      fileName={item.fileName}
+                                      path={key2}
+                                      volume={key}
                                       setBookmarkSelected={setBookmarkSelected}
                                       setShowAddBookmarkModal={setShowAddBookmarkModal}
                                     />
