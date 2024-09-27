@@ -23,6 +23,7 @@ import AlertMessage from "../components/AlertMessage";
 import ExtensionSelect from "../components/ExtensionSelect";
 import AddBookmarkModal from "../components/AddBookmarkModal";
 import { connectedIcon, getFileIcon, openFileEvent, openFileEye } from "../helpers/utils";
+import { AddBookmarkBadge } from "../components/addBookmarkBadge";
 
 const Home = () => {
   const initialSearchTerm = localStorage.getItem("searchTerm") || "";
@@ -158,58 +159,6 @@ const Home = () => {
     }
   };
 
-  //print button add to bookmark
-  const addBookmark = (item, key2, key, connected) => {
-    const renderTooltip = (props) => (
-      <Tooltip id="button-tooltip" {...props}>
-        {item.bookmark.description}
-      </Tooltip>
-    );
-
-    const badge = (
-      <Badge
-        bg="none"
-        style={{
-          position: "absolute",
-          right: "-23px",
-          top: "8px",
-          width: "28px",
-          height: "28px",
-          cursor: "pointer",
-          color: item.bookmark ? "#16ab9c" : "#cdcdcd",
-        }}
-        className="ms-4"
-        onClick={() => {
-          setBookmarkSelected(
-            item.bookmark
-              ? item.bookmark
-              : {
-                  id: null,
-                  name: item.fileName,
-                  path: key2,
-                  volume: key,
-                  description: "",
-                }
-          );
-          setShowAddBookmarkModal(true);
-        }}
-      >
-        <Icon.BookmarkPlusFill size={16} />
-      </Badge>
-    );
-
-    return item.bookmark && item.bookmark.description ? (
-      <OverlayTrigger
-        placement="left"
-        delay={{ show: 250, hide: 400 }}
-        overlay={renderTooltip}
-      >
-        {badge}
-      </OverlayTrigger>
-    ) : (
-      badge
-    );
-  };
 
 
   const openFolder = (folder: string, driveLetter: any) => {
@@ -384,12 +333,14 @@ const Home = () => {
                                       <small>{item.folder}\</small>
                                       <strong>{item.fileName}</strong>
                                     </span>
-                                    {addBookmark(
-                                      item,
-                                      key2,
-                                      key,
-                                      files[key].connected
-                                    )}
+                                    <AddBookmarkBadge
+                                      item={item}
+                                      key2={key2}
+                                      key={key}
+                                      connected={files[key].connected}
+                                      setBookmarkSelected={setBookmarkSelected}
+                                      setShowAddBookmarkModal={setShowAddBookmarkModal}
+                                    />
                                     {files[key].connected &&
                                       openFileEye(
                                         item.fileName,
