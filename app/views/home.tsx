@@ -20,7 +20,7 @@ import {
 import AlertMessage from "../components/AlertMessage";
 import ExtensionSelect from "../components/ExtensionSelect";
 import AddBookmarkModal from "../components/AddBookmarkModal";
-import { connectedIcon, getFileIcon, addBookmark, openFileEvent, openFileEye, callOpenFolder } from "../helpers/utils";
+import { connectedIcon, getFileIcon, addBookmark, openFileEvent, openFileEye, callOpenFolder, getConfig } from "../helpers/utils";
 import { AddBookmarkBadge } from "../components/addBookmarkBadge";
 
 const Home = () => {
@@ -43,21 +43,6 @@ const Home = () => {
   } as AlertModel);
   const [showAlert, setShowAlert] = useState(false);
 
-  // get config from server
-  const getConfig = async () => {
-    try {
-      const response = await Api.getSettings();
-      setFileIconMappings(response.data.extensions);
-    } catch (error) {
-      setAlert({
-        title: "Error",
-        message: "Config file not found or corrupted",
-        type: "danger",
-      });
-      setShowAlert(true);
-      return;
-    }
-  };
 
   // alert message
   const showAlertMessage = (
@@ -70,7 +55,7 @@ const Home = () => {
 
   // get config on load
   useEffect(() => {
-    getConfig();
+    getConfig(setFileIconMappings, setAlert, setShowAlert);
   }, []);
 
   // set search input

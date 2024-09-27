@@ -215,3 +215,26 @@ export const callOpenFolder = (
     setShowAlert(true);
   }
 };
+
+
+/***
+ *  Get configuration settings
+ *  @param setFileIconMappings
+ *  @param setAlert
+ *  @param setShowAlert
+ *  This function fetches the configuration settings and updates the state accordingly
+ */
+export const getConfig = async (setFileIconMappings, setAlert, setShowAlert) => {
+  try {
+    const response = await Api.getSettings();
+    setFileIconMappings(response.data.extensions);
+  } catch (error) {
+    setAlert({
+      title: "Error",
+      message: "Config file not found or corrupted",
+      type: "danger",
+    });
+    setShowAlert(true);
+    return;
+  }
+};

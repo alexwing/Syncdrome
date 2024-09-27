@@ -20,7 +20,7 @@ import AlertMessage from "../components/AlertMessage";
 import AddBookmarkModal from "../components/AddBookmarkModal";
 import { AlertModel, DrivesProps, FileTypes } from "../models/Interfaces";
 import Api from "../helpers/api";
-import { getFileIcon, callOpenFolder } from "../helpers/utils";
+import { getFileIcon, callOpenFolder, getConfig } from "../helpers/utils";
 
 const Navigator = () => {
   const [currentPath, setCurrentPath] = useState("");
@@ -41,24 +41,9 @@ const Navigator = () => {
 
 
   useEffect(() => {
-    getConfig();
+    getConfig(setFileIconMappings, setAlert, setShowAlert);
     getDrives();
   }, []);
-
-  const getConfig = async () => {
-    try {
-      const response = await Api.getSettings();
-      setFileIconMappings(response.data.extensions);
-    } catch (error) {
-      setAlert({
-        title: "Error",
-        message: "Config file not found or corrupted",
-        type: "danger",
-      });
-      setShowAlert(true);
-      return;
-    }
-  };
 
   const getDrives = () => {
     Api.getDrives()
