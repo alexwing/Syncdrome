@@ -273,22 +273,22 @@ const writeSize = (driveVolumeName, folder, size, freeSpace) => {
 
 /***
  * Get de files in the root of the drive, and return sync date, volume name and free space and size
- * exclude the files in the exclude list conected drives
+ * exclude the files in the exclude list connected drives
  * @param {Object} config - The config file
- * @param {List} conected - The list of drives to exclude
+ * @param {List} connected - The list of drives to exclude
  * @returns {Object} - The object with the info
  */
-const getDrivesInfo = (config, conected) => {
+const getDrivesInfo = (config, connected) => {
   const drives = [];
 
-  // Get the names of the txt files in the folder and filter the volumes that are not in the conected list
-  // conected name is the volume name
+  // Get the names of the txt files in the folder and filter the volumes that are not in the connected list
+  // connected name is the volume name
   let volumes = fs
     .readdirSync(config.folder)
     .filter(
       (file) =>
         file.endsWith(".txt") &&
-        !conected.map((drive) => drive.name).includes(getNameFromFile(file))
+        !connected.map((drive) => drive.name).includes(getNameFromFile(file))
     )
     .map((file) => file.replace(".txt", ""));
 
@@ -297,7 +297,7 @@ const getDrivesInfo = (config, conected) => {
     const syncDate = getDriveSyncDate(vol, config.folder);
     const driveOptions = getDriveOptions(vol, config.folder);
     drives.push({
-      conected: false,
+      connected: false,
       letter: "",
       name: vol,
       freeSpace: driveOptions.freeSpace,
@@ -308,30 +308,30 @@ const getDrivesInfo = (config, conected) => {
     });
   });
 
-  //print conected drives
-  // console.log("conected", conected);
+  //print connected drives
+  // console.log("connected", connected);
 
   //print drives
   // console.log("drives", drives);
 
-  //combine conected and not conected drives
-  drives.push(...conected);
+  //combine connected and not connected drives
+  drives.push(...connected);
 
-  //sort drives by conected, drive letter and volume name
+  //sort drives by connected, drive letter and volume name
   drives.sort(sortDrives);
 
   return drives;
 };
 
-// sort drives function by conected, drive letter and volume name
+// sort drives function by connected, drive letter and volume name
 const sortDrives = (a, b) => {
-  if (a.conected && !b.conected) {
+  if (a.connected && !b.connected) {
     return -1;
   }
-  if (!a.conected && b.conected) {
+  if (!a.connected && b.connected) {
     return 1;
   }
-  if (a.conected && b.conected) {
+  if (a.connected && b.connected) {
     if (a.letter < b.letter) {
       return -1;
     }

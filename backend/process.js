@@ -172,7 +172,7 @@ module.exports = function (app) {
           syncDate = getDriveSyncDate(driveName, config.folder);
         }
         drives.push({
-          conected: true,
+          connected: true,
           letter: driveLetter,
           name: driveName,
           freeSpace: freeSpace,

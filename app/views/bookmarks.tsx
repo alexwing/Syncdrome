@@ -89,7 +89,7 @@ const bookmarks = () => {
     const letter = path.split("\\")[0];
     const drives = await Api.getDrives();
     const drive = drives.data.find((drive) => drive.letter === letter);
-    if (!drive || !drive.conected) {
+    if (!drive || !drive.connected) {
       setAlert({
         title: "Error",
         message: "Drive not connected",
@@ -178,7 +178,7 @@ const bookmarks = () => {
   // set Icon component from url extension
   const getIcon = (file: Bookmark) => {
     const extension = file.name.split(".").pop();
-    return getFileIcon(extension, fileIconMappings).icon;
+    return getFileIcon(extension || '', fileIconMappings).icon;
   };
 
   const filterBookmarks = (bookmarksByVolume: bookmarksByVolume[]) => {
@@ -263,7 +263,7 @@ const bookmarks = () => {
     const driveLetter = drives.find(
       (drive: any) => drive.name === volume
     ) as any;
-    return driveLetter && driveLetter.conected;
+    return driveLetter && driveLetter.connected;
   };
 
   //button to open file in windows explorer
@@ -298,7 +298,7 @@ const bookmarks = () => {
   //badge to show drive letter if volume in drives is connected
   const driveBadge = (volume) => {
     const drive = drives.find((drive: any) => drive.name === volume) as any;
-    if (drive && drive.conected) {
+    if (drive && drive.connected) {
       return connectedIcon(drive.letter);
     }
   };

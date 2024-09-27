@@ -20,7 +20,7 @@ import AlertMessage from "../components/AlertMessage";
 import AddBookmarkModal from "../components/AddBookmarkModal";
 import { AlertModel, DrivesProps, FileTypes } from "../models/Interfaces";
 import Api from "../helpers/api";
-import { getFileIcon } from "../helpers/utils";
+import { getFileIcon, callOpenFolder } from "../helpers/utils";
 
 const Navigator = () => {
   const [currentPath, setCurrentPath] = useState("");
@@ -37,6 +37,8 @@ const Navigator = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [drives, setDrives] = useState<DrivesProps[]>([]);
   const [selectedDrive, setSelectedDrive] = useState("");
+  const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
+
 
   useEffect(() => {
     getConfig();
@@ -178,21 +180,7 @@ const Navigator = () => {
     .split("/")
     .filter((part) => part);
 
-  // open folder on click
-  const onConnectedFolderHandler = (folder, driveLetter, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    if (driveLetter) {
-      Api.openFolder(folder, driveLetter);
-    } else {
-      setAlert({
-        title: "Error",
-        message: "Drive not connected",
-        type: "danger",
-      });
-      setShowAlert(true);
-    }
-  };
+
 
   const openFolder = (folder: string) => {
     //get drive letter from selected drive
@@ -207,13 +195,15 @@ const Navigator = () => {
         <Badge
           bg="none"
           style={{ cursor: "pointer", height: "28px" }}
-          onClick={(e) => onConnectedFolderHandler(folder, driveLetter, e)}
+          onClick={(e) => callOpenFolder(folder, driveLetter, e, setAlert, setShowAlert)}
         >
           <Icon.Eye size={18} color="green" />
         </Badge>
       );
     }
   };
+
+  
 
   return (
     <Container
@@ -241,8 +231,8 @@ const Navigator = () => {
                   handleDriveSelect({ target: { value: drive.name } })
                 }
                 style={{
-                  fontWeight: drive.conected ? "bold" : "normal",
-                  color: drive.conected ? "green" : "black",
+                  fontWeight: drive.connected ? "bold" : "normal",
+                  color: drive.connected ? "green" : "black",
                 }}
               >
                 <Icon.Hdd className="me-2" />

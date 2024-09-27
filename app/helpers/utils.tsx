@@ -3,9 +3,11 @@ import * as Icon from "react-bootstrap-icons";
 import Api from "./api";
 import { Badge, Button } from "react-bootstrap";
 import {
+  AlertModel,
   Bookmark,
   FileCleanerProps,
   FileType,
+  FileTypes,
   Substitution,
 } from "../models/Interfaces";
 
@@ -15,7 +17,7 @@ import {
  * @param fileIconMappings
  * @returns {{category: string, icon: JSX.Element}}
  */
-export const getFileIcon = (extension, fileIconMappings) => {
+export const getFileIcon = (extension: string, fileIconMappings: FileTypes) => {
   for (const category in fileIconMappings) {
     if (
       fileIconMappings[category].extensions.includes(extension.toLowerCase())
@@ -173,7 +175,7 @@ export const addBookmark = (
     }
     const fileIndex = newFiles[bookmark.volume].content[
       bookmark.path
-    ].findIndex((file) => file.fileName === bookmark.name);
+    ].findIndex((file: { fileName: any }) => file.fileName === bookmark.name);
     if (fileIndex !== -1) {
       newFiles[bookmark.volume].content[bookmark.path][fileIndex] = {
         ...newFiles[bookmark.volume].content[bookmark.path][fileIndex],
@@ -182,4 +184,34 @@ export const addBookmark = (
     }
     return newFiles;
   });
+};
+
+/***
+ * Open folder in windows explorer
+ * @param folder
+ * @param driveLetter
+ * @param event
+ * @param setAlert
+ * @param setShowAlert
+ * @returns {void}
+ */
+export const callOpenFolder = (
+  folder: string,
+  driveLetter: string,
+  event: React.MouseEvent<HTMLElement, MouseEvent>,
+  setAlert,
+  setShowAlert
+) => {
+  event.preventDefault();
+  event.stopPropagation();
+  if (driveLetter) {
+    Api.openFolder(folder, driveLetter);
+  } else {
+    setAlert({
+      title: "Error",
+      message: "Drive not connected",
+      type: "danger",
+    });
+    setShowAlert(true);
+  }
 };

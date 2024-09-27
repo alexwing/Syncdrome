@@ -267,16 +267,16 @@ const Sync = () => {
         {drives.map((drive: DrivesProps, index) => (
           <Card
             style={{ width: "23.5rem" }}
-            className={drive.conected ? "me-3 mb-3" : "me-3 mb-3 disabled"}
+            className={drive.connected ? "me-3 mb-3" : "me-3 mb-3 disabled"}
             key={index}
-            bg={!drive.conected ? "light" : "white"}
+            bg={!drive.connected ? "light" : "white"}
           >
             <Card.Body>
-              <Card.Title className={!drive.conected ? "text-muted" : ""}>
-                {!drive.conected && (
+              <Card.Title className={!drive.connected ? "text-muted" : ""}>
+                {!drive.connected && (
                   <Icon.Hdd color="darkgray" size={24} className="me-2" />
                 )}
-                {drive.conected && (
+                {drive.connected && (
                   <Icon.HddFill
                     color="green"
                     size={24}
@@ -319,7 +319,7 @@ const Sync = () => {
                   <Icon.TrashFill color="white" size={16} />
                 </Button>
               )}
-              {drive.conected && (
+              {drive.connected && (
                 <React.Fragment>
                   <Button
                     disabled={loading}
@@ -350,7 +350,7 @@ const Sync = () => {
                 variant={!drive.onlyMedia ? "success" : "secondary"}
                 style={{ width: "100px" }}
                 onClick={() => toogleMediaDrive(drive, !drive.onlyMedia)}
-                disabled={!drive.conected}
+                disabled={!drive.connected}
               >
                 {drive.onlyMedia ? (
                   <span className="d-none d-md-inline">

@@ -16,7 +16,7 @@ export interface Commit {
 }
 
 export interface DrivesProps {
-  conected: boolean;
+  connected: boolean;
   letter: string;
   name: string;
   freeSpace: number;

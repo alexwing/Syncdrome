@@ -7,9 +7,7 @@ import {
   Button,
   Container,
   ListGroup,
-  OverlayTrigger,
   Spinner,
-  Tooltip,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 import {
@@ -22,7 +20,7 @@ import {
 import AlertMessage from "../components/AlertMessage";
 import ExtensionSelect from "../components/ExtensionSelect";
 import AddBookmarkModal from "../components/AddBookmarkModal";
-import { connectedIcon, getFileIcon, addBookmark, openFileEvent, openFileEye } from "../helpers/utils";
+import { connectedIcon, getFileIcon, addBookmark, openFileEvent, openFileEye, callOpenFolder } from "../helpers/utils";
 import { AddBookmarkBadge } from "../components/addBookmarkBadge";
 
 const Home = () => {
@@ -117,21 +115,6 @@ const Home = () => {
       });
   };
 
-  // open folder on click
-  const onConnectedFolderHandler = (folder, driveLetter, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    if (driveLetter) {
-      Api.openFolder(folder, driveLetter);
-    } else {
-      setAlert({
-        title: "Error",
-        message: "Drive not connected",
-        type: "danger",
-      });
-      setShowAlert(true);
-    }
-  };
 
   // set Icon component from url extension
   const getIcon = (extension) => {
@@ -160,13 +143,12 @@ const Home = () => {
   };
 
 
-
-  const openFolder = (folder: string, driveLetter: any) => {
+  const openFolderBadge = (folder: string, driveLetter: any) => {
     if (driveLetter) {
       return (
         <Badge
           bg="none"
-          onClick={(e) => onConnectedFolderHandler(folder, driveLetter, e)}
+          onClick={(e) => callOpenFolder(folder, driveLetter, e, setAlert, setShowAlert)}
         >
           <Icon.Folder2Open size={18} color="green" />
         </Badge>
@@ -288,7 +270,7 @@ const Home = () => {
                               <span className="folder-header-text">{key2}</span>
                               {getFilesLength(files[key].content[key2])}
                               {files[key].connected &&
-                                openFolder(key2, files[key].connected)}
+                                openFolderBadge(key2, files[key].connected)}
                             </Accordion.Header>
                             <Accordion.Body>
                               <ListGroup as="ul">
