@@ -3,7 +3,6 @@ import * as Icon from "react-bootstrap-icons";
 import Api from "./api";
 import { Badge, Button } from "react-bootstrap";
 import {
-  AlertModel,
   Bookmark,
   FileCleanerProps,
   FileType,

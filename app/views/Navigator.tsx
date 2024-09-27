@@ -1,24 +1,20 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
-  Accordion,
-  Alert,
   Badge,
-  Button,
   Container,
-  ListGroup,
-  OverlayTrigger,
   Spinner,
-  Tooltip,
   Table,
   Breadcrumb,
-  Form,
   Dropdown,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 import AlertMessage from "../components/AlertMessage";
-import AddBookmarkModal from "../components/AddBookmarkModal";
-import { AlertModel, DrivesProps, FileTypes } from "../models/Interfaces";
+import {
+  AlertModel,
+  BookmarksByVolume,
+  DrivesProps,
+  FileTypes,
+} from "../models/Interfaces";
 import Api from "../helpers/api";
 import { getFileIcon, callOpenFolder, getConfig } from "../helpers/utils";
 
@@ -38,6 +34,9 @@ const Navigator = () => {
   const [drives, setDrives] = useState<DrivesProps[]>([]);
   const [selectedDrive, setSelectedDrive] = useState("");
   const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
+  const [bookmarksByVolume, setBookmarksByVolume] = useState(
+    {} as BookmarksByVolume
+  );
 
   useEffect(() => {
     getConfig(setFileIconMappings, setAlert, setShowAlert);
@@ -72,7 +71,7 @@ const Navigator = () => {
     setIsLoading(true);
     try {
       const response = await Api.navigate(path, command);
-  
+
       // Verificar si la respuesta es {"isConnected":false,"driveLetter":null}
       if (!response.directoryContents) {
         setIsLoading(false);
@@ -84,7 +83,7 @@ const Navigator = () => {
         setShowAlert(true);
         return null;
       }
-  
+
       setCurrentPath(response.currentPath);
       setDirectoryContents(response.directoryContents);
       setAlert({ title: "", message: "", type: "success" });
@@ -138,6 +137,7 @@ const Navigator = () => {
       setCurrentPath("");
       setDirectoryContents([]);
       navigate("cd", "");
+      loadBookmarks(driveName);
     } catch (error) {
       setAlert({
         title: "Error",
@@ -177,7 +177,21 @@ const Navigator = () => {
     .split("/")
     .filter((part) => part);
 
-
+  const loadBookmarks = async (volume) => {
+    Api.getBookmarksByVolume(volume)
+      .then((response) => {
+        setBookmarksByVolume(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+        setAlert({
+          title: "Error",
+          message: "Error getting bookmarks",
+          type: "danger",
+        });
+        setShowAlert(true);
+      });
+  };
 
   const openFolder = (folder: string) => {
     //get drive letter from selected drive

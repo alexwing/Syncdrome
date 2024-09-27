@@ -13,6 +13,14 @@ module.exports = function (app) {
       });
   });
 
+  app.get("/bookmarks/:volume", (req, res) => {
+    getBookmarksFromDb(req.params.volume)
+      .then((rows) => res.json(rows))
+      .catch((err) => {
+        throw err;
+      });
+  });
+
   app.post("/bookmark", (req, res) => {
     upsertBookmark(req.body, (err, result) => {
       if (err) {

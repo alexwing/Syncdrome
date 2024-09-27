@@ -126,6 +126,14 @@ const Api = {
     return Axios.get("/bookmarks");
   },
 
+    /***
+   * Get bookmarks by volume
+   * @returns {object} - response from server
+   */
+  getBookmarksByVolume(volume) {
+    return Axios.get(`/bookmarks/${volume}`);
+  },
+
   /***
    * Delete bookmark
    * @param {string} id - bookmark id
