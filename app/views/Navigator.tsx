@@ -323,13 +323,11 @@ const Navigator = () => {
                               onClick={() => handleItemClick(item)}
                             />
                             <AddBookmarkBadge
-                              isBookmarked={getFileBookmark(item.name)}
-                              fileName={item.name}
-                              path={currentPath}
-                              volume={selectedDrive}
-                              description=""
-                              setFiles={null}
-                            />
+                                isBookmarked={getFileBookmark(item.name)}
+                                fileName={item.name}
+                                path={currentPath}
+                                volume={selectedDrive}
+                                description="" setFiles={undefined} onAddBookmark={undefined}                            />
                           </>
                         )}
                       </td>

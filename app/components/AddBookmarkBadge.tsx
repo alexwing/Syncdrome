@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { Tooltip, Badge, OverlayTrigger } from "react-bootstrap";
 import { BookmarkPlusFill } from "react-bootstrap-icons";
 import AddBookmarkModal from "./AddBookmarkModal";
-import { addBookmark } from "../helpers/utils";
-import { Bookmark } from "../models/Interfaces";
+import { Bookmark, FileType } from "../models/Interfaces";
 
 export const AddBookmarkBadge = ({
   isBookmarked,
@@ -12,8 +11,8 @@ export const AddBookmarkBadge = ({
   volume,
   description,
   setFiles,
+  onAddBookmark,
 }) => {
-
   const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
   const [bookmarkSelected, setBookmarkSelected] = useState({} as Bookmark);
 
@@ -22,6 +21,24 @@ export const AddBookmarkBadge = ({
       {description}
     </Tooltip>
   );
+
+  /***
+   *  Add bookmark to file
+   *  @param bookmark
+   *  @param setBookmarkSelected
+   *  @param setFiles
+   *  This function is called when the user adds a bookmark to a file
+   *  It updates the file state with the new bookmark
+   */
+  const addBookmark = (
+    bookmark: { volume: string | number; path: string | number; name: any },
+    setBookmarkSelected: {
+      (value: React.SetStateAction<Bookmark>): void;
+      (arg0: any): void;
+    }
+  ) => {
+    setBookmarkSelected(bookmark);
+  };
 
   const badge = (
     <Badge
@@ -56,8 +73,11 @@ export const AddBookmarkBadge = ({
         show={showAddBookmarkModal}
         onHide={() => setShowAddBookmarkModal(false)}
         bookmark={bookmarkSelected}
-        onAddBookmark={(bookmark) => addBookmark(bookmark, setBookmarkSelected, setFiles)}
-      />      
+        onAddBookmark={(bookmark) => {
+          addBookmark(bookmark, setBookmarkSelected);
+          onAddBookmark(bookmark);
+        }}
+      />
     </Badge>
   );
 

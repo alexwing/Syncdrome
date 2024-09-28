@@ -160,7 +160,31 @@ const Home = () => {
     );
   };
 
-
+/***
+   *  Update files with bookmark
+   *  @param prevFiles
+   *  @param bookmark
+   *  @returns {any}
+   */
+const updateFilesWithBookmark = (
+  bookmark: { volume: string | number; path: string | number; name: any }
+) => {
+  const newFiles = { ...files };
+  if (!newFiles[bookmark.volume]) {
+    console.error(`Volume ${bookmark.volume} does not exist in files`);
+    return files;
+  }
+  const fileIndex = newFiles[bookmark.volume].content[
+    bookmark.path
+  ].findIndex((file: { fileName: any }) => file.fileName === bookmark.name);
+  if (fileIndex !== -1) {
+    newFiles[bookmark.volume].content[bookmark.path][fileIndex] = {
+      ...newFiles[bookmark.volume].content[bookmark.path][fileIndex],
+      bookmark,
+    };
+  }
+  setFiles(newFiles);
+};
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       {showAlertMessage}
@@ -278,6 +302,9 @@ const Home = () => {
                                       volume={key}
                                       description={item.bookmark?.description}
                                       setFiles={setFiles}
+                                      onAddBookmark={(bookmark) =>
+                                        updateFilesWithBookmark(bookmark)
+                                      }
                                     />
                                     {files[key].connected &&
                                       openFileEye(
