@@ -1,7 +1,13 @@
 export interface AlertModel {
   title: string;
   message: string;
-  type: "danger" | "success" | "warning";
+  type: TypeAlert;
+}
+
+export enum TypeAlert {
+  success = "success",
+  danger = "danger",
+  warning = "warning",
 }
 
 export interface Commit {

@@ -14,6 +14,7 @@ import {
   BookmarksByVolume,
   DrivesProps,
   FileTypes,
+  TypeAlert,  
 } from "../models/Interfaces";
 import Api from "../helpers/api";
 import { getFileIcon, callOpenFolder, getConfig } from "../helpers/utils";
@@ -28,7 +29,7 @@ const Navigator = () => {
   const [alert, setAlert] = useState<AlertModel>({
     title: "",
     message: "",
-    type: "danger" as "danger" | "success" | "warning",
+    type: TypeAlert.success,
   });
   const [showAlert, setShowAlert] = useState(false);
   const [drives, setDrives] = useState<DrivesProps[]>([]);
@@ -57,7 +58,7 @@ const Navigator = () => {
         setAlert({
           title: "Error",
           message: "Error getting drives list, verify if config file exists",
-          type: "danger",
+          type: TypeAlert.danger,
         });
         setShowAlert(true);
       });
@@ -78,7 +79,7 @@ const Navigator = () => {
         setAlert({
           title: "Error",
           message: "Drive is not data synchronized",
-          type: "danger",
+          type: TypeAlert.danger,
         });
         setShowAlert(true);
         return null;
@@ -86,7 +87,7 @@ const Navigator = () => {
 
       setCurrentPath(response.currentPath);
       setDirectoryContents(response.directoryContents);
-      setAlert({ title: "", message: "", type: "success" });
+      setAlert({ title: "", message: "", type: TypeAlert.success});
       setShowAlert(false);
     } catch (err) {
       console.log("Error", err);
@@ -97,7 +98,7 @@ const Navigator = () => {
       setAlert({
         title: "Error",
         message: errorMessage,
-        type: "danger",
+        type: TypeAlert.danger,
       });
       setShowAlert(true);
       setIsLoading(false);
@@ -142,7 +143,7 @@ const Navigator = () => {
       setAlert({
         title: "Error",
         message: "Failed to change drive",
-        type: "danger",
+        type: TypeAlert.danger,
       });
       setShowAlert(true);
     }
@@ -187,7 +188,7 @@ const Navigator = () => {
         setAlert({
           title: "Error",
           message: "Error getting bookmarks",
-          type: "danger",
+          type: TypeAlert.danger,
         });
         setShowAlert(true);
       });

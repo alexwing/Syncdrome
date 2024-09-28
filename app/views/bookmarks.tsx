@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Breadcrumb, Card, Col, Form, Row } from "react-bootstrap";
-import { AlertModel, Bookmark, BookmarksByVolume, FileTypes } from "../models/Interfaces";
+import { AlertModel, Bookmark, BookmarksByVolume, FileTypes, TypeAlert } from "../models/Interfaces";
 import React from "react";
 import * as Icon from "react-bootstrap-icons";
 import {
@@ -90,7 +90,7 @@ const bookmarks = () => {
       setAlert({
         title: "Error",
         message: "Drive not connected",
-        type: "danger",
+        type: TypeAlert.danger,
       });
       setShowAlert(true);
       return;
@@ -150,7 +150,7 @@ const bookmarks = () => {
         setAlert({
           title: "Error",
           message: "Config file not found or corrupted",
-          type: "danger",
+          type: TypeAlert.danger,
         });
         setShowAlert(true);
         return;
@@ -167,7 +167,7 @@ const bookmarks = () => {
         setAlert({
           title: "Error",
           message: "Error getting drives list, verify if config file exists",
-          type: "danger",
+          type: TypeAlert.danger,
         });
         setShowAlert(true);
       });

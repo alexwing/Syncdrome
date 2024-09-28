@@ -16,6 +16,7 @@ import {
   FileType,
   IFile,
   Bookmark,
+  TypeAlert,
 } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import ExtensionSelect from "../components/ExtensionSelect";
@@ -94,7 +95,7 @@ const Home = () => {
         setAlert({
           title: "Error",
           message: "Error searching files, verify config file",
-          type: "danger",
+          type: TypeAlert.danger,
         });
         setIsLoading(false);
       });

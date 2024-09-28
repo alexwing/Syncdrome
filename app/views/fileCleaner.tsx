@@ -18,6 +18,7 @@ import {
   AlertModel,
   FileCleanerProps,
   Substitution,
+  TypeAlert,
 } from "../models/Interfaces";
 import { cleanFileNames } from "../helpers/utils";
 import AlertMessage from "../components/AlertMessage";
@@ -51,7 +52,7 @@ const FileCleaner = () => {
       setAlert({
         title: "Error",
         message: "Config file not found or corrupted",
-        type: "danger",
+        type: TypeAlert.danger,
       });
       setShowAlert(true);
       return;
@@ -66,7 +67,7 @@ const FileCleaner = () => {
       setAlert({
         title: "Error",
         message: "Error saving config file",
-        type: "danger",
+        type: TypeAlert.danger,
       });
       setShowAlert(true);
       throw new Error("Error saving config file");
@@ -168,7 +169,7 @@ const FileCleaner = () => {
         setAlert({
           title: "Files renamed successfully",
           message: "",
-          type: "success",
+          type: TypeAlert.success,
         });
         setShowAlert(true);
         setFileNames(response);
@@ -177,7 +178,7 @@ const FileCleaner = () => {
         setAlert({
           title: "Error renaming files",
           message: error.message,
-          type: "danger",
+          type: TypeAlert.danger,
         });
         setShowAlert(true);
       });

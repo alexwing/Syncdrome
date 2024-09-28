@@ -14,7 +14,7 @@ import {
 import Api from "../helpers/api";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import * as Icon from "react-bootstrap-icons";
-import { AlertModel, DrivesProps } from "../models/Interfaces";
+import { AlertModel, DrivesProps, TypeAlert } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import ConfirmDialog from "../components/ConfirmDialog";
 
@@ -44,7 +44,7 @@ const Sync = () => {
         setAlert({
           title: "Error",
           message: "Error getting drives list, verify if config file exists",
-          type: "danger",
+          type: TypeAlert.danger,
         });
         setShowAlert(true);
       });
@@ -59,7 +59,7 @@ const Sync = () => {
         setAlert({
           title: "Success",
           message: "Drive catalog syncronized",
-          type: "success",
+          type: TypeAlert.danger,
         });
         setShowAlert(true);
       })
@@ -69,7 +69,7 @@ const Sync = () => {
         setAlert({
           title: "Error",
           message: err.response.data,
-          type: "danger",
+          type: TypeAlert.danger,
         });
         setShowAlert(true);
       });
@@ -96,7 +96,7 @@ const Sync = () => {
         setAlert({
           title: "Deleted",
           message: "Drive catalog deleted",
-          type: "danger",
+          type: TypeAlert.danger,
         });
         setShowAlert(true);
       })
@@ -114,7 +114,7 @@ const Sync = () => {
       setAlert({
         title: "Error",
         message: "No drive letter found",
-        type: "danger",
+        type: TypeAlert.danger,
       });
       setShowAlert(true);
     }
@@ -183,7 +183,7 @@ const Sync = () => {
         setAlert({
           title: "Error",
           message: err.response.data,
-          type: "danger",
+          type: TypeAlert.danger,
         });
       });
   };
@@ -193,7 +193,9 @@ const Sync = () => {
       show={showAlert}
       alertMessage={alert}
       onHide={() => setShowAlert(false)}
-      autoClose={2000} ok={undefined}    />
+      autoClose={2000}
+      ok={undefined}
+    />
   );
 
   return (
