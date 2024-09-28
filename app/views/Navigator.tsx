@@ -11,13 +11,15 @@ import * as Icon from "react-bootstrap-icons";
 import AlertMessage from "../components/AlertMessage";
 import {
   AlertModel,
+  Bookmark,
   BookmarksByVolume,
   DrivesProps,
   FileTypes,
-  TypeAlert,  
+  TypeAlert,
 } from "../models/Interfaces";
 import Api from "../helpers/api";
 import { getFileIcon, callOpenFolder, getConfig } from "../helpers/utils";
+import { AddBookmarkBadge } from "../components/addBookmarkBadge";
 
 const Navigator = () => {
   const [currentPath, setCurrentPath] = useState("");
@@ -35,9 +37,7 @@ const Navigator = () => {
   const [drives, setDrives] = useState<DrivesProps[]>([]);
   const [selectedDrive, setSelectedDrive] = useState("");
   const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
-  const [bookmarksByVolume, setBookmarksByVolume] = useState(
-    {} as BookmarksByVolume
-  );
+  const [bookmarksByVolume, setBookmarksByVolume] = useState([] as Bookmark[]);
 
   useEffect(() => {
     getConfig(setFileIconMappings, setAlert, setShowAlert);
@@ -87,7 +87,7 @@ const Navigator = () => {
 
       setCurrentPath(response.currentPath);
       setDirectoryContents(response.directoryContents);
-      setAlert({ title: "", message: "", type: TypeAlert.success});
+      setAlert({ title: "", message: "", type: TypeAlert.success });
       setShowAlert(false);
     } catch (err) {
       console.log("Error", err);
@@ -217,6 +217,14 @@ const Navigator = () => {
     }
   };
 
+  const getFileBookmark = (fileName) => {
+    //find in bookmarksByVolume the bookmark with the same name and path
+    const bookmark = bookmarksByVolume.find(
+      (bookmark) => bookmark.name === fileName && bookmark.path === currentPath
+    );
+    return bookmark;
+  };
+
   return (
     <Container
       style={{ overflowY: "scroll", height: "100vh" }}
@@ -308,11 +316,21 @@ const Navigator = () => {
                         {item.type === "file" ? (
                           getIcon(item.name.split(".").pop())
                         ) : (
-                          <Icon.Folder
-                            color="green"
-                            style={{ cursor: "pointer", height: "28px" }}
-                            onClick={() => handleItemClick(item)}
-                          />
+                          <>
+                            <Icon.Folder
+                              color="green"
+                              style={{ cursor: "pointer", height: "28px" }}
+                              onClick={() => handleItemClick(item)}
+                            />
+                            <AddBookmarkBadge
+                              isBookmarked={getFileBookmark(item.name)}
+                              fileName={item.name}
+                              path={currentPath}
+                              volume={selectedDrive}
+                              description=""
+                              setFiles={null}
+                            />
+                          </>
                         )}
                       </td>
                       <td>

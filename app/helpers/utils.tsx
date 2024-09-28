@@ -146,6 +146,27 @@ export const cleanFileNames = (
   return cleanedFileNames;
 };
 
+export const updateFilesWithBookmark = (
+  prevFiles: any,
+  bookmark: { volume: string | number; path: string | number; name: any }
+) => {
+  const newFiles = { ...prevFiles };
+  if (!newFiles[bookmark.volume]) {
+    console.error(`Volume ${bookmark.volume} does not exist in files`);
+    return prevFiles;
+  }
+  const fileIndex = newFiles[bookmark.volume].content[bookmark.path].findIndex(
+    (file: { fileName: any }) => file.fileName === bookmark.name
+  );
+  if (fileIndex !== -1) {
+    newFiles[bookmark.volume].content[bookmark.path][fileIndex] = {
+      ...newFiles[bookmark.volume].content[bookmark.path][fileIndex],
+      bookmark,
+    };
+  }
+  return newFiles;
+};
+
 /***
  *  Add bookmark to file
  *  @param bookmark
@@ -166,23 +187,7 @@ export const addBookmark = (
   }
 ) => {
   setBookmarkSelected(bookmark);
-  setFiles((prevFiles) => {
-    const newFiles = { ...prevFiles };
-    if (!newFiles[bookmark.volume]) {
-      console.error(`Volume ${bookmark.volume} does not exist in files`);
-      return prevFiles;
-    }
-    const fileIndex = newFiles[bookmark.volume].content[
-      bookmark.path
-    ].findIndex((file: { fileName: any }) => file.fileName === bookmark.name);
-    if (fileIndex !== -1) {
-      newFiles[bookmark.volume].content[bookmark.path][fileIndex] = {
-        ...newFiles[bookmark.volume].content[bookmark.path][fileIndex],
-        bookmark,
-      };
-    }
-    return newFiles;
-  });
+  setFiles((prevFiles) => updateFilesWithBookmark(prevFiles, bookmark));
 };
 
 /***

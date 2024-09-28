@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Tooltip, Badge, OverlayTrigger } from "react-bootstrap";
 import { BookmarkPlusFill } from "react-bootstrap-icons";
+import AddBookmarkModal from "./AddBookmarkModal";
+import { addBookmark } from "../helpers/utils";
+import { Bookmark } from "../models/Interfaces";
 
 export const AddBookmarkBadge = ({
   isBookmarked,
@@ -8,9 +11,12 @@ export const AddBookmarkBadge = ({
   path,
   volume,
   description,
-  setBookmarkSelected,
-  setShowAddBookmarkModal,
+  setFiles,
 }) => {
+
+  const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
+  const [bookmarkSelected, setBookmarkSelected] = useState({} as Bookmark);
+
   const renderTooltip = (props) => (
     <Tooltip id="button-tooltip" {...props}>
       {description}
@@ -46,6 +52,12 @@ export const AddBookmarkBadge = ({
       }}
     >
       <BookmarkPlusFill size={16} />
+      <AddBookmarkModal
+        show={showAddBookmarkModal}
+        onHide={() => setShowAddBookmarkModal(false)}
+        bookmark={bookmarkSelected}
+        onAddBookmark={(bookmark) => addBookmark(bookmark, setBookmarkSelected, setFiles)}
+      />      
     </Badge>
   );
 

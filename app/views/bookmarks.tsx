@@ -4,7 +4,6 @@ import { AlertModel, Bookmark, BookmarksByVolume, FileTypes, TypeAlert } from ".
 import React from "react";
 import * as Icon from "react-bootstrap-icons";
 import {
-  Accordion,
   Alert,
   Badge,
   Button,

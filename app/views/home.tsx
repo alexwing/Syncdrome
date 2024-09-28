@@ -15,13 +15,11 @@ import {
   FileTypes,
   FileType,
   IFile,
-  Bookmark,
   TypeAlert,
 } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import ExtensionSelect from "../components/ExtensionSelect";
-import AddBookmarkModal from "../components/AddBookmarkModal";
-import { connectedIcon, getFileIcon, addBookmark, openFileEvent, openFileEye, callOpenFolder, getConfig } from "../helpers/utils";
+import { connectedIcon, getFileIcon, openFileEvent, openFileEye, callOpenFolder, getConfig } from "../helpers/utils";
 import { AddBookmarkBadge } from "../components/addBookmarkBadge";
 
 const Home = () => {
@@ -35,8 +33,6 @@ const Home = () => {
   const [found, setFound] = useState(true);
   const [fileIconMappings, setFileIconMappings] = useState({} as FileTypes);
   const [isLoading, setIsLoading] = useState(false);
-  const [bookmarkSelected, setBookmarkSelected] = useState({} as Bookmark);
-  const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
   const [alert, setAlert] = useState({
     title: "",
     message: "",
@@ -280,9 +276,8 @@ const Home = () => {
                                       fileName={item.fileName}
                                       path={key2}
                                       volume={key}
-                                      setBookmarkSelected={setBookmarkSelected}
-                                      setShowAddBookmarkModal={setShowAddBookmarkModal}
                                       description={item.bookmark?.description}
+                                      setFiles={setFiles}
                                     />
                                     {files[key].connected &&
                                       openFileEye(
@@ -304,12 +299,7 @@ const Home = () => {
           </Accordion>
         )}
       </div>
-      <AddBookmarkModal
-        show={showAddBookmarkModal}
-        onHide={() => setShowAddBookmarkModal(false)}
-        bookmark={bookmarkSelected}
-        onAddBookmark={(bookmark) => addBookmark(bookmark, setBookmarkSelected, setFiles)}
-      />
+
     </Container>
   );
 };
