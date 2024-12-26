@@ -1,8 +1,0 @@
-/* Navbar */
-
-.nav {
-	& a {
-		display: inline-block;
-		margin-right: .5rem;
-	}
-}
