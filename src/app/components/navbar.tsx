@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { NavBar, NavBarThemeSwitch, NavBarLink } from "react-windows-ui";
 import { ThemeContext } from "../context/themeContext";
 import Api from "../helpers/api";
@@ -7,6 +7,7 @@ import { Settings } from "../models/Interfaces";
 
 const Navbar = () => {
   const history = useHistory();
+  const location = useLocation();
   const { theme, setLightTheme, setDarkTheme } = useContext(ThemeContext);
   const [config, setConfig] = useState({
     folder: "",
@@ -22,14 +23,17 @@ const Navbar = () => {
     }
   };
 
-  //useEffect config
-
   useEffect(() => {
-    //get local config from api
     Api.getSettings().then((response) => {
       setConfig(response.data);
     });
   }, []);
+
+  const navigateTo = (path: string) => {
+    if (location.pathname !== path) {
+      history.push(path);
+    }
+  };
 
   return (
     <NavBar
@@ -41,35 +45,32 @@ const Navbar = () => {
         </div>
       }
     >
-      {
-        //<NavBarThemeSwitch onChange={(e) => setTheme()} />
-      }
       <NavBarLink
         text="Home"
         icon={<i className="icons10-home"></i>}
         onClick={() => {
-          history.push("/");
+          navigateTo("/");
         }}
       />
       <NavBarLink
         text="Explorer"
         icon={<i className="icons10-folder"></i>}
         onClick={() => {
-          history.push("/explorer");
+          navigateTo("/explorer");
         }}
       />
       <NavBarLink
         text="Sync"
         icon={<i className="icons10-sync"></i>}
         onClick={() => {
-          history.push("/sync");
+          navigateTo("/sync");
         }}
       />
       <NavBarLink
         text="Bookmarks"
         icon={<i className="icons10-bookmark"></i>}
         onClick={() => {
-          history.push("/bookmarks");
+          navigateTo("/bookmarks");
         }}
       />
       {config.NODE_ENV === "development" && (
@@ -77,7 +78,7 @@ const Navbar = () => {
           text="Chat"
           icon={<i className="icons10-chat"></i>}
           onClick={() => {
-            history.push("/chat");
+            navigateTo("/chat");
           }}
         />
       )}
@@ -85,35 +86,35 @@ const Navbar = () => {
         text="Folder Sync"
         icon={<i className="icons10-columns"></i>}
         onClick={() => {
-          history.push("/folderSync");
+          navigateTo("/folderSync");
         }}
       />
       <NavBarLink
         text="File Cleaner"
         icon={<i className="icons10-file"></i>}
         onClick={() => {
-          history.push("/fileCleaner");
+          navigateTo("/fileCleaner");
         }}
       />
       <NavBarLink
         text="Settings"
         icon={<i className="icons10-settings"></i>}
         onClick={() => {
-          history.push("/settings");
+          navigateTo("/settings");
         }}
       />
       <NavBarLink
         text="Help"
         icon={<i className="icons10-question-mark"></i>}
         onClick={() => {
-          history.push("/help");
+          navigateTo("/help");
         }}
       />
       <NavBarLink
         text="About"
         icon={<i className="icons10-info"></i>}
         onClick={() => {
-          history.push("/about");
+          navigateTo("/about");
         }}
       />
     </NavBar>

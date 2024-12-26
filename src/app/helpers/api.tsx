@@ -2,6 +2,9 @@ import Axios from "axios";
 import { FileCleanerProps, LogFile } from "../models/Interfaces";
 const repoOwner = "alexwing";
 const repoName = "Syncdrome";
+
+//port 5000 is the default port for the server
+Axios.defaults.baseURL = "http://localhost:5000";
 const Api = {
   /***
    * Find files in catalog by search param

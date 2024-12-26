@@ -51,11 +51,11 @@ const Home = () => {
   );
 
   // get config on load
-  /*
+  
   useEffect(() => {
     getConfig(setFileIconMappings, setAlert, setShowAlert);
   }, []);
-*/
+
   // set search input
   const handleInput = (e) => {
     setSearchTerm(e.target.value);
@@ -190,7 +190,7 @@ const updateFilesWithBookmark = (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       {showAlertMessage}
       <div className="centered pt-3">
-        <img src="../app/assets/icon.png" alt="logo" className="logo" />
+      <img src="./assets/icon.png" alt="logo" className="logo" />
         <h1>Syncdrome</h1>
       </div>
       <div className="container text-center pb-3">

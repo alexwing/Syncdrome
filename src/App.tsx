@@ -1,27 +1,21 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
-import AppContainer from "react-windows-ui/dist/components/AppContainer";
+import React from "react";
 import "react-windows-ui/config/app-config.css";
 //import "react-windows-ui/dist/react-windows-ui.min.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-windows-ui/icons/winui-icons.min.css";
 import "./app/styles/main.css";
-import { ThemeProvider } from "react-bootstrap";
-import { HashRouter as Router } from "react-router-dom";
 import AppLayout from "./app/config/appLayout";
-import { createHashHistory } from "history";
+import ThemeProvider from "./app/components/themeProvider";
+import { HashRouter } from "react-router-dom";
+import { AppContainer } from "react-windows-ui";
 
 function App() {
-
-  const history = createHashHistory();
   return (
     <AppContainer>
       <ThemeProvider>
-        <Router history={history}>
+        <HashRouter>
           <AppLayout />
-        </Router>
+        </HashRouter>
       </ThemeProvider>
     </AppContainer>
   );
