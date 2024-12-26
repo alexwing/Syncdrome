@@ -2,20 +2,15 @@
   "name": "syncdrome",
   "version": "1.4.0",
   "description": "Create a catalog of all files on specified hard drives",
-  "main": "electron.js",
+  "main": "src-tauri/index.js",
   "scripts": {
-    "dev": "set NODE_ENV=development && concurrently \"webpack --watch\" \"electron --inspect .\"",
-    "dev:start": "set NODE_ENV=development && concurrently \"webpack --watch\" \"electron .\"",
-    "build": "rimraf ./public && mkdir public && webpack --progress -p",
-    "windows": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=app/assets/icon.png --prune=true --out=release-builds",
-    "windows64": "electron-packager . --overwrite --platform=win32 --arch=x64 --icon=app/assets/icon.png --prune=true --out=release-builds",
-    "windows-asar": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=app/assets/icon.png --prune=true --asar --out=release-builds --extra-resource=config.json",
-    "windows64-asar": "electron-packager . --overwrite --platform=win32 --arch=x64 --icon=app/assets/icon.png --prune=true --asar --out=release-builds --extra-resource=config.json",
-    "linux": "electron-packager . --overwrite --platform=linux --arch=x64 --icon=app/assets/icon.png --prune=true --out=release-builds"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "tauri": "tauri"
   },
   "repository": "https://github.com/alexwing/content-drives-finder",
   "keywords": [
-    "Electron",
+    "Tauri",
     "catalog",
     "hard drive",
     "files"
@@ -33,9 +28,6 @@
     "concurrently": "5.3.0",
     "copy-webpack-plugin": "6.3.2",
     "css-loader": "3.6.0",
-    "electron": "^28.1.0",
-    "electron-packager": "^17.1.2",
-    "electron-reload": "^2.0.0-alpha.1",
     "file-loader": "6.2.0",
     "html-webpack-plugin": "4.5.0",
     "postcss": "7.0.32",
@@ -48,11 +40,11 @@
     "style-loader": "1.2.1",
     "typescript": "^5.3.3",
     "url-loader": "4.1.0",
-    "webpack": "4.43.0",
-    "webpack-cli": "3.3.12"
+    "vite": "^6.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@tauri-apps/cli": "^2"
   },
   "dependencies": {
-    "@electron/remote": "^2.1.1",
     "axios": "^0.21.0",
     "body-parser": "1.19.0",
     "bootstrap": "^5.3.2",
@@ -72,7 +64,8 @@
     "react-select": "^5.8.0",
     "react-windows-ui": "^4.2.4",
     "sqlite3": "^5.1.7",
-    "webpack-target-electron-renderer": "^0.4.0"
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-opener": "^2"
   },
   "babel": {
     "presets": [
