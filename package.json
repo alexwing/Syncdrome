@@ -10,7 +10,7 @@
     "tauri": "tauri",
     "tauri:build": "tauri build",
     "start:server": "node server.js",
-    "tauri:dev": "npm run start:server & tauri dev"
+    "tauri:dev": "tauri dev"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.1.1",
