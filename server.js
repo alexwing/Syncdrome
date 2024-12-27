@@ -1,26 +1,36 @@
-import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import express from "express";
+import path from "path";
+import bodyParser from "body-parser";
+import { fileURLToPath } from "url";
+
+import * as settings from "./backend/settings.js";
+//import * as search from "./backend/search.js";
+//import * as process from "./backend/process.js";
+//import * as bookmarks from "./backend/bookmarks.js";
+//import * as folderSync from "./backend/folderSync.js";
+//import * as fileCleaner from "./backend/fileCleaner.js";
 
 const app = express();
-const port = 3000;
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
-// Middleware para parsear JSON
-app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
-// Servir archivos estáticos desde el directorio 'dist'
-app.use(express.static(path.join(__dirname, 'dist')));
+const port = process.env.PORT || 3000;
 
-// Ruta de ejemplo
-app.get('/api/hello', (req, res) => {
-  res.send({ message: 'Hola desde el servidor Express!' });
-});
+settings.default(app);
+//search.default(app);
+//process.default(app);
+//bookmarks.default(app);
+//folderSync.default(app);
+//fileCleaner.default(app);
 
-// Iniciar el servidor
 app.listen(port, () => {
-  console.log(`Servidor Express escuchando en http://localhost:${port}`);
+  console.log(
+    `The app is listening on http://localhost:${port}/settings`
+  );
 });

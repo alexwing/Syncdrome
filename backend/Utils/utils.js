@@ -1,0 +1,382 @@
+import { app } from "@tauri-apps/api";
+import cp from "child_process";
+import path from "path";
+import fs from "fs";
+
+/***
+ * Get the config SQLite file
+ * @returns {String} - The path of the config file
+ */
+export const getSqlitePath = () => {
+  return path.join(getConfig().folder, "db.sqlite");
+};
+
+const getConfigPath = () => {
+  let configPath = path.join(process.cwd(), "config.json");
+  //verify if config.json exist
+  if (!fs.existsSync(configPath)) {
+    throw new Error(`File ${configPath} does not exist`);
+  }
+  return configPath;
+}
+
+/***
+ * Get the config from config.json
+ * if development, get from backend folder else get from root folder
+ * @returns {Object} - The config file
+ */
+export const getConfig = async () => {
+  return JSON.parse(fs.readFileSync(getConfigPath(), "utf8"));
+};
+
+/***
+ * Save the config in config.json
+ * @param {Object} config - The config file
+ * @returns {String} - The path of the config file
+ */
+export const saveConfig = async (config) => {
+  let configPath = "";
+  if (
+    process.env.NODE_ENV !== undefined &&
+    process.env.NODE_ENV.trim() === "development"
+  ) {
+    configPath = path.join(__dirname, "..", "..", "config.json");
+  } else {
+    const exePath = await app.getPath("exe");
+    const exeDir = path.dirname(exePath);
+    configPath = path.join(exeDir, "resources", "config.json");
+  }
+  console.log("Configuración guardada correctamente en: ", configPath);
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+  return configPath;
+};
+/***
+ * Get the free space and size of the drive
+ * @param {String} driveLetter - The drive letter
+ * @returns {Object} - The object with the info
+ */
+export const getSpaceDisk = (driveLetter) => {
+  const cmd = cp.spawnSync("wmic", [
+    "logicaldisk",
+    "where",
+    `DeviceID="${driveLetter}"`,
+    "get",
+    "freespace,size",
+  ]);
+  const lines = cmd.stdout.toString().split("\n");
+  let freeSpace = 0;
+  let size = 0;
+  lines.forEach((line) => {
+    const drive = line.trim();
+    if (drive.length > 0 && drive !== "FreeSpace  Size") {
+      const info = drive.split("  ");
+      freeSpace = info[0];
+      size = info[1];
+    }
+  });
+  return {
+    freeSpace: parseInt(freeSpace),
+    size: parseInt(size),
+  };
+};
+
+/***
+ * get is has a volume name txt file in the root of the drive, return true or false
+ * @param {String} driveVolumeName - The volume name
+ * @param {String} folder - The folder to search
+ * @returns {Boolean} - The result
+ */
+export const getDriveSync = (driveVolumeName, folder) => {
+  const file = path.join(folder, `${driveVolumeName}.txt`);
+  return fs.existsSync(file);
+};
+
+/***
+ * get is volume name is connected, return true or false
+ * @param {String} driveName - The volume name
+ * @returns {Boolean} - The result
+ */
+export const getDriveConected = (driveName) => {
+  const cmd = cp.spawnSync("wmic", [
+    "logicaldisk",
+    "where",
+    `volumename="${driveName}"`,
+    "get",
+    "DeviceID",
+  ]);
+  const lines = cmd.stdout.toString().split("\n");
+  let letter = "";
+  lines.forEach((line) => {
+    const drive = line.trim();
+    if (drive.length > 0 && drive !== "DeviceID") {
+      letter = drive;
+    }
+  });
+  return letter;
+};
+
+export const getNameFromFile = (file) => {
+  return file.replace(".txt", "");
+};
+
+/***
+ * get the modified date of the file in the root of the drive
+ * @param {String} driveVolumeName - The volume name
+ * @param {String} folder - The folder to search
+ * @returns {Date} - The date
+ */
+export const getDriveSyncDate = (driveVolumeName, folder) => {
+  const file = path.join(folder, `${driveVolumeName}.txt`);
+
+  if (fs.existsSync(file)) {
+    const stats = fs.statSync(file);
+    return stats.mtime;
+  } else {
+    throw new Error(`File ${file} does not exist`);
+  }
+};
+
+/***
+ * get drives.json from the root of the drive, return the info
+ * @param {String} driveVolumeName - The volume name
+ * @param {String} folder - The folder to search
+ * @returns {Object} - The object with the info
+ */
+export const getDriveOptions = (driveVolumeName, folder) => {
+  const file = path.join(folder, `drives.json`);
+  if (fs.existsSync(file)) {
+    //get file content as json
+    const drives = JSON.parse(fs.readFileSync(file, "utf8"));
+    const onlyMedia = drives[driveVolumeName]?.onlyMedia || false;
+    //if exist size and freeSpace, return it
+    if (drives[driveVolumeName]?.size && drives[driveVolumeName]?.freeSpace) {
+      return {
+        onlyMedia: onlyMedia,
+        size: drives[driveVolumeName].size,
+        freeSpace: drives[driveVolumeName].freeSpace,
+      };
+    } else {
+      //if not exist size and freeSpace, return 0
+      return {
+        onlyMedia: onlyMedia,
+        size: 0,
+        freeSpace: 0,
+      };
+    }
+  }
+  //if file not exist, return 0
+  return {
+    onlyMedia: false,
+    size: 0,
+    freeSpace: 0,
+  };
+};
+
+/***
+ *  delete drive options from drives.json
+ * @param {String} driveVolumeName - The volume name
+ * @param {String} folder - The folder to search
+ */
+export const deleteDriveOptions = (driveVolumeName, folder) => {
+  const file = path.join(folder, `drives.json`);
+  if (fs.existsSync(file)) {
+    //get file content as json
+    const drives = JSON.parse(fs.readFileSync(file, "utf8"));
+    delete drives[driveVolumeName];
+    fs.writeFileSync(file, JSON.stringify(drives));
+  }
+};
+
+/***
+ * get the volume name of the drive letter
+ * @param {String} driveLetter - The drive letter
+ * @returns {String} - The volume name
+ */
+export const getVolumeName = (driveLetter) => {
+  const cmd = cp.spawnSync("wmic", [
+    "logicaldisk",
+    "where",
+    `DeviceID="${driveLetter}"`,
+    "get",
+    "volumename",
+  ]);
+  const lines = cmd.stdout.toString().split("\n");
+  let vol = "";
+  lines.forEach((line) => {
+    const drive = line.trim();
+    if (drive.length > 0 && drive !== "VolumeName") {
+      vol = drive;
+    }
+  });
+  return vol;
+};
+
+/***
+ * Write size and freeSpace in drives.json
+ * @param {String} driveVolumeName - The volume name
+ * @param {String} folder - The folder to search
+ * @param {Number} size - The size
+ * @param {Number} freeSpace - The free space
+ */
+export const writeSize = (driveVolumeName, folder, size, freeSpace) => {
+  const file = path.join(folder, `drives.json`);
+  let drives = {};
+  if (fs.existsSync(file)) {
+    drives = JSON.parse(fs.readFileSync(file));
+  }
+  drives[driveVolumeName] = {
+    ...drives[driveVolumeName],
+    size: size,
+    freeSpace: freeSpace,
+  };
+  fs.writeFileSync(file, JSON.stringify(drives, null, 2));
+};
+
+/***
+ * Get de files in the root of the drive, and return sync date, volume name and free space and size
+ * exclude the files in the exclude list conected drives
+ * @param {Object} config - The config file
+ * @param {List} conected - The list of drives to exclude
+ * @returns {Object} - The object with the info
+ */
+export const getDrivesInfo = (config, conected) => {
+  const drives = [];
+
+  // Get the names of the txt files in the folder and filter the volumes that are not in the conected list
+  // conected name is the volume name
+  let volumes = fs
+    .readdirSync(config.folder)
+    .filter(
+      (file) =>
+        file.endsWith(".txt") &&
+        !conected.map((drive) => drive.name).includes(getNameFromFile(file))
+    )
+    .map((file) => file.replace(".txt", ""));
+
+  //get info of each volume
+  volumes.forEach((vol) => {
+    const syncDate = getDriveSyncDate(vol, config.folder);
+    const driveOptions = getDriveOptions(vol, config.folder);
+    drives.push({
+      conected: false,
+      letter: "",
+      name: vol,
+      freeSpace: driveOptions.freeSpace,
+      size: driveOptions.size,
+      sync: true,
+      syncDate: syncDate,
+      onlyMedia: driveOptions.onlyMedia,
+    });
+  });
+
+  //print conected drives
+  // console.log("conected", conected);
+
+  //print drives
+  // console.log("drives", drives);
+
+  //combine conected and not conected drives
+  drives.push(...conected);
+
+  //sort drives by conected, drive letter and volume name
+  drives.sort(sortDrives);
+
+  return drives;
+};
+
+// sort drives function by conected, drive letter and volume name
+const sortDrives = (a, b) => {
+  if (a.conected && !b.conected) {
+    return -1;
+  }
+  if (!a.conected && b.conected) {
+    return 1;
+  }
+  if (a.conected && b.conected) {
+    if (a.letter < b.letter) {
+      return -1;
+    }
+    if (a.letter > b.letter) {
+      return 1;
+    }
+  }
+  if (a.name < b.name) {
+    return -1;
+  }
+  if (a.name > b.name) {
+    return 1;
+  }
+
+  return 0;
+};
+
+//open file in windows explorer
+export const openFile = (file) => {
+  const cmd = cp.spawnSync("explorer", [file]);
+  return cmd;
+};
+
+//open folder in windows explorer
+export const openFolder = (folder) => {
+  const cmd = cp.spawnSync("explorer", [folder]);
+  return cmd;
+};
+
+/***
+ * Get extensions from config.json file
+ * @param {Object} config - The config file
+ * @returns {List} - The list of extensions
+ */
+export const getExtensions = (config) => {
+  let extensions = [];
+  Object.keys(config.extensions).forEach((key) => {
+    extensions.push(...config.extensions[key].media);
+  });
+  //trim and lowercase
+  extensions = extensions.map((ext) => ext.trim().toLowerCase());
+  return [...new Set(extensions)];
+};
+
+/***
+ * Get extension by extesions type array of string
+ * @param {string[]} extensions - The array of extensions keys values
+ * @param {Object} config - The config file
+ * @returns {List} - The list of extensions
+ */
+export const getExtensionsByType = (extensions, config) => {
+  let ext = [];
+  if (extensions.length === 0) {
+    return [];
+  }
+  extensions.forEach((key) => {
+    try {
+      if (config.extensions[key]) {
+        ext.push(...config.extensions[key].extensions);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  });
+  //trim and lowercase
+  ext = ext.map((ext) => ext.trim().toLowerCase());
+  return [...new Set(ext)];
+};
+
+/***
+ * Delete a file
+ * @param {String} filePath - The file path
+ */
+export const deleteFile = async (filePath) => {
+  try {
+    await fs
+      .unlink(filePath)
+      .then(() => {
+        console.log(`Deleted ${filePath}`);
+      })
+      .catch((err) => {
+        console.error(`Error: ${err}`);
+      });
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+}
