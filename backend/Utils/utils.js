@@ -25,7 +25,7 @@ const getConfigPath = () => {
  * if development, get from backend folder else get from root folder
  * @returns {Object} - The config file
  */
-export const getConfig = async () => {
+export const getConfig = () => {
   return JSON.parse(fs.readFileSync(getConfigPath(), "utf8"));
 };
 

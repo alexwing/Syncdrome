@@ -1,28 +1,16 @@
-const fs = require("fs");
-const path = require("path");
-const readline = require('readline');
-const iconv = require('iconv-lite');
-const stream = require('stream');
-const {
-  getSpaceDisk,
-  getDriveSync,
-  getVolumeName,
-  getDriveSyncDate,
-  getDrivesInfo,
-  getDriveOptions,
-  writeSize,
-  deleteDriveOptions,
-  getExtensions,
-  getConfig,
-} = require("./Utils/utils");
+import fs from "fs";
+import path from "path";
+import readline from 'readline';
+import iconv from 'iconv-lite';
+import stream from 'stream';
+import { getSpaceDisk, getDriveSync, getVolumeName, getDriveSyncDate, getDrivesInfo, getDriveOptions, writeSize, deleteDriveOptions, getExtensions, getConfig } from "./Utils/utils.js";
+import util from "util";
+import { exec } from "child_process";
 
+const execPromise = util.promisify(exec);
+const fsPromise = { writeFile: util.promisify(fs.writeFile) };
 
-// Convert exec and writeFile to return promises
-const util = require("util");
-const execPromise = util.promisify(require("child_process").exec);
-const fsPromise = { writeFile: util.promisify(require("fs").writeFile) };
-
-module.exports = function (app) {
+export default function (app) {
 
   app.get("/executeNodeNEW/:driveLetter", async (req, res) => {
     const driveLetter = req.params.driveLetter;
@@ -155,41 +143,46 @@ module.exports = function (app) {
   //get system connected drives letters and names, create a json object
   app.get("/drives", (req, res) => {
     let drives = [];
-    const cp = require("child_process");
-    const cmd = cp.spawnSync("wmic", ["logicaldisk", "get", "name,volumename"]);
-    const lines = cmd.stdout.toString().split("\n");
-    const config = getConfig();
+    const cp = import("child_process"); // Usar import en lugar de require
+    cp.then((child_process) => {
+      const cmd = child_process.spawnSync("wmic", ["logicaldisk", "get", "name,volumename"]);
+      const lines = cmd.stdout.toString().split("\n");
+      const config = getConfig();
 
-    lines.forEach((line) => {
-      const drive = line.trim();
-      if (drive.length > 0 && drive !== "Name  VolumeName") {
-        const driveName = drive.slice(3).trim();
-        const driveLetter = drive.slice(0, 2).trim();
-        let { freeSpace, size } = getSpaceDisk(driveLetter);
-        const driveSync = getDriveSync(driveName, config.folder);
-        let syncDate = null;
-        if (driveSync) {
-          syncDate = getDriveSyncDate(driveName, config.folder);
+      lines.forEach((line) => {
+        const drive = line.trim();
+        if (drive.length > 0 && drive !== "Name  VolumeName") {
+          const driveName = drive.slice(3).trim();
+          const driveLetter = drive.slice(0, 2).trim();
+          let { freeSpace, size } = getSpaceDisk(driveLetter);
+          const driveSync = getDriveSync(driveName, config.folder);
+          let syncDate = null;
+          if (driveSync) {
+            syncDate = getDriveSyncDate(driveName, config.folder);
+          }
+          drives.push({
+            conected: true,
+            letter: driveLetter,
+            name: driveName,
+            freeSpace: freeSpace,
+            size: size,
+            sync: driveSync,
+            syncDate: syncDate,
+            onlyMedia:  getDriveOptions(driveName, config.folder).onlyMedia,
+          });
         }
-        drives.push({
-          conected: true,
-          letter: driveLetter,
-          name: driveName,
-          freeSpace: freeSpace,
-          size: size,
-          sync: driveSync,
-          syncDate: syncDate,
-          onlyMedia:  getDriveOptions(driveName, config.folder).onlyMedia,
-        });
-      }
+      });
+
+      //remove drives with size 0
+      drives = drives.filter((drive) => drive.size > 0);
+
+      drives = getDrivesInfo(config, drives);
+
+      res.json(drives);
+    }).catch((error) => {
+      console.error(`Error: ${error}`);
+      res.status(500).json({ success: false, error: error.message });
     });
-
-    //remove drives with size 0
-    drives = drives.filter((drive) => drive.size > 0);
-
-    drives = getDrivesInfo(config, drives);
-
-    res.json(drives);
   });
 
   //remove volume name file from drive root

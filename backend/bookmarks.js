@@ -1,10 +1,6 @@
-const {
-  getBookmarksFromDb,
-  upsertBookmark,
-  deleteBookmarkFromDb,
-} = require("./Utils/sqlite");
+import { getBookmarksFromDb, upsertBookmark, deleteBookmarkFromDb } from "./Utils/sqlite.js";
 
-module.exports = function (app) {
+export default function (app) {
   app.get("/bookmarks", (req, res) => {
     getBookmarksFromDb(req.query.volume)
       .then((rows) => res.json(rows))

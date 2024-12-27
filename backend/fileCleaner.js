@@ -1,12 +1,10 @@
-const { app } = require("electron");
-const path = require("path");
-// Convert exec and writeFile to return promises
-const util = require("util");
+import path from "path";
+import util from "util";
+import { deleteFile } from "./Utils/utils.js";
+import { exec } from "child_process";
+import fs from "fs-extra";
 
-const { deleteFile } = require("./Utils/utils");
-const { exec } = require("child_process");
-
-module.exports = function (app) {
+export default function (app) {
   /***
    * getFilesInFolder - get files in folder use post method
    * @param {string} folder - folder to get files from
@@ -15,9 +13,6 @@ module.exports = function (app) {
    * @example
    * getFilesInFolder("D:\\Pictures")
    */
-  const fs = require("fs-extra");
-  const path = require("path");
-
   app.post("/getFilesInFolder", async (req, res) => {
     const folder = req.body.folder;
 
@@ -41,6 +36,7 @@ module.exports = function (app) {
       res.status(500).send(err.message);
     }
   });
+
   /*** rename files in folder use post method renameFilesInFolder
    * @param FileCleanerProps [{ path: string; filename: string; fixed: string;},...]
    * @returns FileCleanerProps [{ path: string; filename: string; fixed:string, status: string;},...]

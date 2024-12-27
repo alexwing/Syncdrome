@@ -1,17 +1,19 @@
-const { app } = require("electron");
-const path = require("path");
-// Convert exec and writeFile to return promises
-const util = require("util");
-const execPromise = util.promisify(require("child_process").exec);
+import path from "path";
+import util from "util";
+import { exec } from "child_process";
+import { deleteFile } from "./Utils/utils.js";
+import iconv from "iconv-lite";
+import fs from "fs";
+import { fileURLToPath } from "url";
 
-//const logFilePath = path.join(app.getPath("userData"), "syncTofolder.log");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const execPromise = util.promisify(exec);
 const logFilePath = path.join(__dirname, "syncTofolder.log");
-const { deleteFile } = require("./Utils/utils");
-const { exec } = require("child_process");
-const iconv = require("iconv-lite");
 const ENCODING = "utf8";
 
-module.exports = function (app) {
+export default function (app) {
   /***
    * endpoint to sync a folder into another folder, using robocopy parameters:
    * robocopy D:\Pictures F:\backup\Pictures /MIR /R:3 /W:10 /LOG:E:\projects\hd-contend-finder\scripts\syncTofolder.log
@@ -67,7 +69,6 @@ module.exports = function (app) {
    * getSyncLog()
    */
   app.get("/getSyncLog", (req, res) => {
-    const fs = require("fs");
     // Leer el archivo como un buffer
     const logFileBuffer = fs.readFileSync(logFilePath);
     // Convertir de latin1 a utf8
