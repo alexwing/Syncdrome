@@ -1,14 +1,14 @@
-const fs = require("fs");
-const path = require("path");
-const {
+import fs from "fs";
+import path from "path";
+import {
   getDriveConected,
   getNameFromFile,
   openFile,
   openFolder,
   getConfig,
   getExtensionsByType,
-} = require("./Utils/utils");
-const { getBookmarksFromDb } = require("./Utils/sqlite");
+} from "./Utils/utils.js";
+import { getBookmarksFromDb } from "./Utils/sqlite.js";
 
 /*bookmark structure 
 
@@ -20,7 +20,7 @@ const { getBookmarksFromDb } = require("./Utils/sqlite");
   "description": "Bookmark 1 description"
 }
 */
-module.exports = function (app) {
+export default function (app) {
   app.get("/find/", (req, res) => {
     res.json({});
   });
@@ -31,7 +31,7 @@ module.exports = function (app) {
       const searchText = req.params.searchParam.toLowerCase();
       const extensionsTypes = req.params.extensions.toLowerCase().split("&");
       //read config.json file
-      const config = getConfig();
+      const config = await getConfig();
       //read folder
       const folder = config.folder;
 

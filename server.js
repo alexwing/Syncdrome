@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 import { fileURLToPath } from "url";
 
 import * as settings from "./backend/settings.js";
-//import * as search from "./backend/search.js";
+import * as search from "./backend/search.js";
 //import * as process from "./backend/process.js";
 //import * as bookmarks from "./backend/bookmarks.js";
 //import * as folderSync from "./backend/folderSync.js";
@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, "public")));
 const port = process.env.PORT || 3000;
 
 settings.default(app);
-//search.default(app);
+search.default(app);
 //process.default(app);
 //bookmarks.default(app);
 //folderSync.default(app);
