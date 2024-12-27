@@ -5,7 +5,7 @@ import iconv from 'iconv-lite';
 import stream from 'stream';
 import { getSpaceDisk, getDriveSync, getVolumeName, getDriveSyncDate, getDrivesInfo, getDriveOptions, writeSize, deleteDriveOptions, getExtensions, getConfig } from "./Utils/utils.js";
 import util from "util";
-import { exec } from "child_process";
+import { exec, spawnSync } from "child_process";
 
 const execPromise = util.promisify(exec);
 const fsPromise = { writeFile: util.promisify(fs.writeFile) };
@@ -141,48 +141,50 @@ export default function (app) {
   });
 
   //get system connected drives letters and names, create a json object
-  app.get("/drives", (req, res) => {
+  app.get("/drives", async (req, res) => {
     let drives = [];
-    const cp = import("child_process"); // Usar import en lugar de require
-    cp.then((child_process) => {
-      const cmd = child_process.spawnSync("wmic", ["logicaldisk", "get", "name,volumename"]);
-      const lines = cmd.stdout.toString().split("\n");
-      const config = getConfig();
+    const cmd = spawnSync("wmic", ["logicaldisk", "get", "name,volumename"]);
+    const lines = cmd.stdout.toString().split("\n");
+    const config = getConfig();
 
-      lines.forEach((line) => {
-        const drive = line.trim();
-        if (drive.length > 0 && drive !== "Name  VolumeName") {
-          const driveName = drive.slice(3).trim();
-          const driveLetter = drive.slice(0, 2).trim();
-          let { freeSpace, size } = getSpaceDisk(driveLetter);
-          const driveSync = getDriveSync(driveName, config.folder);
-          let syncDate = null;
+    console.log("Lines", lines);
+
+    lines.forEach((line) => {
+      const drive = line.trim();
+      if (drive.length > 0 && drive !== "Name  VolumeName") {
+        const driveName = drive.slice(3).trim();
+        const driveLetter = drive.slice(0, 2).trim();
+        let { freeSpace, size } = getSpaceDisk(driveLetter);
+        let driveSync = null;
+        let syncDate = null;
+        if (driveName && config.folder) {
+          driveSync = getDriveSync(driveName, config.folder);
           if (driveSync) {
             syncDate = getDriveSyncDate(driveName, config.folder);
           }
-          drives.push({
-            conected: true,
-            letter: driveLetter,
-            name: driveName,
-            freeSpace: freeSpace,
-            size: size,
-            sync: driveSync,
-            syncDate: syncDate,
-            onlyMedia:  getDriveOptions(driveName, config.folder).onlyMedia,
-          });
         }
-      });
-
-      //remove drives with size 0
-      drives = drives.filter((drive) => drive.size > 0);
-
-      drives = getDrivesInfo(config, drives);
-
-      res.json(drives);
-    }).catch((error) => {
-      console.error(`Error: ${error}`);
-      res.status(500).json({ success: false, error: error.message });
+        drives.push({
+          conected: true,
+          letter: driveLetter,
+          name: driveName,
+          freeSpace: freeSpace,
+          size: size,
+          sync: driveSync,
+          syncDate: syncDate,
+          onlyMedia: config.folder ? getDriveOptions(driveName, config.folder).onlyMedia : false,
+        });
+      }
     });
+
+    console.log("Drives", drives);
+
+    //remove drives with size 0
+    drives = drives.filter((drive) => drive.size > 0);
+
+    drives = await getDrivesInfo(drives);
+    console.log("Drives", drives);
+
+    res.json(drives);
   });
 
   //remove volume name file from drive root

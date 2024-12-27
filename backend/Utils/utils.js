@@ -2,6 +2,12 @@ import { app } from "@tauri-apps/api";
 import cp from "child_process";
 import path from "path";
 import fs from "fs";
+import {
+  dataDir,
+  documentDir,
+  join,
+  executableDir,
+} from "@tauri-apps/api/path";
 
 /***
  * Get the config SQLite file
@@ -11,22 +17,27 @@ export const getSqlitePath = () => {
   return path.join(getConfig().folder, "db.sqlite");
 };
 
-const getConfigPath = () => {
-  let configPath = path.join(process.cwd(), "config.json");
-  //verify if config.json exist
-  if (!fs.existsSync(configPath)) {
-    throw new Error(`File ${configPath} does not exist`);
+const getConfigPath = async () => {
+  // const appDataPath = await dataDir();
+  // const documentsPath = await documentDir();
+  try {
+    const configPath = (await executableDir()).toString();
+    return path.join(configPath, "config.json");
+  } catch (error) {
+    const configPath = process.cwd().toString();
+    return path.join(configPath, "config.json");
   }
-  return configPath;
-}
+};
 
 /***
  * Get the config from config.json
  * if development, get from backend folder else get from root folder
  * @returns {Object} - The config file
  */
-export const getConfig = () => {
-  return JSON.parse(fs.readFileSync(getConfigPath(), "utf8"));
+export const getConfig = async () => {
+  const configPath = await getConfigPath();
+  console.log("Configuración leída correctamente de: ", configPath);
+  return JSON.parse(fs.readFileSync(configPath, "utf8"));
 };
 
 /***
@@ -35,16 +46,16 @@ export const getConfig = () => {
  * @returns {String} - The path of the config file
  */
 export const saveConfig = async (config) => {
-   let configPath = "";
+  let configPath = "";
   if (
     process.env.NODE_ENV !== undefined &&
     process.env.NODE_ENV.trim() === "development"
   ) {
     configPath = path.join(__dirname, "..", "..", "config.json");
   } else {
-    const exePath = await app.getPath("exe");
-    const exeDir = path.dirname(exePath);
-    configPath = path.join(exeDir, "resources", "config.json");
+    const appDataPath =
+      process.env.APP_DATA_PATH || path.dirname(process.execPath);
+    configPath = path.join(appDataPath, "config.json");
   }
   console.log("Configuración guardada correctamente en: ", configPath);
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
@@ -236,11 +247,15 @@ export const writeSize = (driveVolumeName, folder, size, freeSpace) => {
  * Get de files in the root of the drive, and return sync date, volume name and free space and size
  * exclude the files in the exclude list conected drives
  * @param {Object} config - The config file
- * @param {List} conected - The list of drives to exclude
+ * @param {List} connected - The list of drives to exclude
  * @returns {Object} - The object with the info
  */
-export const getDrivesInfo = (config, conected) => {
+export const getDrivesInfo = async (connected) => {
   const drives = [];
+
+  const config = await getConfig();
+
+  console.log("config folder", config.folder);
 
   // Get the names of the txt files in the folder and filter the volumes that are not in the conected list
   // conected name is the volume name
@@ -249,10 +264,10 @@ export const getDrivesInfo = (config, conected) => {
     .filter(
       (file) =>
         file.endsWith(".txt") &&
-        !conected.map((drive) => drive.name).includes(getNameFromFile(file))
+        !connected.map((drive) => drive.name).includes(getNameFromFile(file))
     )
     .map((file) => file.replace(".txt", ""));
-
+  //console.log("volumes", volumes);
   //get info of each volume
   volumes.forEach((vol) => {
     const syncDate = getDriveSyncDate(vol, config.folder);
@@ -270,13 +285,15 @@ export const getDrivesInfo = (config, conected) => {
   });
 
   //print conected drives
-  // console.log("conected", conected);
+   //console.log("connected", connected);
 
   //print drives
-  // console.log("drives", drives);
+   //console.log("drives", drives);
 
   //combine conected and not conected drives
-  drives.push(...conected);
+  drives.push(...connected);
+
+  console.log("drives", drives);
 
   //sort drives by conected, drive letter and volume name
   drives.sort(sortDrives);
@@ -379,4 +396,4 @@ export const deleteFile = async (filePath) => {
   } catch (error) {
     console.error(`Error: ${error}`);
   }
-}
+};
