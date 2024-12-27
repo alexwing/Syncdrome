@@ -4,23 +4,21 @@
   "version": "0.1.0",
   "identifier": "com.syncdrome.app",
   "build": {
-    "beforeDevCommand": "npm run start:server & npm run dev", 
-    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run start:server", 
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
-  
   "app": {    
     "windows": [
       {
         "title": "Syncdrome",
         "width": 1920,
         "height": 1080,
-        "devtools": true
+        "devtools": true,
+        "maximized": true
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:1420"
     }
   },
   "bundle": {

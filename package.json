@@ -4,12 +4,11 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "tauri": "tauri",
+    "front:dev": "vite",
+    "backend:dev": "node server.js",
+    "front:build": "tsc && vite build",
+    "front:preview": "vite preview",
     "tauri:build": "tauri build",
-    "start:server": "node server.js",
     "tauri:dev": "tauri dev"
   },
   "dependencies": {

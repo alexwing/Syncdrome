@@ -110,8 +110,7 @@ const Api = {
    * @returns {object} - response from server
    * */
   getResource(path) {
-      //use port 1420
-      return Axios.get(`http://localhost:1420${path}`);
+      return Axios.get(path); 
   },
 
   /***

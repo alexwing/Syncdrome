@@ -7,7 +7,7 @@ const Help = () => {
   const [markdown, setMarkdown] = useState('');
 
   useEffect(() => {
-    Api.getResource('/dist/assets/helpEN.md').then(response => {
+    Api.getResource('/assets/helpEN.md').then(response => {
       setMarkdown(response.data);
     });
   }, []);

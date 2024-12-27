@@ -24,7 +24,7 @@ const About = () => {
   }
 
   useEffect(() => {
-    Api.getResource("/dist/assets/aboutEN.md").then((response) => {
+    Api.getResource("/assets/aboutEN.md").then((response) => {
       setMarkdown(response.data);
     });
     getCommits().then((groupedCommits) => {

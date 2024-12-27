@@ -35,7 +35,7 @@ export const getConfig = () => {
  * @returns {String} - The path of the config file
  */
 export const saveConfig = async (config) => {
-  let configPath = "";
+   let configPath = "";
   if (
     process.env.NODE_ENV !== undefined &&
     process.env.NODE_ENV.trim() === "development"
