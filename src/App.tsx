@@ -1,4 +1,3 @@
-import React from "react";
 import "react-windows-ui/config/app-config.css";
 //import "react-windows-ui/dist/react-windows-ui.min.css";
 import "bootstrap/dist/css/bootstrap.min.css";
