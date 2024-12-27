@@ -16,8 +16,8 @@ import {
 } from "react-bootstrap";
 
 //import { ipcRenderer } from "electron";
-import { invoke as ipcRenderer} from "@tauri-apps/api/core";
-import { AlertModel, DrivesProps, FileTypes } from "../models/Interfaces";
+import { invoke } from "@tauri-apps/api/core";
+import { AlertModel, DrivesProps, FileTypes, TypeAlert } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import * as Icon from "react-bootstrap-icons";
 
@@ -47,7 +47,7 @@ const Comfig = () => {
           setAlert({
             title: "Error",
             message: "Config file not saved: " + response.data.message,
-            type: "danger",
+            type: TypeAlert.danger
           });
           setShowAlert(true);
           return;
@@ -55,7 +55,7 @@ const Comfig = () => {
         setAlert({
           title: "Success",
           message: "Config file saved successfully",
-          type: "success",
+          type: TypeAlert.success
         });
         setShowAlert(true);
       })
@@ -63,7 +63,7 @@ const Comfig = () => {
         setAlert({
           title: "Error",
           message: "Config file not saved",
-          type: "danger",
+          type: TypeAlert.danger
         });
         setShowAlert(true);
       });
@@ -78,7 +78,7 @@ const Comfig = () => {
       setAlert({
         title: "Error",
         message: "Config file not found or corrupted",
-        type: "danger",
+        type: TypeAlert.danger
       });
       setShowAlert(true);
       return;
@@ -112,8 +112,8 @@ const Comfig = () => {
   };
 
   const onChangeFolder = async () => {
-    const path = await ipcRenderer.invoke("open-directory-dialog", folder);
-    setFolder(path);
+    const path = await invoke("open-directory-dialog", { folder });
+    setFolder(path as string);
   };
 
   /* settings json 
@@ -264,7 +264,7 @@ const Comfig = () => {
         setAlert({
           title: "Error",
           message: "Extension already exists in " + fileType,
-          type: "danger",
+          type: TypeAlert.danger
         });
         setShowAlert(true);
         return;

@@ -3,7 +3,7 @@ import { Breadcrumb, Button, Col, Container, Form, Row } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 import ConfirmDialog from "../components/ConfirmDialog";
 //import { ipcRenderer } from "electron";
-import { invoke as ipcRenderer} from "@tauri-apps/api/core";
+import { invoke } from "@tauri-apps/api/core";
 import Api from "../helpers/api";
 import { LogFile } from "../models/Interfaces";
 
@@ -74,19 +74,19 @@ const FolderSync = () => {
   };
 
   const onChangeFolderOrigin = async () => {
-    const path = await ipcRenderer.invoke(
+    const path = await invoke(
       "open-directory-dialog",
-      originFolder
+      { folder: originFolder }
     );
-    changeOriginFolder(path);
+    changeOriginFolder(path as string);
   };
 
   const onChangeFolderDestination = async () => {
-    const path = await ipcRenderer.invoke(
+    const path = await invoke(
       "open-directory-dialog",
-      destinationFolder
+      { folder: destinationFolder }
     );
-    changeDestinationFolder(path);
+    changeDestinationFolder(path as string);
   };
 
   // open origin folder on click

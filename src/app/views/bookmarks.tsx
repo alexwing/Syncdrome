@@ -15,7 +15,7 @@ import Api from "../helpers/api";
 import ConfirmDialog from "../components/ConfirmDialog";
 import AddBookmarkModal from "../components/AddBookmarkModal";
 // import { ipcRenderer } from "electron";
-import { invoke as ipcRenderer} from "@tauri-apps/api/core";
+import { invoke } from "@tauri-apps/api/core";
 import { file } from "vfile-message";
 import AlertMessage from "../components/AlertMessage";
 import { connectedIcon, getFileIcon } from "../helpers/utils";
@@ -49,9 +49,9 @@ const bookmarks = () => {
   const [draggingOver, setDraggingOver] = useState(false);
 
   const onChangeFile = async () => {
-    const path = await ipcRenderer.invoke("open-file-dialog", file);
-    setFile(path);
-    createBookmark(path);
+    const path = await invoke("open-file-dialog", { file });
+    setFile(path as string);
+    createBookmark(path as string);
   };
 
   // Agrega un manejador de eventos para el evento de soltar en el contenedor adecuado

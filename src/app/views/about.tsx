@@ -66,7 +66,7 @@ const About = () => {
   const handleLinkClick = (e) => {
     if (e.target.tagName === "A" && e.target.href.startsWith("http")) {
       e.preventDefault();
-      shell.openExternal(e.target.href);
+      // shell.openExternal(e.target.href);
     }
   };
 

@@ -23,7 +23,7 @@ import {
 } from "../models/Interfaces";
 import { cleanFileNames } from "../helpers/utils";
 import AlertMessage from "../components/AlertMessage";
-import { saveConfig } from "../../backend/Utils/utils";
+//import { saveConfig } from "../../backend/Utils/utils";
 
 const FileCleaner = () => {
   const initialPattenrTerm = localStorage.getItem("patternTerm") || "";
@@ -154,7 +154,7 @@ const FileCleaner = () => {
 
   interface HandleInputChangeProps {
     index: number;
-    event: React.ChangeEvent<HTMLInputElement>;
+    event: any;
   }
 
   const handleInputChange = ({ index, event }: HandleInputChangeProps) => {

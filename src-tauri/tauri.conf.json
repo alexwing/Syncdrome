@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "identifier": "com.syncdrome.app",
   "build": {
-    "beforeDevCommand": "npm run dev",
+    "beforeDevCommand": "npm run start:server & npm run dev", 
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
@@ -18,15 +18,15 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:1420"
     }
   },
   "bundle": {
     "windows": {
       "webviewInstallMode": {
-        "type": "embedBootstrapper"
+        "type": "downloadBootstrapper"
       }
-    },    
+    },
     "active": true,
     "targets": ["msi"],
     "icon": [
