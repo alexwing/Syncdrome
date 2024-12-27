@@ -24,7 +24,7 @@ const About = () => {
   }
 
   useEffect(() => {
-    Api.getResource("/assets/aboutEN.md").then((response) => {
+    Api.getResource("/dist/assets/aboutEN.md").then((response) => {
       setMarkdown(response.data);
     });
     getCommits().then((groupedCommits) => {
@@ -66,7 +66,7 @@ const About = () => {
   const handleLinkClick = (e) => {
     if (e.target.tagName === "A" && e.target.href.startsWith("http")) {
       e.preventDefault();
-      // shell.openExternal(e.target.href);
+      //shell.openExternal(e.target.href);
     }
   };
 

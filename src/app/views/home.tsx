@@ -190,7 +190,7 @@ const updateFilesWithBookmark = (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       {showAlertMessage}
       <div className="centered pt-3">
-      <img src="src/assets/icon.png" alt="logo" className="logo" />
+      <img src="dist/assets/icon.png" alt="logo" className="logo" />
         <h1>Syncdrome</h1>
       </div>
       <div className="container text-center pb-3">
