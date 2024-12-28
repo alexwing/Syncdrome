@@ -12,9 +12,9 @@
     "sync",
     "syncdrome",
     "fileCleaner"
-  ],  
+  ],
   "author": "Alejandro Aranda",
-  "license": "MIT",  
+  "license": "MIT",
   "scripts": {
     "front:dev": "vite",
     "backend:start": "node server.js",
@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^2.1.1",
+    "@tauri-apps/plugin-dialog": "^2.2.0",
     "@tauri-apps/plugin-opener": "^2",
     "axios": "^0.21.0",
     "body-parser": "1.19.0",

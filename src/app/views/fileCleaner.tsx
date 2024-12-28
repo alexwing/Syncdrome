@@ -10,8 +10,7 @@ import {
   Table,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
-//import { ipcRenderer } from "electron";
-import { invoke as ipcRenderer} from "@tauri-apps/api/core";
+import { open } from '@tauri-apps/plugin-dialog';
 import Api from "../helpers/api";
 import "../styles/components/fileCleaner.css";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -23,7 +22,6 @@ import {
 } from "../models/Interfaces";
 import { cleanFileNames } from "../helpers/utils";
 import AlertMessage from "../components/AlertMessage";
-//import { saveConfig } from "../../backend/Utils/utils";
 
 const FileCleaner = () => {
   const initialPattenrTerm = localStorage.getItem("patternTerm") || "";
@@ -83,15 +81,27 @@ const FileCleaner = () => {
   useEffect(() => {
     getConfig();
   }, []);
-  const changeOriginFolder = async () => {
-    /*const path = await ipcRenderer.invoke(
-      "open-directory-dialog",
-      originFolder
-    );*/
-    const path = "D:\\Pictures";
-    setOriginFolder(path);
-  };
 
+
+  async function changeOriginFolder() {
+    try {
+      const folder = await open({
+        directory: true, // Permite seleccionar carpetas
+        multiple: false, // Permite seleccionar solo una carpeta
+        title: 'Selecciona una carpeta',
+        defaultPath: '/ruta/inicial' // Opcional: establece una ruta inicial
+      });
+      setOriginFolder(folder as string);
+      if (folder) {
+        console.log('Carpeta seleccionada:', folder);
+        // Aquí puedes enviar la ruta al backend o utilizarla según tus necesidades
+      } else {
+        console.log('No se seleccionó ninguna carpeta.');
+      }
+    } catch (error) {
+      console.error('Error al abrir el diálogo:', error);
+    }
+  }
   const loadFileNames = async () => {
     if (originFolder) {
       setLoading(true);
