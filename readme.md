@@ -2,7 +2,7 @@ Syncdrome - Content Drives Finder App
 =====================================
 
 
-<img src="app/assets/icon.png" style="width: 150px; height: 150px;margin-left: auto;margin-right: auto;display: block;margin-bottom: 20px;">
+<img src="public/assets/icon.png" style="width: 150px; height: 150px;margin-left: auto;margin-right: auto;display: block;margin-bottom: 20px;">
 
 Syncdrome simplifies the organization and search of your digital files on specific hard drives.
 
@@ -122,9 +122,9 @@ Todo
 
 - [x]  Add a drag and drop feature to the bookmark list, add a comment to the file, and save the comment in the database.
 - [ ]  Sincronize a folder specified by the user, not a drive.
-- [ ]  Add file explorer option, to browse the files in all drives connected to the computer.
+- [x]  Add file explorer option, to browse the files in all drives connected to the computer.
 - [ ]   Add a real search option to search for a file in all drives connected to the computer.
-- [ ]   Rename utility to rename files and folders.
+- [x]   Rename utility to rename files and folders.
 
 
 About
