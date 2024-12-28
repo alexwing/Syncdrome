@@ -14,6 +14,7 @@ const logFilePath = path.join(__dirname, "syncTofolder.log");
 const ENCODING = "utf8";
 
 export default function (app) {
+  const config = app.get('config'); 
   /***
    * endpoint to sync a folder into another folder, using robocopy parameters:
    * robocopy D:\Pictures F:\backup\Pictures /MIR /R:3 /W:10 /LOG:E:\projects\hd-contend-finder\scripts\syncTofolder.log

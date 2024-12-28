@@ -3,7 +3,7 @@ import path from "path";
 import readline from 'readline';
 import iconv from 'iconv-lite';
 import stream from 'stream';
-import { getSpaceDisk, getDriveSync, getVolumeName, getDriveSyncDate, getDrivesInfo, getDriveOptions, writeSize, deleteDriveOptions, getExtensions, getConfig } from "./Utils/utils.js";
+import { getSpaceDisk, getDriveSync, getVolumeName, getDriveSyncDate, getDrivesInfo, getDriveOptions, writeSize, deleteDriveOptions, getExtensions } from "./Utils/utils.js";
 import util from "util";
 import { exec, spawnSync } from "child_process";
 
@@ -11,12 +11,12 @@ const execPromise = util.promisify(exec);
 const fsPromise = { writeFile: util.promisify(fs.writeFile) };
 
 export default function (app) {
+  const config = app.get('config'); 
 
   app.get("/executeNodeNEW/:driveLetter", async (req, res) => {
     const driveLetter = req.params.driveLetter;
     const ENCODING = "Latin1";
     const BUFFER_SIZE = 1024 * 1024 * 1024 * 4;
-    const config = getConfig();
 
     try {
       process.chdir(driveLetter + "\\");
@@ -78,7 +78,6 @@ export default function (app) {
     const driveLetter = req.params.driveLetter;
     const BUFFER_SIZE = 1024 * 1024 * 1024 * 1024 * 4;
     const ENCODING = "Latin1";
-    const config = getConfig();
 
     try {
       process.chdir(driveLetter + "\\");
@@ -145,7 +144,6 @@ export default function (app) {
     let drives = [];
     const cmd = spawnSync("wmic", ["logicaldisk", "get", "name,volumename"]);
     const lines = cmd.stdout.toString().split("\n");
-    const config = getConfig();
 
     console.log("Lines", lines);
 
@@ -181,7 +179,7 @@ export default function (app) {
     //remove drives with size 0
     drives = drives.filter((drive) => drive.size > 0);
 
-    drives = await getDrivesInfo(drives);
+    drives = await getDrivesInfo(config, drives);
     console.log("Drives", drives);
 
     res.json(drives);
@@ -189,7 +187,6 @@ export default function (app) {
 
   //remove volume name file from drive root
   app.delete("/drives/:driveLetter", (req, res) => {
-    const config = getConfig();
     const driveLetter = req.params.driveLetter;
     const vol = getVolumeName(driveLetter, config.folder);
     const file = path.join(config.folder, `${vol}.txt`);
@@ -208,7 +205,6 @@ export default function (app) {
    */
   app.put("/drives/:driveLetter", (req, res) => {
     try {
-      const config = getConfig();
       const onlyMedia = req.body.onlyMedia;
       const vol = req.params.driveLetter;
       const file = path.join(config.folder, `drives.json`);

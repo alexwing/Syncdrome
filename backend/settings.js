@@ -1,10 +1,11 @@
-import { getConfig, saveConfig } from "./Utils/utils.js";
+import { saveConfig } from "./Utils/utils.js";
 
 export default function (app) {
+  const config = app.get('config'); // Obtener configJson desde el objeto app
+
   // Server the configuration as a GET endpoint
   app.get("/settings", async (req, res) => {
     try {
-      const config = await getConfig();
       res.json(config);
     } catch (error) {
       res.status(500).send({
@@ -17,7 +18,6 @@ export default function (app) {
 
   // Save the configuration as a POST endpoint
   app.post("/settings", async (req, res) => {
-    const config = await getConfig();
     const newConfig = {
       ...config,
       ...req.body,

@@ -1,8 +1,10 @@
 import { getBookmarksFromDb, upsertBookmark, deleteBookmarkFromDb } from "./Utils/sqlite.js";
 
 export default function (app) {
+  const config = app.get('config'); 
+
   app.get("/bookmarks", (req, res) => {
-    getBookmarksFromDb(req.query.volume)
+    getBookmarksFromDb(config.folder, req.query.volume)
       .then((rows) => res.json(rows))
       .catch((err) => {
         throw err;
@@ -10,7 +12,7 @@ export default function (app) {
   });
 
   app.post("/bookmark", (req, res) => {
-    upsertBookmark(req.body, (err, result) => {
+    upsertBookmark(config.folder, req.body, (err, result) => {
       if (err) {
         console.error(err.message);
         res.status(500).send(err.message);
@@ -21,7 +23,7 @@ export default function (app) {
   });
 
   app.delete("/bookmark/:id", (req, res) => {
-    deleteBookmarkFromDb(req.params.id, function (err) {
+    deleteBookmarkFromDb(config.folder,req.params.id, function (err) {
       if (err) {
         return console.error(err.message);
       }

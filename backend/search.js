@@ -5,7 +5,6 @@ import {
   getNameFromFile,
   openFile,
   openFolder,
-  getConfig,
   getExtensionsByType,
 } from "./Utils/utils.js";
 import { getBookmarksFromDb } from "./Utils/sqlite.js";
@@ -21,6 +20,8 @@ import { getBookmarksFromDb } from "./Utils/sqlite.js";
 }
 */
 export default function (app) {
+  const config = app.get('config'); 
+
   app.get("/find/", (req, res) => {
     res.json({});
   });
@@ -31,12 +32,11 @@ export default function (app) {
       const searchText = req.params.searchParam.toLowerCase();
       const extensionsTypes = req.params.extensions.toLowerCase().split("&");
       //read config.json file
-      const config = await getConfig();
       //read folder
       const folder = config.folder;
 
       //get bookmarks from sqlite
-      const bookmarks = await getBookmarksFromDb();
+      const bookmarks = await getBookmarksFromDb(config.folder);
 
       let extensions = [];
       if (extensionsTypes.length > 0 && extensionsTypes[0] !== "all") {

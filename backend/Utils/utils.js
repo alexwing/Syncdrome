@@ -1,44 +1,6 @@
-import { app } from "@tauri-apps/api";
 import cp from "child_process";
 import path from "path";
 import fs from "fs";
-import {
-  dataDir,
-  documentDir,
-  join,
-  executableDir,
-} from "@tauri-apps/api/path";
-
-/***
- * Get the config SQLite file
- * @returns {String} - The path of the config file
- */
-export const getSqlitePath = () => {
-  return path.join(getConfig().folder, "db.sqlite");
-};
-
-const getConfigPath = async () => {
-  // const appDataPath = await dataDir();
-  // const documentsPath = await documentDir();
-  try {
-    const configPath = (await executableDir()).toString();
-    return path.join(configPath, "config.json");
-  } catch (error) {
-    const configPath = process.cwd().toString();
-    return path.join(configPath, "config.json");
-  }
-};
-
-/***
- * Get the config from config.json
- * if development, get from backend folder else get from root folder
- * @returns {Object} - The config file
- */
-export const getConfig = async () => {
-  const configPath = await getConfigPath();
-  console.log("Configuración leída correctamente de: ", configPath);
-  return JSON.parse(fs.readFileSync(configPath, "utf8"));
-};
 
 /***
  * Save the config in config.json
@@ -250,10 +212,9 @@ export const writeSize = (driveVolumeName, folder, size, freeSpace) => {
  * @param {List} connected - The list of drives to exclude
  * @returns {Object} - The object with the info
  */
-export const getDrivesInfo = async (connected) => {
+export const getDrivesInfo = async (config, connected) => {
   const drives = [];
 
-  const config = await getConfig();
 
   console.log("config folder", config.folder);
 

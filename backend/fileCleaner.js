@@ -1,10 +1,8 @@
 import path from "path";
-import util from "util";
-import { deleteFile } from "./Utils/utils.js";
-import { exec } from "child_process";
 import fs from "fs-extra";
 
-export default function (app) {
+export default function (app,) {
+  const config = app.get('config'); 
   /***
    * getFilesInFolder - get files in folder use post method
    * @param {string} folder - folder to get files from
