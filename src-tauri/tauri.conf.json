@@ -5,7 +5,7 @@
   "identifier": "com.syncdrome.app",
   "build": {
     "beforeDevCommand": "npm run backend:start", 
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "npm run front:build",
     "frontendDist": "../dist"
   },
   "app": {    
