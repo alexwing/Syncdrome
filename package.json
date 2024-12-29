@@ -17,13 +17,15 @@
   "license": "MIT",
   "scripts": {
     "front:dev": "vite",
-    "backend:start": "node server.js",
+    "backend:start": "node sidecar-app/server.js",
     "front:build": "tsc && vite build",
     "front:preview": "vite preview",
     "tauri:build": "tauri build",
     "tauri:dev": "tauri dev",
-    "build": "npm run front:build"
+    "build": "npm run front:build",
+    "pkg": "pkg . --output app"
   },
+  "bin": "sidecar-app/server.js",
   "dependencies": {
     "@tauri-apps/api": "^2.1.1",
     "@tauri-apps/plugin-dialog": "^2.2.0",
@@ -59,6 +61,7 @@
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "@yao-pkg/pkg": "^6.2.0",
     "babel-loader": "8.2.1",
     "babel-preset-es2015": "6.24.1",
     "concurrently": "5.3.0",
