@@ -1,6 +1,6 @@
-import { getBookmarksFromDb, upsertBookmark, deleteBookmarkFromDb } from "./Utils/sqlite.js";
+const { getBookmarksFromDb, upsertBookmark, deleteBookmarkFromDb } = require("./Utils/sqlite.js");
 
-export default function (app) {
+module.exports = function (app) {
   const config = app.get('config'); 
 
   app.get("/bookmarks", (req, res) => {

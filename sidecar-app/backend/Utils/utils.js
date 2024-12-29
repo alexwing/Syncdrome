@@ -1,13 +1,13 @@
-import cp from "child_process";
-import path from "path";
-import fs from "fs";
+const cp = require("child_process");
+const path = require("path");
+const fs = require("fs");
 
 /***
  * Save the config in config.json
  * @param {Object} config - The config file
  * @returns {String} - The path of the config file
  */
-export const saveConfig = async (config) => {
+const saveConfig = async (config) => {
   let configPath = "";
   if (
     process.env.NODE_ENV !== undefined &&
@@ -28,7 +28,7 @@ export const saveConfig = async (config) => {
  * @param {String} driveLetter - The drive letter
  * @returns {Object} - The object with the info
  */
-export const getSpaceDisk = (driveLetter) => {
+const getSpaceDisk = (driveLetter) => {
   const cmd = cp.spawnSync("wmic", [
     "logicaldisk",
     "where",
@@ -59,7 +59,7 @@ export const getSpaceDisk = (driveLetter) => {
  * @param {String} folder - The folder to search
  * @returns {Boolean} - The result
  */
-export const getDriveSync = (driveVolumeName, folder) => {
+const getDriveSync = (driveVolumeName, folder) => {
   const file = path.join(folder, `${driveVolumeName}.txt`);
   return fs.existsSync(file);
 };
@@ -69,7 +69,7 @@ export const getDriveSync = (driveVolumeName, folder) => {
  * @param {String} driveName - The volume name
  * @returns {Boolean} - The result
  */
-export const getDriveConected = (driveName) => {
+const getDriveConected = (driveName) => {
   const cmd = cp.spawnSync("wmic", [
     "logicaldisk",
     "where",
@@ -88,7 +88,7 @@ export const getDriveConected = (driveName) => {
   return letter;
 };
 
-export const getNameFromFile = (file) => {
+const getNameFromFile = (file) => {
   return file.replace(".txt", "");
 };
 
@@ -98,7 +98,7 @@ export const getNameFromFile = (file) => {
  * @param {String} folder - The folder to search
  * @returns {Date} - The date
  */
-export const getDriveSyncDate = (driveVolumeName, folder) => {
+const getDriveSyncDate = (driveVolumeName, folder) => {
   const file = path.join(folder, `${driveVolumeName}.txt`);
 
   if (fs.existsSync(file)) {
@@ -115,7 +115,7 @@ export const getDriveSyncDate = (driveVolumeName, folder) => {
  * @param {String} folder - The folder to search
  * @returns {Object} - The object with the info
  */
-export const getDriveOptions = (driveVolumeName, folder) => {
+const getDriveOptions = (driveVolumeName, folder) => {
   const file = path.join(folder, `drives.json`);
   if (fs.existsSync(file)) {
     //get file content as json
@@ -150,7 +150,7 @@ export const getDriveOptions = (driveVolumeName, folder) => {
  * @param {String} driveVolumeName - The volume name
  * @param {String} folder - The folder to search
  */
-export const deleteDriveOptions = (driveVolumeName, folder) => {
+const deleteDriveOptions = (driveVolumeName, folder) => {
   const file = path.join(folder, `drives.json`);
   if (fs.existsSync(file)) {
     //get file content as json
@@ -165,7 +165,7 @@ export const deleteDriveOptions = (driveVolumeName, folder) => {
  * @param {String} driveLetter - The drive letter
  * @returns {String} - The volume name
  */
-export const getVolumeName = (driveLetter) => {
+const getVolumeName = (driveLetter) => {
   const cmd = cp.spawnSync("wmic", [
     "logicaldisk",
     "where",
@@ -191,7 +191,7 @@ export const getVolumeName = (driveLetter) => {
  * @param {Number} size - The size
  * @param {Number} freeSpace - The free space
  */
-export const writeSize = (driveVolumeName, folder, size, freeSpace) => {
+const writeSize = (driveVolumeName, folder, size, freeSpace) => {
   const file = path.join(folder, `drives.json`);
   let drives = {};
   if (fs.existsSync(file)) {
@@ -212,7 +212,7 @@ export const writeSize = (driveVolumeName, folder, size, freeSpace) => {
  * @param {List} connected - The list of drives to exclude
  * @returns {Object} - The object with the info
  */
-export const getDrivesInfo = async (config, connected) => {
+const getDrivesInfo = async (config, connected) => {
   const drives = [];
 
 
@@ -289,13 +289,13 @@ const sortDrives = (a, b) => {
 };
 
 //open file in windows explorer
-export const openFile = (file) => {
+const openFile = (file) => {
   const cmd = cp.spawnSync("explorer", [file]);
   return cmd;
 };
 
 //open folder in windows explorer
-export const openFolder = (folder) => {
+const openFolder = (folder) => {
   const cmd = cp.spawnSync("explorer", [folder]);
   return cmd;
 };
@@ -305,7 +305,7 @@ export const openFolder = (folder) => {
  * @param {Object} config - The config file
  * @returns {List} - The list of extensions
  */
-export const getExtensions = (config) => {
+const getExtensions = (config) => {
   let extensions = [];
   Object.keys(config.extensions).forEach((key) => {
     extensions.push(...config.extensions[key].media);
@@ -321,7 +321,7 @@ export const getExtensions = (config) => {
  * @param {Object} config - The config file
  * @returns {List} - The list of extensions
  */
-export const getExtensionsByType = (extensions, config) => {
+const getExtensionsByType = (extensions, config) => {
   let ext = [];
   if (extensions.length === 0) {
     return [];
@@ -344,7 +344,7 @@ export const getExtensionsByType = (extensions, config) => {
  * Delete a file
  * @param {String} filePath - The file path
  */
-export const deleteFile = async (filePath) => {
+const deleteFile = async (filePath) => {
   try {
     await fs
       .unlink(filePath)
@@ -357,4 +357,23 @@ export const deleteFile = async (filePath) => {
   } catch (error) {
     console.error(`Error: ${error}`);
   }
+};
+
+module.exports = {
+  saveConfig,
+  getSpaceDisk,
+  getDriveSync,
+  getDriveConected,
+  getNameFromFile,
+  getDriveSyncDate,
+  getDriveOptions,
+  deleteDriveOptions,
+  getVolumeName,
+  writeSize,
+  getDrivesInfo,
+  openFile,
+  openFolder,
+  getExtensions,
+  getExtensionsByType,
+  deleteFile,
 };

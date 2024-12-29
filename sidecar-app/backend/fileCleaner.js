@@ -1,7 +1,7 @@
-import path from "path";
-import fs from "fs-extra";
+const path = require("path");
+const fs = require("fs-extra");
 
-export default function (app,) {
+module.exports = function (app) {
   const config = app.get('config'); 
   /***
    * getFilesInFolder - get files in folder use post method

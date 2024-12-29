@@ -1,16 +1,16 @@
-import fs from "fs";
-import path from "path";
-import readline from 'readline';
-import iconv from 'iconv-lite';
-import stream from 'stream';
-import { getSpaceDisk, getDriveSync, getVolumeName, getDriveSyncDate, getDrivesInfo, getDriveOptions, writeSize, deleteDriveOptions, getExtensions } from "./Utils/utils.js";
-import util from "util";
-import { exec, spawnSync } from "child_process";
+const fs = require("fs");
+const path = require("path");
+const readline = require('readline');
+const iconv = require('iconv-lite');
+const stream = require('stream');
+const { getSpaceDisk, getDriveSync, getVolumeName, getDriveSyncDate, getDrivesInfo, getDriveOptions, writeSize, deleteDriveOptions, getExtensions } = require("./Utils/utils.js");
+const util = require("util");
+const { exec, spawnSync } = require("child_process");
 
 const execPromise = util.promisify(exec);
 const fsPromise = { writeFile: util.promisify(fs.writeFile) };
 
-export default function (app) {
+module.exports = function (app) {
   const config = app.get('config'); 
 
   app.get("/executeNodeNEW/:driveLetter", async (req, res) => {

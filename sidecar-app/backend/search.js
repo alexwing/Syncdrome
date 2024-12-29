@@ -1,13 +1,13 @@
-import fs from "fs";
-import path from "path";
-import {
+const fs = require("fs");
+const path = require("path");
+const {
   getDriveConected,
   getNameFromFile,
   openFile,
   openFolder,
   getExtensionsByType,
-} from "./Utils/utils.js";
-import { getBookmarksFromDb } from "./Utils/sqlite.js";
+} = require("./Utils/utils.js");
+const { getBookmarksFromDb } = require("./Utils/sqlite.js");
 
 /*bookmark structure 
 
@@ -19,7 +19,7 @@ import { getBookmarksFromDb } from "./Utils/sqlite.js";
   "description": "Bookmark 1 description"
 }
 */
-export default function (app) {
+module.exports = function (app) {
   const config = app.get('config'); 
 
   app.get("/find/", (req, res) => {

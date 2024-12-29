@@ -1,19 +1,15 @@
-import path from "path";
-import util from "util";
-import { exec } from "child_process";
-import { deleteFile } from "./Utils/utils.js";
-import iconv from "iconv-lite";
-import fs from "fs";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const path = require("path");
+const util = require("util");
+const { exec } = require("child_process");
+const { deleteFile } = require("./Utils/utils.js");
+const iconv = require("iconv-lite");
+const fs = require("fs");
 
 const execPromise = util.promisify(exec);
 const logFilePath = path.join(__dirname, "syncTofolder.log");
 const ENCODING = "utf8";
 
-export default function (app) {
+module.exports = function (app) {
   const config = app.get('config'); 
   /***
    * endpoint to sync a folder into another folder, using robocopy parameters:

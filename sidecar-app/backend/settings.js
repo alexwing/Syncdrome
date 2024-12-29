@@ -1,6 +1,6 @@
-import { saveConfig } from "./Utils/utils.js";
+const { saveConfig } = require("./Utils/utils.js");
 
-export default function (app) {
+module.exports = function (app) {
   const config = app.get('config'); // Obtener configJson desde el objeto app
 
   // Server the configuration as a GET endpoint

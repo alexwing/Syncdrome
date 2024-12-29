@@ -1,6 +1,6 @@
-import sqlite3 from "sqlite3";
-import fs from "fs";
-import path from "path";
+const sqlite3 = require("sqlite3");
+const fs = require("fs");
+const path = require("path");
 /*bookmark structure 
 
 {
@@ -55,7 +55,7 @@ const connectToDb = async (sqlitePath) => {
   return db;
 };
 
-export const getBookmarksFromDb = async (sqlitePath, volume) => {
+const getBookmarksFromDb = async (sqlitePath, volume) => {
   const db = await connectToDb(sqlitePath);
   let query = "SELECT * FROM bookmarks";
   if (volume) {
@@ -74,7 +74,7 @@ export const getBookmarksFromDb = async (sqlitePath, volume) => {
   });
 };
 
-export const upsertBookmark = async (sqlitePath, bookmark, callback) => {
+const upsertBookmark = async (sqlitePath, bookmark, callback) => {
   const db = await connectToDb(sqlitePath);
   const { id, name, path, volume, description } = bookmark;
   db.serialize(() => {
@@ -105,7 +105,7 @@ export const upsertBookmark = async (sqlitePath, bookmark, callback) => {
   });
 };
 
-export const deleteBookmarkFromDb = async (sqlitePath, id, callback) => {
+const deleteBookmarkFromDb = async (sqlitePath, id, callback) => {
   const db = await connectToDb(sqlitePath);
   db.serialize(() => {
     const stmt = db.prepare("DELETE FROM bookmarks WHERE id = ?");
@@ -115,4 +115,10 @@ export const deleteBookmarkFromDb = async (sqlitePath, id, callback) => {
     stmt.finalize();
     db.close();
   });
+};
+
+module.exports = {
+  getBookmarksFromDb,
+  upsertBookmark,
+  deleteBookmarkFromDb,
 };
