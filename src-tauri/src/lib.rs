@@ -16,11 +16,16 @@ pub fn run() {
             // Configura el comando de "sidecar" llamado "service"
             let sidecar_command = handle.shell().sidecar("service").unwrap();
             
-            // Ejecuta el comando de "sidecar"
-            let (_, child) = sidecar_command.spawn().expect("Failed to spawn sidecar");
-            
-            // Almacena el proceso del sidecar en el estado de la aplicación
-            app.manage(Mutex::new(Some(child)));
+            // Ejecuta el comando de "sidecar" con manejo de errores
+            match sidecar_command.spawn() {
+                Ok((_, child)) => {
+                    // Almacena el proceso del sidecar en el estado de la aplicación
+                    app.manage(Mutex::new(Some(child)));
+                }
+                Err(e) => {
+                    eprintln!("Failed to spawn sidecar: {}", e);
+                }
+            }
             
             // Indica que la configuración se completó correctamente
             Ok(())
@@ -29,7 +34,9 @@ pub fn run() {
             if let tauri::WindowEvent::CloseRequested { .. } = event {
                 let child = window.state::<Mutex<Option<Child>>>().lock().unwrap().take();
                 if let Some(mut child) = child {
-                    child.kill().expect("Failed to kill sidecar process");
+                    if let Err(e) = child.kill() {
+                        eprintln!("Failed to kill sidecar process: {}", e);
+                    }
                 }
             }
         })
