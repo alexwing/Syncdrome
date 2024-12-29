@@ -23,7 +23,7 @@
       "tauri:build": "tauri build",
       "tauri:dev": "tauri dev",
       "build": "npm run front:build",
-      "pkg": "pkg . --output service --targets node20-win-x64 --options experimental-modules"
+      "pkg": "pkg . --output src-tauri/target/release/service --targets node20-win-x64"
     },
     "bin": "sidecar-app/server.js",
     "dependencies": {

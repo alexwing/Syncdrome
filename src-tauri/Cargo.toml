@@ -3,7 +3,7 @@ name = "syncdrome"
 version = "2.0.1"
 description = "Create a catalog of all files on specified hard drives"
 authors = ["Alejandro Aranda"]
-edition = "2025"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

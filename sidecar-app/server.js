@@ -23,7 +23,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 
-app.use(express.static(path.join(__dirname, "public")));
+// Configura el servidor para servir archivos estáticos desde el directorio "public"
+//app.use(express.static(path.join(__dirname, "public")));
 
 const port = process.env?.PORT || 3000;
 

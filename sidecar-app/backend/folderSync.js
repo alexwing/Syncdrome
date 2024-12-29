@@ -66,28 +66,37 @@ module.exports = function (app) {
    * getSyncLog()
    */
   app.get("/getSyncLog", (req, res) => {
-    // Leer el archivo como un buffer
-    const logFileBuffer = fs.readFileSync(logFilePath);
-    // Convertir de latin1 a utf8
-    const logFile = iconv.decode(logFileBuffer, "latin1");
+    // Verificar si el archivo de log existe antes de leerlo
+    if (fs.existsSync(logFilePath)) {
+      // Leer el archivo como un buffer
+      const logFileBuffer = fs.readFileSync(logFilePath);
+      // Convertir de latin1 a utf8
+      const logFile = iconv.decode(logFileBuffer, "latin1");
 
-    //delete 3 first lines
-    const i = 2;
-    const logArray = logFile.split(
-      "------------------------------------------------------------------------------"
-    );
-    const info = logArray.length > i ? logArray[i] : "";
-    const content = logArray.length > i + 1 ? logArray[i + 1] : "";
-    //remove lines with %
-    const refreshLastArray = content
-      .split("\r")
-      .filter((line) => !line.includes("%"));
-    const refresh = refreshLastArray.join("\r");
-    const summary = logArray.length > i + 2 ? logArray[i + 2] : "";
-    res.json({
-      info: info,
-      refresh: refresh,
-      summary: summary,
-    });
+      //delete 3 first lines
+      const i = 2;
+      const logArray = logFile.split(
+        "------------------------------------------------------------------------------"
+      );
+      const info = logArray.length > i ? logArray[i] : "";
+      const content = logArray.length > i + 1 ? logArray[i + 1] : "";
+      //remove lines with %
+      const refreshLastArray = content
+        .split("\r")
+        .filter((line) => !line.includes("%"));
+      const refresh = refreshLastArray.join("\r");
+      const summary = logArray.length > i + 2 ? logArray[i + 2] : "";
+      res.json({
+        info: info,
+        refresh: refresh,
+        summary: summary,
+      });
+    } else {
+      res.json({
+        info: "",
+        refresh: "",
+        summary: "",
+      });
+    }
   });
 };
