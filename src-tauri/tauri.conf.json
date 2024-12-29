@@ -8,6 +8,16 @@
     "beforeBuildCommand": "npm run front:build",
     "frontendDist": "../dist"
   },
+  "plugins": {
+    "sidecar": {
+      "binaries": [
+        {
+          "name": "service",
+          "path": "service.exe"
+        }
+      ]
+    }
+  },
   "app": {    
     "windows": [
       {

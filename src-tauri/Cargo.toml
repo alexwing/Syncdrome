@@ -1,9 +1,9 @@
 [package]
 name = "syncdrome"
-version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-edition = "2021"
+version = "2.0.1"
+description = "Create a catalog of all files on specified hard drives"
+authors = ["Alejandro Aranda"]
+edition = "2025"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -23,4 +23,5 @@ tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tauri-plugin-dialog = "2"
+tauri-plugin-shell = "2"
 
