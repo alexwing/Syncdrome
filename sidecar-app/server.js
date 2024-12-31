@@ -4,7 +4,6 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const fs = require("fs");
 
-const settings = require("./backend/settings.js");
 const search = require("./backend/search.js");
 const processDrive = require("./backend/process.js");
 const bookmarks = require("./backend/bookmarks.js");
@@ -28,7 +27,6 @@ app.use(cors());
 
 const port = process.env?.PORT || 3000;
 
-settings(app);
 search(app);
 processDrive(app);
 bookmarks(app);

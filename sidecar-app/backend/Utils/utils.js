@@ -3,27 +3,6 @@ const path = require("path");
 const fs = require("fs");
 
 /***
- * Save the config in config.json
- * @param {Object} config - The config file
- * @returns {String} - The path of the config file
- */
-const saveConfig = async (config) => {
-  let configPath = "";
-  if (
-    process.env.NODE_ENV !== undefined &&
-    process.env.NODE_ENV.trim() === "development"
-  ) {
-    configPath = path.join(__dirname, "..", "..", "config.json");
-  } else {
-    const appDataPath =
-      process.env.APP_DATA_PATH || path.dirname(process.execPath);
-    configPath = path.join(appDataPath, "config.json");
-  }
-  console.log("Configuración guardada correctamente en: ", configPath);
-  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-  return configPath;
-};
-/***
  * Get the free space and size of the drive
  * @param {String} driveLetter - The drive letter
  * @returns {Object} - The object with the info
@@ -360,7 +339,6 @@ const deleteFile = async (filePath) => {
 };
 
 module.exports = {
-  saveConfig,
   getSpaceDisk,
   getDriveSync,
   getDriveConected,

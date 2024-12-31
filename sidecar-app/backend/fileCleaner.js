@@ -2,7 +2,6 @@ const path = require("path");
 const fs = require("fs-extra");
 
 module.exports = function (app) {
-  const config = app.get('config'); 
   /***
    * getFilesInFolder - get files in folder use post method
    * @param {string} folder - folder to get files from
