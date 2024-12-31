@@ -24,8 +24,8 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    Api.getSettings().then((response) => {
-      setConfig(response.data);
+    Api.getSettings().then((response:any) => {
+      setConfig(response);
     });
   }, []);
 

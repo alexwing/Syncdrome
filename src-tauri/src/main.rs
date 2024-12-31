@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod load_config; // Asegúrate de que el nombre del módulo sea correcto
-use load_config::load_config; // Importa la función load_config correctamente
+use load_config::{load_config, save_config}; // Importa las funciones load_config y save_config correctamente
 use tauri::command;
 
 #[command]
@@ -18,7 +18,10 @@ fn get_config() -> Result<load_config::Config, String> { // Asegúrate de que el
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_config])
+        .invoke_handler(tauri::generate_handler![
+            get_config,
+            save_config // Asegúrate de que save_config esté incluido en el handler
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -14,7 +14,6 @@ import {
 import { AlertModel , FileTypes, TypeAlert } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import * as Icon from "react-bootstrap-icons";
-import { invoke } from "@tauri-apps/api/core";
 
 const Config = () => {
   const [folder, setFolder] = useState("");
@@ -35,38 +34,37 @@ const Config = () => {
     event.preventDefault();
     const newConfig = { folder } as any;
     newConfig.extensions = fileTypes;
-    Api.saveSettings(newConfig)
-      .then((response) => {
-        getConfig();
-        if (response.data.result === "error") {
-          setAlert({
-            title: "Error",
-            message: "Config file not saved: " + response.data.message,
-            type: TypeAlert.danger
-          });
-          setShowAlert(true);
-          return;
-        }
-        setAlert({
-          title: "Success",
-          message: "Config file saved successfully",
-          type: TypeAlert.success
-        });
-        setShowAlert(true);
-      })
-      .catch((error) => {
+    try {
+      const response = Api.saveSettings(newConfig);
+      getConfig();
+      if (response.result === "error") {
         setAlert({
           title: "Error",
-          message: "Config file not saved",
+          message: "Config file not saved: " + response.message,
           type: TypeAlert.danger
         });
         setShowAlert(true);
+        return;
+      }
+      setAlert({
+        title: "Success",
+        message: "Config file saved successfully",
+        type: TypeAlert.success
       });
+      setShowAlert(true);
+    } catch (error) {
+      setAlert({
+        title: "Error",
+        message: "Config file not saved",
+        type: TypeAlert.danger
+      });
+      setShowAlert(true);
+    }
   };
 
   const getConfig = async () => {
     try {
-      const response = await invoke("get_config");
+      const response = await Api.getSettings();
       const config = response as { folder: string; extensions: FileTypes };
       setFolder(config.folder);
       setFileTypes(config.extensions);
@@ -108,7 +106,8 @@ const Config = () => {
   };
 
   const onChangeFolder = async () => {
-    const path = await invoke("open-directory-dialog", { folder });
+    const settings = await Api.getSettings();
+    const path = settings.folder;
     setFolder(path as string);
   };
 

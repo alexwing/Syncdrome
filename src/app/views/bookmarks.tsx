@@ -143,7 +143,7 @@ const bookmarks = () => {
   useEffect(() => {
     Api.getSettings()
       .then((response) => {
-        setFileIconMappings(response.data.extensions);
+        setFileIconMappings((response as any).extensions);
         loadBookmarks();
         getDrives();
       })

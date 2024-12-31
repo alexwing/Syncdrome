@@ -1,4 +1,4 @@
-const { saveConfig } = require("./Utils/utils.js");
+//const { saveConfig } = require("./Utils/utils.js");
 
 module.exports = function (app) {
   const config = app.get('config'); // Obtener configJson desde el objeto app
@@ -26,7 +26,7 @@ module.exports = function (app) {
       res.json({
         result: "ok",
         message: "Configuración guardada correctamente",
-        path: await saveConfig(newConfig),
+      // path: await saveConfig(newConfig),
       });      
     } catch (error) {
       console.error('Error al escribir en el archivo:', error);

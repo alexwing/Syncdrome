@@ -40,12 +40,12 @@ const FileCleaner = () => {
   // get config from server
   const getConfig = async () => {
     try {
-      const response = await Api.getSettings();
-      if (response.data.pattern) {
-        setPattern(response.data.pattern);
+      const response:any = await Api.getSettings();
+      if (response.pattern) {
+        setPattern(response.pattern);
       }
       if (response.data.defaultSubstitutions) {
-        setSubstitutions(response.data.defaultSubstitutions);
+        setSubstitutions(response.defaultSubstitutions);
       }
     } catch (error) {
       setAlert({

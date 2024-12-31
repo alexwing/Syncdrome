@@ -1,5 +1,6 @@
 import Axios from "axios";
 import { FileCleanerProps, LogFile } from "../models/Interfaces";
+import { invoke } from "@tauri-apps/api/core";
 const repoOwner = "alexwing";
 const repoName = "Syncdrome";
 
@@ -35,7 +36,7 @@ const Api = {
    * @returns {object} - response from server
    */
   getSettings() {
-    return Axios.get("/settings");
+    return invoke("get_config") as Promise<any>;
   },
 
   /***
@@ -44,7 +45,7 @@ const Api = {
    * @returns {object} - response from server
    */
   saveSettings(newConfig) {
-    return Axios.post("/settings", newConfig);
+    return invoke("save_config", { config: newConfig }) as unknown as { result: string, message: string };
   },
 
   /***

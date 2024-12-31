@@ -191,8 +191,8 @@ export const getConfig = async (
   setShowAlert
 ) => {
   try {
-    const response = await Api.getSettings();
-    setFileIconMappings(response.data.extensions);
+    const response:any = await Api.getSettings();
+    setFileIconMappings(response.extensions);
   } catch (error) {
     setAlert({
       title: "Error",
