@@ -7,21 +7,16 @@ import {
   Container,
   Row,
   Alert,
-  Badge,
-  ListGroup,
-  Spinner,
-  FormSelect,
   Card,
   Form,
 } from "react-bootstrap";
 
-//import { ipcRenderer } from "electron";
-import { invoke } from "@tauri-apps/api/core";
-import { AlertModel, DrivesProps, FileTypes, TypeAlert } from "../models/Interfaces";
+import { AlertModel , FileTypes, TypeAlert } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import * as Icon from "react-bootstrap-icons";
+import { invoke } from "@tauri-apps/api/core";
 
-const Comfig = () => {
+const Config = () => {
   const [folder, setFolder] = useState("");
   const [fileTypes, setFileTypes] = useState({} as FileTypes);
   const [selectedExtension, setSelectedExtension] = useState({
@@ -71,9 +66,10 @@ const Comfig = () => {
 
   const getConfig = async () => {
     try {
-      const response = await Api.getSettings();
-      setFolder(response.data.folder);
-      setFileTypes(response.data.extensions);
+      const response = await invoke("get_config");
+      const config = response as { folder: string; extensions: FileTypes };
+      setFolder(config.folder);
+      setFileTypes(config.extensions);
     } catch (error) {
       setAlert({
         title: "Error",
@@ -404,4 +400,4 @@ const Comfig = () => {
   );
 };
 
-export default Comfig;
+export default Config;

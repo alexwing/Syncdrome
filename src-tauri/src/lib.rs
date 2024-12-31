@@ -21,6 +21,7 @@ pub fn run() {
                 Ok((_, child)) => {
                     // Almacena el proceso del sidecar en el estado de la aplicación
                     app.manage(Mutex::new(Some(child)));
+                    println!("Sidecar process started successfully.");
                 }
                 Err(e) => {
                     eprintln!("Failed to spawn sidecar: {}", e);
@@ -31,7 +32,9 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window: &tauri::Window, event: &tauri::WindowEvent| { 
+            // Si el evento es de cierre de la ventana
             if let tauri::WindowEvent::CloseRequested { .. } = event {
+                // Obtiene el proceso del sidecar
                 let child = window.state::<Mutex<Option<Child>>>().lock().unwrap().take();
                 if let Some(mut child) = child {
                     if let Err(e) = child.kill() {
