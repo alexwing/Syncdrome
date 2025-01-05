@@ -1,12 +1,12 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod load_config; // Asegúrate de que el nombre del módulo sea correcto
-use load_config::{load_config, save_config}; // Importa las funciones load_config y save_config correctamente
+mod config; // Asegúrate de que el nombre del módulo sea correcto
+use config::{load_config, save_config}; // Importa las funciones load_config y save_config correctamente
 use tauri::command;
 
 #[command]
-fn get_config() -> Result<load_config::Config, String> { // Asegúrate de que el nombre del módulo sea correcto
+fn get_config() -> Result<config::Config, String> { // Asegúrate de que el nombre del módulo sea correcto
     println!("Attempting to load config.json...");
     let result = load_config();
     match &result {
