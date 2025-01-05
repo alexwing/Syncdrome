@@ -120,14 +120,14 @@ const Api = {
    * @returns {object} - response from server
    */
   addBookmark(bookmark) {
-    return Axios.post("/bookmark", bookmark);
+    return invoke("add_bookmark", { bm: bookmark });
   },
   /***
    * Get bookmarks
    * @returns {object} - response from server
    */
   getBookmarks() {
-    return Axios.get("/bookmarks");
+    return invoke("get_bookmarks", { volume: null });
   },
 
     /***
@@ -135,7 +135,7 @@ const Api = {
    * @returns {object} - response from server
    */
   getBookmarksByVolume(volume) {
-    return Axios.get(`/bookmarks/${volume}`);
+    return invoke("get_bookmarks", { volume });
   },
 
   /***
@@ -144,7 +144,7 @@ const Api = {
    * @returns {object} - response from server
    */
   deleteBookmark(id) {
-    return Axios.delete(`/bookmark/${id}`);
+    return invoke("delete_bookmark", { id });
   },
 
   /***

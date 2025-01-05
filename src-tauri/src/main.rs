@@ -2,7 +2,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod config; // Asegúrate de que el nombre del módulo sea correcto
+mod sqlite;
+mod bookmarks;
 use config::{load_config, save_config}; // Importa las funciones load_config y save_config correctamente
+use bookmarks::{get_bookmarks, add_bookmark, delete_bookmark};
 use tauri::command;
 
 #[command]
@@ -19,6 +22,9 @@ fn get_config() -> Result<config::Config, String> { // Asegúrate de que el nomb
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
+            get_bookmarks,
+            add_bookmark,
+            delete_bookmark,
             get_config,
             save_config // Asegúrate de que save_config esté incluido en el handler
         ])

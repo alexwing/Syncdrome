@@ -22,7 +22,7 @@ function AddBookmarkModal({ show = false, onHide, bookmark, onAddBookmark }) {
     try {
       const result = await Api.addBookmark(bookmarkLocal);
       onHide();
-      onAddBookmark(result.data);
+      onAddBookmark(result);
     } catch (error) {
       console.error(error);
     }

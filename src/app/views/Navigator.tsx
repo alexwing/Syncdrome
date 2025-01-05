@@ -181,7 +181,7 @@ const Navigator = () => {
   const loadBookmarks = async (volume) => {
     Api.getBookmarksByVolume(volume)
       .then((response) => {
-        setBookmarksByVolume(response.data);
+        setBookmarksByVolume(response as any);
       })
       .catch((error) => {
         console.log(error);

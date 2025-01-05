@@ -14,9 +14,7 @@ import {
 import Api from "../helpers/api";
 import ConfirmDialog from "../components/ConfirmDialog";
 import AddBookmarkModal from "../components/AddBookmarkModal";
-// import { ipcRenderer } from "electron";
 import { invoke } from "@tauri-apps/api/core";
-import { file } from "vfile-message";
 import AlertMessage from "../components/AlertMessage";
 import { connectedIcon, getFileIcon } from "../helpers/utils";
 
@@ -111,14 +109,15 @@ const bookmarks = () => {
     setLoading(true);
     Api.getBookmarks()
       .then((response) => {
-        const volumes = response.data
+        console.log("Bookmarks", response);
+        const volumes = (response as any)
           .map((bookmark) => bookmark.volume)
           .filter((value, index, self) => self.indexOf(value) === index)
-          .sort();
+          .sort();      
         const BookmarksByVolume = volumes.map((volume) => {
           return {
             volume: volume,
-            bookmarks: response.data.filter((bookmark) =>
+            bookmarks: (response as any).filter((bookmark) =>
               bookmark.volume.includes(volume)
             ),
           };
