@@ -13,67 +13,11 @@ const fsPromise = { writeFile: util.promisify(fs.writeFile) };
 module.exports = function (app) {
   const config = app.get('config'); 
 
-  app.get("/executeNodeNEW/:driveLetter", async (req, res) => {
-    const driveLetter = req.params.driveLetter;
-    const ENCODING = "Latin1";
-    const BUFFER_SIZE = 1024 * 1024 * 1024 * 4;
-
-    try {
-      process.chdir(driveLetter + "\\");
-
-      const vol = getVolumeName(driveLetter, config.folder);
-      const onlyMedia = getDriveOptions(vol, config.folder).onlyMedia;
-      let extensions = [];
-      if (onlyMedia) {
-        extensions = getExtensions(config);
-      }
-      const drive = config.folder;
-      const filePath = path.join(drive, `${vol}.txt`);
-      const command = `chcp 65001 >nul && dir . /s /b`;
-
-      const { stdout } = await execPromise(command, {
-        encoding: ENCODING,
-        maxBuffer: BUFFER_SIZE,
-      });
-      const lineStream = readline.createInterface({
-        input: stream.PassThrough().end(Buffer.from(stdout, ENCODING)),
-        output: fs.createWriteStream(filePath),
-        terminal: false
-      });
-
-      lineStream.on('line', (line) => {
-        if (!line.toLocaleUpperCase.includes('$RECYCLE.BIN') && line.trim() !== "") {
-          let output = iconv.decode(line, "cp850");
-          if (onlyMedia) {
-            if (line.indexOf(".") > -1) {
-              const extension = line.split(".").pop().toLowerCase().trim();
-              if (extensions.includes(extension)) {
-                lineStream.output.write(output + '\n');
-              }
-            } else {
-              lineStream.output.write(output + '\n');
-            }
-          } else {
-            lineStream.output.write(output + '\n');
-          }
-        }
-      });
-
-      lineStream.on('close', () => {
-        console.log(`File list in ${vol} saved in ${filePath}`);
-        const { freeSpace, size } = getSpaceDisk(driveLetter);
-        writeSize(vol, config.folder, size, freeSpace);
-        res.json({
-          success: true,
-          message: `File list in ${vol} saved in ${filePath}: onlyMedia: ${onlyMedia}`,
-        });
-      });
-    } catch (error) {
-      console.error(`Error: ${error}`);
-      res.json({ success: false, error: error.message });
-    }
-  });
-
+  /***
+   *  Execute a command to get all files in a drive and save it in a file
+   *  @param {string} driveLetter
+   *  @returns {void}
+   */
   app.get("/executeNode/:driveLetter", async (req, res) => {
     const driveLetter = req.params.driveLetter;
     const BUFFER_SIZE = 1024 * 1024 * 1024 * 1024 * 4;
@@ -139,7 +83,21 @@ module.exports = function (app) {
     }
   });
 
-  //get system connected drives letters and names, create a json object
+  /***
+   * get system connected drives letters and names, create a json object with the drives info
+   * @returns {
+   * {
+   *  connected: boolean,
+   * letter: string,
+   * name: string,
+   * freeSpace: number,
+   * size: number,
+   * sync: string,
+   * syncDate: string,
+   * onlyMedia: boolean
+   * }[]
+   * }
+   */  
   app.get("/drives", async (req, res) => {
     let drives = [];
     const cmd = spawnSync("wmic", ["logicaldisk", "get", "name,volumename"]);
@@ -185,7 +143,12 @@ module.exports = function (app) {
     res.json(drives);
   });
 
-  //remove volume name file from drive root
+  /***
+   *  remove volume name file from drive root
+   * @param {string} driveLetter
+   * @returns { success: boolean, message: string }
+   * 
+   */
   app.delete("/drives/:driveLetter", (req, res) => {
     const driveLetter = req.params.driveLetter;
     const vol = getVolumeName(driveLetter, config.folder);
