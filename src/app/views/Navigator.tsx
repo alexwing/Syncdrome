@@ -48,7 +48,7 @@ const Navigator = () => {
     Api.getDrives()
       .then((res) => {
         setDrives(
-          res.data
+          res
             .filter((drive) => drive.sync)
             .sort((a, b) => a.name.localeCompare(b.name))
         );

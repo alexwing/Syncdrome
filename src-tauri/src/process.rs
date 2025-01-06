@@ -1,0 +1,189 @@
+use std::{env, fs, process::Command, path::Path};
+use serde_json::{json, Value};
+use crate::utils::{
+    get_volume_name, get_drive_options, get_extensions,
+    write_size, get_space_disk, get_drive_sync, get_drive_sync_date,
+    delete_drive_options, get_drives_info
+};
+use crate::config::{load_config, Config};
+
+#[tauri::command]
+pub fn execute_node(drive_letter: String) -> Value {
+    let config = match load_config() {
+        Ok(cfg) => cfg,
+        Err(e) => return json!({ "success": false, "error": e }),
+    };
+    // Obtener nombre de volumen y si está en modo onlyMedia
+    let volume_name = get_volume_name(&drive_letter);
+    let only_media = get_drive_options(&volume_name, &config.folder);
+    // Extensiones
+    let exts = if only_media {
+        get_extensions(&config.extensions)
+    } else {
+        vec![]
+    };
+    // Cambiar directorio y ejecutar "dir . /s /b"
+    if env::set_current_dir(format!("{}\\", drive_letter)).is_err() {
+        return json!({ "success": false, "error": "Invalid drive letter" });
+    }
+    let cmd_output = Command::new("cmd")
+        .args(["/C", "chcp", "65001", ">", "nul", "&&", "dir", ".", "/s", "/b"])
+        .output();
+
+    match cmd_output {
+        Ok(output) => {
+            let mut list = String::from_utf8_lossy(&output.stdout).to_string();
+            // Quitar $RECYCLE.BIN
+            list = list
+                .lines()
+                .filter(|l| !l.to_lowercase().contains("$recycle.bin") && !l.trim().is_empty())
+                .map(|s| s.to_string())
+                .collect::<Vec<_>>()
+                .join("\n");
+            // Filtrar extensiones si onlyMedia
+            if only_media {
+                let filtered = list
+                    .lines()
+                    .filter(|line| {
+                        if line.contains('.') {
+                            let ext = line.split('.').last().unwrap_or("").to_lowercase();
+                            exts.contains(&ext)
+                        } else {
+                            // Es carpeta
+                            true
+                        }
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n");
+                list = filtered;
+            }
+            // Guardar en vol.txt
+            let file_path = Path::new(&config.folder).join(format!("{}.txt", volume_name));
+            if fs::write(&file_path, list).is_ok() {
+                // Actualizar drives.json con nuevo size/freeSpace
+                let (free, size) = get_space_disk(&drive_letter);
+                write_size(&volume_name, &config.folder, size, free);
+                json!({
+                    "success": true,
+                    "message": format!("File list in {} saved. Lines: {}", volume_name, file_path.display()),
+                })
+            } else {
+                json!({ "success": false, "error": "Failed to write file" })
+            }
+        }
+        Err(e) => json!({ "success": false, "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
+pub fn get_drives() -> Value {
+    let config = match load_config() {
+        Ok(cfg) => cfg,
+        Err(e) => return json!({ "error": e }),
+    };
+    println!("Iniciando get_drives...");
+    
+    let cmd_output = Command::new("wmic")
+        .args(["logicaldisk", "get", "name,volumename"])
+        .output();
+
+    let mut drives_list = vec![];
+    if let Ok(output) = cmd_output {
+        let lines = String::from_utf8_lossy(&output.stdout);
+        println!("Salida WMIC: {lines}");
+        for line in lines.split('\n') {
+            let line = line.trim();
+            if line.is_empty() || line.contains("Name  VolumeName") {
+                continue;
+            }
+            let parts: Vec<&str> = line.split_whitespace().collect();
+            // ...verificar longitud...
+            if parts.is_empty() {
+                continue;
+            }
+            let drive_letter = parts[0];
+            let drive_name = if parts.len() > 1 { parts[1] } else { "" };
+            let (free, size) = get_space_disk(drive_letter);
+            println!("DEBUG: drive={drive_letter}, name={drive_name}, size={size}, free={free}");
+            if size > 0 {
+                let mut sync = false;
+                let mut sync_date = String::new();
+                if !drive_name.is_empty() {
+                    sync = crate::utils::get_drive_sync(drive_name, &config.folder);
+                    if sync {
+                        sync_date = crate::utils::get_drive_sync_date(drive_name, &config.folder);
+                    }
+                }
+                drives_list.push(json!({
+                    "connected": true,
+                    "letter": drive_letter,
+                    "name": drive_name,
+                    "freeSpace": free,
+                    "size": size,
+                    "sync": sync,
+                    "syncDate": sync_date,
+                    "onlyMedia": crate::utils::get_drive_options(drive_name, &config.folder)
+                }));
+            }
+        }
+        println!("drives_list construido: {:?}", drives_list);
+    } else {
+        println!("Error al ejecutar wmic logicaldisk.");
+    }
+
+    let all_drives = get_drives_info(&config.folder);
+    let mut all_array = match all_drives.as_array() {
+        Some(arr) => arr.clone(),
+        None => vec![],
+    };
+    for d in drives_list {
+        all_array.push(d);
+    }
+    println!("Array final con drives: {:?}", all_array);
+    json!(all_array)
+}
+
+#[tauri::command]
+pub fn delete_drive(drive_letter: String) -> Value {
+    let config = match load_config() {
+        Ok(cfg) => cfg,
+        Err(e) => return json!({"error": e}),
+    };
+    let volume_name = crate::utils::get_volume_name(&drive_letter);
+    let file_path = Path::new(&config.folder).join(format!("{}.txt", volume_name));
+    if file_path.exists() {
+        if fs::remove_file(&file_path).is_err() {
+            return json!({"error": "Cannot remove .txt file"});
+        }
+    }
+    // Eliminar de drives.json
+    crate::utils::delete_drive_options(&volume_name, &config.folder);
+    json!({"success": true, "message": format!("Deleted file for {}", volume_name)})
+}
+
+#[tauri::command]
+pub fn update_drive(drive_letter: String, only_media: bool) -> Value {
+    // Equivalente a app.put("/drives/:driveLetter")
+    let config = match load_config() {
+        Ok(cfg) => cfg,
+        Err(e) => return json!({ "error": e }),
+    };
+    let file_path = Path::new(&config.folder).join("drives.json");
+    let vol = drive_letter;
+    let mut drives = json!({});
+    if let Ok(content) = fs::read_to_string(&file_path) {
+        if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
+            drives = val;
+        }
+    }
+    drives[vol.clone()]["onlyMedia"] = json!(only_media);
+    if let Ok(serialized) = serde_json::to_string_pretty(&drives) {
+        if fs::write(&file_path, serialized).is_err() {
+            return json!({ "error": "Cannot update drives.json" });
+        }
+    }
+    json!({
+        "success": true,
+        "message": format!("Drive {} updated, onlyMedia={}", vol, only_media)
+    })
+}

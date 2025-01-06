@@ -15,21 +15,21 @@ const Api = {
   getFind: (searchParam, extSelected) =>
     Axios.get(`/find/${searchParam}/${extSelected}`),
 
-  getDrives: () => Axios.get("/drives"),
+  getDrives: () => invoke("get_drives") as Promise<any>,
 
   /***
    * Execute content of drive syncronization
    * @param {string} driveLetter - drive letter
    * @returns {object} - response from server
    */
-  getExecute: (driveLetter) => Axios.get(`/executeNode/${driveLetter}`),
+  getExecute: (driveLetter) => invoke("execute_node", { driveLetter }),
 
   /***
    * Delete drive syncronization
    * @param {string} driveLetter - drive letter
    * @returns {object} - response from server
    */
-  deleteDrive: (driveLetter) => Axios.delete(`/drives/${driveLetter}`),
+  deleteDrive: (driveLetter) => invoke("delete_drive", { driveLetter }),
 
   /***
    * Get settings from server
@@ -83,7 +83,10 @@ const Api = {
    * @returns {object} - response from server
    */
   toogleMediaDrive(driveLetter, status) {
-    return Axios.put(`/drives/${driveLetter}`, { onlyMedia: status });
+    return invoke("update_drive", {
+      driveLetter,
+      onlyMedia: status,
+    });
   },
 
   /***

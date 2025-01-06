@@ -84,7 +84,7 @@ const bookmarks = () => {
   const createBookmark = async (path) => {
     const letter = path.split("\\")[0];
     const drives = await Api.getDrives();
-    const drive = drives.data.find((drive) => drive.letter === letter);
+    const drive = drives.find((drive) => drive.letter === letter);
     if (!drive || !drive.connected) {
       setAlert({
         title: "Error",
@@ -160,7 +160,7 @@ const bookmarks = () => {
   const getDrives = () => {
     Api.getDrives()
       .then((res) => {
-        setDrives(res.data);
+        setDrives(res);
       })
       .catch((err) => {
         console.log(err);

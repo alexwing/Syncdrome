@@ -1,8 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const readline = require('readline');
 const iconv = require('iconv-lite');
-const stream = require('stream');
 const { getSpaceDisk, getDriveSync, getVolumeName, getDriveSyncDate, getDrivesInfo, getDriveOptions, writeSize, deleteDriveOptions, getExtensions } = require("./Utils/utils.js");
 const util = require("util");
 const { exec, spawnSync } = require("child_process");

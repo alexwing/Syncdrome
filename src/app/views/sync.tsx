@@ -37,7 +37,7 @@ const Sync = () => {
   const getDrives = () => {
     Api.getDrives()
       .then((res) => {
-        setDrives(res.data);
+        setDrives(res);
       })
       .catch((err) => {
         console.log(err);

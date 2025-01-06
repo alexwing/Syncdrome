@@ -4,8 +4,11 @@
 mod config; // Asegúrate de que el nombre del módulo sea correcto
 mod sqlite;
 mod bookmarks;
+mod process;
+mod utils;
 use config::{load_config, save_config}; // Importa las funciones load_config y save_config correctamente
 use bookmarks::{get_bookmarks, add_bookmark, delete_bookmark};
+use process::{execute_node, get_drives, delete_drive, update_drive};
 use tauri::command;
 
 #[command]
@@ -22,6 +25,10 @@ fn get_config() -> Result<config::Config, String> { // Asegúrate de que el nomb
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
+            get_drives,
+            execute_node,
+            delete_drive,
+            update_drive,
             get_bookmarks,
             add_bookmark,
             delete_bookmark,
