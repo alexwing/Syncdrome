@@ -1,34 +1,30 @@
 use std::{fs, path::{Path, PathBuf}, process::Command, str};
 use serde_json::json;
 
+#[cfg(windows)]
 pub fn get_space_disk(drive_letter: &str) -> (u64, u64) {
-    let output = Command::new("wmic")
-        .args([
-            "logicaldisk",
-            "where",
-            &format!("DeviceID=\"{}\"", drive_letter),
-            "get",
-            "freespace,size",
-        ])
-        .output();
+    use std::os::windows::ffi::OsStrExt;
+    use std::ffi::OsStr;
+    use winapi::um::fileapi::GetDiskFreeSpaceExW;
+    use winapi::um::winnt::ULARGE_INTEGER;
+    
+    let drive = format!("{}\\", drive_letter);
+    let wide: Vec<u16> = OsStr::new(&drive).encode_wide().chain(Some(0)).collect();
 
-    if let Ok(result) = output {
-        let lines = String::from_utf8_lossy(&result.stdout);
-        println!("DEBUG get_space_disk wmic output:\n{}", lines);
-        for line in lines.split('\n') {
-            let raw_line = line;
-            let line = line.trim();
-            if line.is_empty() || line.contains("FreeSpace") {
-                continue;
-            }
-            println!("DEBUG line parse: [{}]", raw_line);
-            let parts: Vec<&str> = line.split_whitespace().collect();
-            println!("DEBUG parted: {:?}", parts);
-            if parts.len() == 2 {
-                let free = parts[0].parse::<u64>().unwrap_or(0);
-                let size = parts[1].parse::<u64>().unwrap_or(0);
-                return (free, size);
-            }
+    let mut free_bytes_available: ULARGE_INTEGER = unsafe { std::mem::MaybeUninit::zeroed().assume_init() };
+    let mut total_number_of_bytes: ULARGE_INTEGER = unsafe { std::mem::MaybeUninit::zeroed().assume_init() };
+    let mut total_number_of_free_bytes: ULARGE_INTEGER = unsafe { std::mem::MaybeUninit::zeroed().assume_init() };
+
+    unsafe {
+        if GetDiskFreeSpaceExW(
+            wide.as_ptr(),
+            &mut free_bytes_available,
+            &mut total_number_of_bytes,
+            &mut total_number_of_free_bytes
+        ) != 0 {
+            let free = *free_bytes_available.QuadPart();
+            let total = *total_number_of_bytes.QuadPart();
+            return (free, total);
         }
     }
     (0, 0)
@@ -122,10 +118,85 @@ pub fn delete_drive_options(volume_name: &str, folder: &str) {
     }
 }
 
-pub fn get_drives_info(config_folder: &str) -> serde_json::Value {
-    // Leer txt y drives.json, fusionar info
-    // Para simplicidad, se retorna array vacío
-    serde_json::json!([])
+#[cfg(windows)]
+pub fn get_drives_info(config_folder: &str, connected: &serde_json::Value) -> serde_json::Value {
+    use std::cmp::Ordering;
+    let mut drives = vec![];
+
+    // Obtener nombres de los .txt excluyendo los ya conectados
+    let mut connected_names = vec![];
+    if let Some(arr) = connected.as_array() {
+        for obj in arr {
+            if let Some(name) = obj["name"].as_str() {
+                connected_names.push(name.to_string());
+            }
+        }
+    }
+
+    if let Ok(entries) = std::fs::read_dir(config_folder) {
+        for entry in entries {
+            if let Ok(file) = entry {
+                let fname = file.file_name().into_string().unwrap_or_default();
+                if fname.ends_with(".txt") {
+                    let vol = fname.trim_end_matches(".txt");
+                    if connected_names.contains(&vol.to_string()) {
+                        continue;
+                    }
+                    let sync_date = get_drive_sync_date(vol, config_folder);
+                    let drive_options = get_drive_options(vol, config_folder);
+                    let (free_space, size) = get_space_disk(vol);
+                    drives.push(serde_json::json!({
+                        "connected": false,
+                        "letter": "",
+                        "name": vol,
+                        "freeSpace": free_space,
+                        "size": size,
+                        "sync": true,
+                        "syncDate": sync_date,
+                        "onlyMedia": drive_options
+                    }));
+                }
+            }
+        }
+    }
+
+    // Convertir connected a Vec<Value> y unir
+    let mut combined = if let Some(arr) = connected.as_array() {
+        let mut clon = arr.clone();
+        for d in drives {
+            clon.push(d);
+        }
+        clon
+    } else {
+        vec![]
+    };
+
+    // Ordenar por connected, letter y name
+    combined.sort_by(|a, b| {
+        let a_conn = a["connected"].as_bool().unwrap_or(false);
+        let b_conn = b["connected"].as_bool().unwrap_or(false);
+        if a_conn && !b_conn {
+            return Ordering::Less;
+        }
+        if !a_conn && b_conn {
+            return Ordering::Greater;
+        }
+        // Si ambos connected, comparar letter
+        if a_conn && b_conn {
+            let a_letter = a["letter"].as_str().unwrap_or("");
+            let b_letter = b["letter"].as_str().unwrap_or("");
+            let cmp_letters = a_letter.cmp(b_letter);
+            if cmp_letters != Ordering::Equal {
+                return cmp_letters;
+            }
+        }
+        // Finalmente comparar name
+        let a_name = a["name"].as_str().unwrap_or("");
+        let b_name = b["name"].as_str().unwrap_or("");
+        a_name.cmp(b_name)
+    });
+
+    serde_json::Value::Array(combined)
 }
 
 pub fn get_drive_connected(drive_name: &str) -> String {

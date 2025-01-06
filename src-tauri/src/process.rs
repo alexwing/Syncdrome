@@ -131,16 +131,9 @@ pub fn get_drives() -> Value {
         println!("Error al ejecutar wmic logicaldisk.");
     }
 
-    let all_drives = get_drives_info(&config.folder);
-    let mut all_array = match all_drives.as_array() {
-        Some(arr) => arr.clone(),
-        None => vec![],
-    };
-    for d in drives_list {
-        all_array.push(d);
-    }
-    println!("Array final con drives: {:?}", all_array);
-    json!(all_array)
+    let all_drives = get_drives_info(&config.folder, &json!(drives_list));
+    println!("Array final con drives: {:?}", all_drives);
+    all_drives
 }
 
 #[tauri::command]
