@@ -6,7 +6,6 @@ const fs = require("fs");
 
 const search = require("./backend/search.js");
 const processDrive = require("./backend/process.js");
-const bookmarks = require("./backend/bookmarks.js");
 const folderSync = require("./backend/folderSync.js");
 const fileCleaner = require("./backend/fileCleaner.js");
 
@@ -29,7 +28,6 @@ const port = process.env?.PORT || 3000;
 
 search(app);
 processDrive(app);
-bookmarks(app);
 folderSync(app);
 fileCleaner(app);
 

@@ -162,7 +162,7 @@ module.exports = function (app) {
           }
         }
         drives.push({
-          conected: true,
+          connected: true,
           letter: driveLetter,
           name: driveName,
           freeSpace: freeSpace,

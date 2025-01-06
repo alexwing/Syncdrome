@@ -187,7 +187,7 @@ GitHub Sponsors is a new way to support open-source developers contributing to p
 
 If you like Syncdrome, please consider leaving a review on [Product Hunt](https://www.producthunt.com/posts/syncdrome?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-syncdrome). Your feedback is highly appreciated! 🚀✨
 
-Copyleft © 2024 [Alejandro Aranda](https://aaranda.es/).
+Copyleft © 2025 [Alejandro Aranda](https://aaranda.es/).
 
 ### Issues
 
