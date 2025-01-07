@@ -15,7 +15,7 @@ pub fn execute_node(drive_letter: String) -> Value {
     };
     // Obtener nombre de volumen y si está en modo onlyMedia
     let volume_name = get_volume_name(&drive_letter);
-    let only_media = get_drive_options(&volume_name, &config.folder);
+    let (only_media, _, _) = get_drive_options(&volume_name, &config.folder);
     // Extensiones
     let exts = if only_media {
         get_extensions(&config.extensions)
@@ -114,6 +114,7 @@ pub fn get_drives() -> Value {
                         sync_date = crate::utils::get_drive_sync_date(drive_name, &config.folder);
                     }
                 }
+                let (only_media, saved_size, saved_free) = crate::utils::get_drive_options(drive_name, &config.folder);
                 drives_list.push(json!({
                     "connected": true,
                     "letter": drive_letter,
@@ -122,7 +123,7 @@ pub fn get_drives() -> Value {
                     "size": size,
                     "sync": sync,
                     "syncDate": sync_date,
-                    "onlyMedia": crate::utils::get_drive_options(drive_name, &config.folder)
+                    "onlyMedia": only_media
                 }));
             }
         }

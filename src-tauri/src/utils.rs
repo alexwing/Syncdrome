@@ -1,5 +1,6 @@
 use std::{fs, path::{Path, PathBuf}, process::Command, str};
 use serde_json::json;
+use chrono::{DateTime, Local};
 
 #[cfg(windows)]
 pub fn get_space_disk(drive_letter: &str) -> (u64, u64) {
@@ -65,27 +66,37 @@ pub fn get_drive_sync_date(volume_name: &str, folder: &str) -> String {
     let file_path = Path::new(folder).join(format!("{}.txt", volume_name));
     if let Ok(metadata) = fs::metadata(&file_path) {
         if let Ok(modified) = metadata.modified() {
-            // ...formatear fecha...
-            if let Ok(time) = modified.elapsed() {
-                return format!("Modificado hace {} segundos", time.as_secs());
-            }
+            let datetime: DateTime<Local> = DateTime::from(modified);
+            return datetime.to_rfc3339();
         }
     }
     "".to_string()
 }
 
-pub fn get_drive_options(volume_name: &str, folder: &str) -> bool {
+pub fn get_drive_options(volume_name: &str, folder: &str) -> (bool, u64, u64) {
     let file_path = Path::new(folder).join("drives.json");
+    let mut only_media = false;
+    let mut size = 0;
+    let mut free_space = 0;
+
     if let Ok(content) = fs::read_to_string(&file_path) {
-        if let Ok(mut json_data) = serde_json::from_str::<serde_json::Value>(&content) {
-            if let Some(obj) = json_data.get_mut(volume_name) {
-                if let Some(only_media) = obj.get("onlyMedia") {
-                    return only_media.as_bool().unwrap_or(false);
+        if let Ok(json_data) = serde_json::from_str::<serde_json::Value>(&content) {
+            if let Some(obj) = json_data.get(volume_name) {
+                // ...mantener resto de lógica...
+                if let Some(only_media_val) = obj.get("onlyMedia") {
+                    only_media = only_media_val.as_bool().unwrap_or(false);
+                }
+                if let Some(size_val) = obj.get("size") {
+                    size = size_val.as_u64().unwrap_or(0);
+                }
+                if let Some(free_val) = obj.get("freeSpace") {
+                    free_space = free_val.as_u64().unwrap_or(0);
                 }
             }
         }
     }
-    false
+
+    (only_media, size, free_space)
 }
 
 pub fn write_size(volume_name: &str, folder: &str, size: u64, free: u64) {
@@ -143,17 +154,16 @@ pub fn get_drives_info(config_folder: &str, connected: &serde_json::Value) -> se
                         continue;
                     }
                     let sync_date = get_drive_sync_date(vol, config_folder);
-                    let drive_options = get_drive_options(vol, config_folder);
-                    let (free_space, size) = get_space_disk(vol);
+                    let (only_media, saved_size, saved_free) = get_drive_options(vol, config_folder);
                     drives.push(serde_json::json!({
                         "connected": false,
                         "letter": "",
                         "name": vol,
-                        "freeSpace": free_space,
-                        "size": size,
+                        "freeSpace": saved_free,
+                        "size": saved_size,
                         "sync": true,
                         "syncDate": sync_date,
-                        "onlyMedia": drive_options
+                        "onlyMedia": only_media
                     }));
                 }
             }
