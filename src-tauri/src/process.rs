@@ -1,16 +1,20 @@
-use std::{env, fs, process::Command, path::Path};
-use serde_json::{json, Value};
+use crate::config::load_config;
 use crate::utils::{
-    get_volume_name, get_drive_options, get_extensions,
-    write_size, get_space_disk, get_drive_sync, get_drive_sync_date,
-    delete_drive_options, get_drives_info
+    get_drive_options, get_drives_info, get_extensions, get_space_disk, get_volume_name, write_size,
 };
-use crate::config::{load_config, Config};
-use encoding_rs::{Encoding, WINDOWS_1252};
-
+use serde_json::{json, Value};
+use std::{env, fs, path::Path, process::Command};
+/***
+ * Execute the command to list all files in the drive
+ * @param {String} drive_letter - Drive letter
+ * @returns {Object} - Result of the command
+ */
 #[tauri::command]
 pub fn execute_node(drive_letter: String) -> Value {
-    println!("DEBUG: Iniciando execute_node con la unidad: {}", drive_letter);
+    println!(
+        "DEBUG: Iniciando execute_node con la unidad: {}",
+        drive_letter
+    );
     let config = match load_config() {
         Ok(cfg) => cfg,
         Err(e) => return json!({ "error": e }),
@@ -24,13 +28,18 @@ pub fn execute_node(drive_letter: String) -> Value {
     } else {
         vec![]
     };
-    println!("DEBUG: volume_name={volume_name}, only_media={only_media}, exts={:?}", exts);
+    println!(
+        "DEBUG: volume_name={volume_name}, only_media={only_media}, exts={:?}",
+        exts
+    );
     // Cambiar directorio y ejecutar "dir . /s /b"
     if env::set_current_dir(format!("{}\\", drive_letter)).is_err() {
         return json!({ "success": false, "error": "Invalid drive letter" });
     }
     let cmd_output = Command::new("cmd")
-        .args(["/C", "chcp", "65001", ">", "nul", "&&", "dir", ".", "/s", "/b"])
+        .args([
+            "/C", "chcp", "65001", ">", "nul", "&&", "dir", ".", "/s", "/b",
+        ])
         .output();
 
     println!("DEBUG: Resultado del comando: {:?}", cmd_output);
@@ -80,6 +89,10 @@ pub fn execute_node(drive_letter: String) -> Value {
     }
 }
 
+/***
+ *  Get the list of drives and their information
+ * @returns {Object} - List of drives
+ */
 #[tauri::command]
 pub fn get_drives() -> Value {
     let config = match load_config() {
@@ -87,7 +100,7 @@ pub fn get_drives() -> Value {
         Err(e) => return json!({ "error": e }),
     };
     println!("Iniciando get_drives...");
-    
+
     let cmd_output = Command::new("wmic")
         .args(["logicaldisk", "get", "name,volumename"])
         .output();
@@ -119,7 +132,8 @@ pub fn get_drives() -> Value {
                         sync_date = crate::utils::get_drive_sync_date(drive_name, &config.folder);
                     }
                 }
-                let (only_media, saved_size, saved_free) = crate::utils::get_drive_options(drive_name, &config.folder);
+                let (only_media, _, _) =
+                    crate::utils::get_drive_options(drive_name, &config.folder);
                 drives_list.push(json!({
                     "connected": true,
                     "letter": drive_letter,
@@ -142,6 +156,11 @@ pub fn get_drives() -> Value {
     all_drives
 }
 
+/***
+ * remove volume name file from drive root
+ * @param {String} drive_letter - Drive letter
+ * @returns {Object} - Result of the command
+ */
 #[tauri::command]
 pub fn delete_drive(drive_letter: String) -> Value {
     let config = match load_config() {
@@ -160,6 +179,12 @@ pub fn delete_drive(drive_letter: String) -> Value {
     json!({"success": true, "message": format!("Deleted file for {}", volume_name)})
 }
 
+/***
+ * Drives.json file is used to store the onlyMedia status of each drive
+ * @param {String} drive_letter - Drive letter
+ * @param {Boolean} only_media - Only media files
+ * @returns {Object} - Result of the command
+ */
 #[tauri::command]
 pub fn update_drive(drive_letter: String, only_media: bool) -> Value {
     // Equivalente a app.put("/drives/:driveLetter")

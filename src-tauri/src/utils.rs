@@ -1,4 +1,4 @@
-use std::{fs, path::{Path, PathBuf}, process::Command, str};
+use std::{fs, path::{Path}, str};
 use serde_json::json;
 use chrono::{DateTime, Local};
 
@@ -221,43 +221,6 @@ pub fn get_drives_info(config_folder: &str, connected: &serde_json::Value) -> se
     serde_json::Value::Array(combined)
 }
 
-pub fn get_drive_connected(drive_name: &str) -> String {
-    // wmic logicaldisk where volumename="XYZ" get DeviceID
-    let output = Command::new("wmic")
-        .args([
-            "logicaldisk",
-            "where",
-            &format!("volumename=\"{}\"", drive_name),
-            "get",
-            "DeviceID",
-        ])
-        .output();
-
-    if let Ok(result) = output {
-        let lines = String::from_utf8_lossy(&result.stdout);
-        for line in lines.split('\n') {
-            let line = line.trim();
-            if line.is_empty() || line.contains("DeviceID") {
-                continue;
-            }
-            return line.to_string();
-        }
-    }
-    "".to_string()
-}
-
-pub fn get_name_from_file(file_name: &str) -> String {
-    file_name.trim_end_matches(".txt").to_string()
-}
-
-pub fn open_file(file: &str) {
-    let _ = Command::new("explorer").arg(file).spawn();
-}
-
-pub fn open_folder(folder: &str) {
-    let _ = Command::new("explorer").arg(folder).spawn();
-}
-
 pub fn get_extensions(config: &serde_json::Value) -> Vec<String> {
     let mut all_exts = vec![];
     if let Some(obj) = config.get("extensions") {
@@ -278,14 +241,5 @@ pub fn get_extensions(config: &serde_json::Value) -> Vec<String> {
     all_exts.sort();
     all_exts.dedup();
     all_exts
-}
-
-pub fn get_extensions_by_type(_extensions: &[String], _config: &serde_json::Value) -> Vec<String> {
-    // Recorrer config["extensions"][key].extensions
-    vec![]
-}
-
-pub fn delete_file(file_path: &str) {
-    let _ = fs::remove_file(file_path);
 }
 

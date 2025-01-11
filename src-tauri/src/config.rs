@@ -71,7 +71,7 @@ pub fn ensure_config_file_exists() -> Result<PathBuf, String> {
     let config_file = syncdrome_dir.join("config.json");
 
     // Make folder if it doesn't exist
-    if (!syncdrome_dir.exists()) {
+    if !syncdrome_dir.exists() {
         println!("Creando carpeta .syncdrome");
         std::fs::create_dir_all(&syncdrome_dir)
             .map_err(|e| format!("No se pudo crear carpeta: {}", e))?;
@@ -80,7 +80,7 @@ pub fn ensure_config_file_exists() -> Result<PathBuf, String> {
     }
 
     // copy default config.json to .syncdrome
-    if (!config_file.exists()) {
+    if !config_file.exists() {
         println!("Creando config.json con contenido por defecto");
         if let Err(e) = fs::write(&config_file, get_default_config_json()) {
             return Err(format!("No se pudo crear config.json: {}", e));
