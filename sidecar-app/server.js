@@ -5,7 +5,6 @@ const cors = require("cors");
 const fs = require("fs");
 
 const search = require("./backend/search.js");
-const processDrive = require("./backend/process.js");
 const folderSync = require("./backend/folderSync.js");
 const fileCleaner = require("./backend/fileCleaner.js");
 
@@ -27,7 +26,6 @@ app.use(cors());
 const port = process.env?.PORT || 3001;
 
 search(app);
-processDrive(app);
 folderSync(app);
 fileCleaner(app);
 
