@@ -97,7 +97,7 @@ pub fn get_drives() -> Value {
     let mut drives_list = vec![];
     if let Ok(output) = cmd_output {
         let lines = String::from_utf8_lossy(&output.stdout);
-        println!("Salida WMIC: {lines}");
+        //println!("Salida WMIC: {lines}");
         for line in lines.split('\n') {
             let line = line.trim();
             if line.is_empty() || line.contains("Name  VolumeName") {
@@ -111,7 +111,7 @@ pub fn get_drives() -> Value {
             let drive_letter = parts[0];
             let drive_name = if parts.len() > 1 { parts[1] } else { "" };
             let (free, size) = get_space_disk(drive_letter);
-            println!("DEBUG: drive={drive_letter}, name={drive_name}, size={size}, free={free}");
+            //println!("DEBUG: drive={drive_letter}, name={drive_name}, size={size}, free={free}");
             if size > 0 {
                 let mut sync = false;
                 let mut sync_date = String::new();

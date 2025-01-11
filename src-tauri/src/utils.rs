@@ -31,30 +31,41 @@ pub fn get_space_disk(drive_letter: &str) -> (u64, u64) {
     (0, 0)
 }
 
+#[cfg(windows)]
 pub fn get_volume_name(drive_letter: &str) -> String {
-    let output = Command::new("wmic")
-        .args([
-            "logicaldisk",
-            "where",
-            &format!("DeviceID=\"{}\"", drive_letter),
-            "get",
-            "volumename",
-        ])
-        .output();
+    use std::os::windows::ffi::OsStrExt;
+    use std::ffi::OsStr;
+    use winapi::shared::minwindef::{DWORD, MAX_PATH};
+    use winapi::um::fileapi::GetVolumeInformationW;
 
-    if let Ok(result) = output {
-        let lines = String::from_utf8_lossy(&result.stdout);
-        // ...parsear...
-        for line in lines.split('\n') {
-            let line = line.trim();
-            if line.contains("VolumeName") || line.is_empty() {
-                // ...omitir...
-                continue;
-            }
-            return line.to_string();
-        }
+    let root_path = format!("{}\\", drive_letter);
+    let wide_path: Vec<u16> = OsStr::new(&root_path).encode_wide().chain(Some(0)).collect();
+
+    let mut volume_name_buffer = [0u16; MAX_PATH + 1];
+    let mut volume_serial_number: DWORD = 0;
+    let mut max_component_length: DWORD = 0;
+    let mut file_system_flags: DWORD = 0;
+    let mut file_system_name_buffer = [0u16; MAX_PATH + 1];
+
+    let result = unsafe {
+        GetVolumeInformationW(
+            wide_path.as_ptr(),
+            volume_name_buffer.as_mut_ptr(),
+            volume_name_buffer.len() as DWORD,
+            &mut volume_serial_number,
+            &mut max_component_length,
+            &mut file_system_flags,
+            file_system_name_buffer.as_mut_ptr(),
+            file_system_name_buffer.len() as DWORD,
+        )
+    };
+
+    if result != 0 {
+        let len = volume_name_buffer.iter().position(|&c| c == 0).unwrap_or(volume_name_buffer.len());
+        String::from_utf16_lossy(&volume_name_buffer[..len])
+    } else {
+        "".to_string()
     }
-    "".to_string()
 }
 
 pub fn get_drive_sync(volume_name: &str, folder: &str) -> bool {
