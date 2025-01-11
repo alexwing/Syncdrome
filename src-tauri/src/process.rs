@@ -36,20 +36,16 @@ pub fn execute_node(drive_letter: String) -> Value {
     println!("DEBUG: Resultado del comando: {:?}", cmd_output);
     match cmd_output {
         Ok(output) => {
-            let (decoded, _, had_errors) = WINDOWS_1252.decode(&output.stdout);
-            // Ignorar had_errors sin acción adicional
-
-            let mut list = decoded
+            let list = String::from_utf8_lossy(&output.stdout)
                 .lines()
                 .filter(|l| !l.to_lowercase().contains("$recycle.bin") && !l.trim().is_empty())
                 .map(|s| s.to_string())
                 .collect::<Vec<_>>()
                 .join("\n");
 
-            if only_media {
+            let filtered_list = if only_media {
                 // Filtrar extensiones
-                let filtered = list
-                    .lines()
+                list.lines()
                     .filter(|line| {
                         if line.contains('.') {
                             let ext = line.split('.').last().unwrap_or("").to_lowercase();
@@ -60,13 +56,15 @@ pub fn execute_node(drive_letter: String) -> Value {
                         }
                     })
                     .collect::<Vec<_>>()
-                    .join("\n");
-                list = filtered;
-            }
+                    .join("\n")
+            } else {
+                list
+            };
+
             // Guardar en vol.txt
             let file_path = Path::new(&config.folder).join(format!("{}.txt", volume_name));
             println!("DEBUG: Guardando listado en: {}", file_path.display());
-            if fs::write(&file_path, list).is_ok() {
+            if fs::write(&file_path, filtered_list).is_ok() {
                 // Actualizar drives.json con nuevo size/freeSpace
                 let (free, size) = get_space_disk(&drive_letter);
                 write_size(&volume_name, &config.folder, size, free);

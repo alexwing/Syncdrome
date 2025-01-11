@@ -79,7 +79,7 @@ pub fn get_drive_sync_date(volume_name: &str, folder: &str) -> String {
     if let Ok(metadata) = fs::metadata(&file_path) {
         if let Ok(modified) = metadata.modified() {
             let datetime: DateTime<Local> = DateTime::from(modified);
-            return datetime.to_rfc3339();
+            return datetime.format("%Y-%m-%dT%H:%M:%S%.3f%:z").to_string();
         }
     }
     "".to_string()
@@ -297,7 +297,7 @@ pub fn ensure_config_file_exists() -> Result<PathBuf, String> {
     let config_file = syncdrome_dir.join("config.json");
 
     // Crear carpeta si no existe
-    if !syncdrome_dir.exists() {
+    if (!syncdrome_dir.exists()) {
         println!("Creando carpeta .syncdrome");
         std::fs::create_dir_all(&syncdrome_dir)
             .map_err(|e| format!("No se pudo crear carpeta: {}", e))?;
@@ -306,7 +306,7 @@ pub fn ensure_config_file_exists() -> Result<PathBuf, String> {
     }
 
     // Copiar el fichero config.json desde config-file.rs
-    if !config_file.exists() {
+    if (!config_file.exists()) {
         println!("Creando config.json con contenido por defecto");
         if let Err(e) = fs::write(&config_file, get_default_config_json()) {
             return Err(format!("No se pudo crear config.json: {}", e));
