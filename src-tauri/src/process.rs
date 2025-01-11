@@ -6,12 +6,14 @@ use crate::utils::{
     delete_drive_options, get_drives_info
 };
 use crate::config::{load_config, Config};
+use encoding_rs::{Encoding, WINDOWS_1252};
 
 #[tauri::command]
 pub fn execute_node(drive_letter: String) -> Value {
+    println!("DEBUG: Iniciando execute_node con la unidad: {}", drive_letter);
     let config = match load_config() {
         Ok(cfg) => cfg,
-        Err(e) => return json!({ "success": false, "error": e }),
+        Err(e) => return json!({ "error": e }),
     };
     // Obtener nombre de volumen y si está en modo onlyMedia
     let volume_name = get_volume_name(&drive_letter);
@@ -22,6 +24,7 @@ pub fn execute_node(drive_letter: String) -> Value {
     } else {
         vec![]
     };
+    println!("DEBUG: volume_name={volume_name}, only_media={only_media}, exts={:?}", exts);
     // Cambiar directorio y ejecutar "dir . /s /b"
     if env::set_current_dir(format!("{}\\", drive_letter)).is_err() {
         return json!({ "success": false, "error": "Invalid drive letter" });
@@ -30,18 +33,21 @@ pub fn execute_node(drive_letter: String) -> Value {
         .args(["/C", "chcp", "65001", ">", "nul", "&&", "dir", ".", "/s", "/b"])
         .output();
 
+    println!("DEBUG: Resultado del comando: {:?}", cmd_output);
     match cmd_output {
         Ok(output) => {
-            let mut list = String::from_utf8_lossy(&output.stdout).to_string();
-            // Quitar $RECYCLE.BIN
-            list = list
+            let (decoded, _, had_errors) = WINDOWS_1252.decode(&output.stdout);
+            // Ignorar had_errors sin acción adicional
+
+            let mut list = decoded
                 .lines()
                 .filter(|l| !l.to_lowercase().contains("$recycle.bin") && !l.trim().is_empty())
                 .map(|s| s.to_string())
                 .collect::<Vec<_>>()
                 .join("\n");
-            // Filtrar extensiones si onlyMedia
+
             if only_media {
+                // Filtrar extensiones
                 let filtered = list
                     .lines()
                     .filter(|line| {
@@ -59,6 +65,7 @@ pub fn execute_node(drive_letter: String) -> Value {
             }
             // Guardar en vol.txt
             let file_path = Path::new(&config.folder).join(format!("{}.txt", volume_name));
+            println!("DEBUG: Guardando listado en: {}", file_path.display());
             if fs::write(&file_path, list).is_ok() {
                 // Actualizar drives.json con nuevo size/freeSpace
                 let (free, size) = get_space_disk(&drive_letter);

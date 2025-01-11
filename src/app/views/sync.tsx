@@ -59,7 +59,7 @@ const Sync = () => {
         setAlert({
           title: "Success",
           message: "Drive catalog syncronized",
-          type: TypeAlert.danger,
+          type: TypeAlert.success,
         });
         setShowAlert(true);
       })
@@ -96,7 +96,7 @@ const Sync = () => {
         setAlert({
           title: "Deleted",
           message: "Drive catalog deleted",
-          type: TypeAlert.danger,
+          type: TypeAlert.success,
         });
         setShowAlert(true);
       })

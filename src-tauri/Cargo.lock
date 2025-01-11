@@ -3875,6 +3875,7 @@ name = "syncdrome"
 version = "2.0.1"
 dependencies = [
  "chrono",
+ "encoding_rs",
  "rusqlite",
  "serde",
  "serde_json",

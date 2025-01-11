@@ -246,9 +246,26 @@ pub fn open_folder(folder: &str) {
     let _ = Command::new("explorer").arg(folder).spawn();
 }
 
-pub fn get_extensions(_config: &serde_json::Value) -> Vec<String> {
-    // Recorrer config["extensions"] y obtener array de extensiones, placeholder
-    vec![]
+pub fn get_extensions(config: &serde_json::Value) -> Vec<String> {
+    let mut all_exts = vec![];
+    if let Some(obj) = config.get("extensions") {
+        if let Some(map) = obj.as_object() {
+            for (_, value) in map.iter() {
+                if let Some(media) = value.get("media") {
+                    if let Some(array) = media.as_array() {
+                        for item in array {
+                            if let Some(ext_str) = item.as_str() {
+                                all_exts.push(ext_str.trim().to_lowercase());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    all_exts.sort();
+    all_exts.dedup();
+    all_exts
 }
 
 pub fn get_extensions_by_type(_extensions: &[String], _config: &serde_json::Value) -> Vec<String> {
