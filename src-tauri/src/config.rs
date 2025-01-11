@@ -3,6 +3,7 @@ use std::fs;
 use std::path::PathBuf;
 use tauri::command;
 use std::fs::OpenOptions;
+use crate::utils::ensure_config_file_exists;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
@@ -17,17 +18,8 @@ fn default_node_env() -> String {
 }
 
 pub fn load_config() -> Result<Config, String> {
-    let config_path = if cfg!(debug_assertions) { 
-        PathBuf::from("../config.json")
-    } else {
-        PathBuf::from("config.json") 
-    };
-
-    let full_path = std::env::current_dir()
-        .map_err(|e| e.to_string())?
-        .join(&config_path);
-
-    println!("Reading config file from: {:?}", full_path);
+    let full_path = ensure_config_file_exists()?;
+    println!("Leyendo config de: {:?}", full_path);
 
     if !full_path.exists() {
         return Err(format!("Config file not found at: {:?}", full_path));
@@ -50,15 +42,7 @@ pub fn load_config() -> Result<Config, String> {
 
 #[command]
 pub fn save_config(config: Config) -> Result<String, String> {
-    let config_path = if cfg!(debug_assertions) { 
-        PathBuf::from("../config.json")
-    } else {
-        PathBuf::from("config.json") 
-    };
-
-    let full_path = std::env::current_dir()
-        .map_err(|e| e.to_string())?
-        .join(&config_path);
+    let full_path = ensure_config_file_exists()?;
 
     let config_content = serde_json::to_string_pretty(&config) // serialize config
         .map_err(|e| format!("Error serializing config: {}", e))?;
