@@ -3,7 +3,8 @@ use std::fs;
 use std::path::PathBuf;
 use tauri::command;
 use std::fs::OpenOptions;
-use crate::utils::ensure_config_file_exists;
+use dirs::home_dir;
+use crate::config_file::get_default_config_json;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
@@ -61,3 +62,33 @@ pub fn save_config(config: Config) -> Result<String, String> {
     println!("Config file saved successfully at: {:?}", full_path);
     Ok(full_path.to_string_lossy().to_string())
 }
+
+pub fn ensure_config_file_exists() -> Result<PathBuf, String> {
+    // get home directory and .syncdrome/config.json
+    println!("Obteniendo el directorio home");
+    let home = home_dir().ok_or("No se pudo obtener HOME")?;
+    let syncdrome_dir = home.join(".syncdrome");
+    let config_file = syncdrome_dir.join("config.json");
+
+    // Make folder if it doesn't exist
+    if (!syncdrome_dir.exists()) {
+        println!("Creando carpeta .syncdrome");
+        std::fs::create_dir_all(&syncdrome_dir)
+            .map_err(|e| format!("No se pudo crear carpeta: {}", e))?;
+    } else {
+        println!("La carpeta .syncdrome ya existe");
+    }
+
+    // copy default config.json to .syncdrome
+    if (!config_file.exists()) {
+        println!("Creando config.json con contenido por defecto");
+        if let Err(e) = fs::write(&config_file, get_default_config_json()) {
+            return Err(format!("No se pudo crear config.json: {}", e));
+        }
+    } else {
+        println!("El archivo config.json ya existe");
+    }
+
+    Ok(config_file)
+}
+

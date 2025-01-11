@@ -192,3 +192,9 @@ Copyleft © 2025 [Alejandro Aranda](https://aaranda.es/).
 ### Issues
 
 Report any issues or suggestions related to this project on the [GitHub repository](https://github.com/alexwing/Syncdrome/issues).
+
+
+List to fix 
+
+- [ ]  Corregir el boton de cancelar al añadir un favorito
+- [ ]  Corregir buscar carpeta en configuracion

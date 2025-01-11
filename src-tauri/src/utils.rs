@@ -1,8 +1,8 @@
 use std::{fs, path::{Path, PathBuf}, process::Command, str};
 use serde_json::json;
 use chrono::{DateTime, Local};
-use crate::config_file::get_default_config_json;
-use dirs::home_dir;
+
+
 
 pub fn get_space_disk(drive_letter: &str) -> (u64, u64) {
     use std::os::windows::ffi::OsStrExt;
@@ -289,31 +289,3 @@ pub fn delete_file(file_path: &str) {
     let _ = fs::remove_file(file_path);
 }
 
-pub fn ensure_config_file_exists() -> Result<PathBuf, String> {
-    // Obtener la ruta HOME y .syncdrome/config.json
-    println!("Obteniendo el directorio home");
-    let home = home_dir().ok_or("No se pudo obtener HOME")?;
-    let syncdrome_dir = home.join(".syncdrome");
-    let config_file = syncdrome_dir.join("config.json");
-
-    // Crear carpeta si no existe
-    if (!syncdrome_dir.exists()) {
-        println!("Creando carpeta .syncdrome");
-        std::fs::create_dir_all(&syncdrome_dir)
-            .map_err(|e| format!("No se pudo crear carpeta: {}", e))?;
-    } else {
-        println!("La carpeta .syncdrome ya existe");
-    }
-
-    // Copiar el fichero config.json desde config-file.rs
-    if (!config_file.exists()) {
-        println!("Creando config.json con contenido por defecto");
-        if let Err(e) = fs::write(&config_file, get_default_config_json()) {
-            return Err(format!("No se pudo crear config.json: {}", e));
-        }
-    } else {
-        println!("El archivo config.json ya existe");
-    }
-
-    Ok(config_file)
-}
