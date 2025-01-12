@@ -27,6 +27,7 @@ fn get_config() -> Result<config::Config, String> { // Asegúrate de que el nomb
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             get_drives,
             execute_node,
@@ -36,7 +37,7 @@ fn main() {
             add_bookmark,
             delete_bookmark,
             get_config,
-            save_config, // Asegúrate de que save_config esté incluido en el handler
+            save_config, 
             get_files_in_folder,
             rename_files_in_folder
         ])

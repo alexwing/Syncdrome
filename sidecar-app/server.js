@@ -6,7 +6,6 @@ const fs = require("fs");
 
 const search = require("./backend/search.js");
 const folderSync = require("./backend/folderSync.js");
-const fileCleaner = require("./backend/fileCleaner.js");
 
 const app = express();
 console.log("Leyendo configuración...");
@@ -27,7 +26,6 @@ const port = process.env?.PORT || 3001;
 
 search(app);
 folderSync(app);
-fileCleaner(app);
 
 app.listen(port, () => {
   console.log(`The app is listening on http://localhost:${port}/settings`);

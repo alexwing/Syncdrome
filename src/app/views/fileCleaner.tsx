@@ -22,6 +22,7 @@ import {
 } from "../models/Interfaces";
 import { cleanFileNames } from "../helpers/utils";
 import AlertMessage from "../components/AlertMessage";
+import { config } from "dotenv";
 
 const FileCleaner = () => {
   const initialPattenrTerm = localStorage.getItem("patternTerm") || "";
@@ -36,12 +37,14 @@ const FileCleaner = () => {
   const [pattern, setPattern] = useState(initialPattenrTerm);
   const [showAlert, setShowAlert] = useState(false);
   const [alert, setAlert] = useState({} as AlertModel);
+  const [config, setConfig] = useState({} as Config);
 
   // get config from server
   const getConfig = async () => {
     try {
       const response:any = await Api.getSettings();
       console.log("response", response);
+      setConfig(response);
       if (response.pattern) {
         setPattern(response.pattern);
       }
@@ -66,6 +69,8 @@ const FileCleaner = () => {
 
   const saveConfig = async (newConfig: Config): Promise<any> => {
     try {
+      setConfig({ ...config, ...newConfig });
+      newConfig = { ...config, ...newConfig };
       const response = await Api.saveSettings(newConfig);
       return response;
     } catch (error) {

@@ -198,3 +198,13 @@ List to fix
 
 - [ ]  Corregir el boton de cancelar al añadir un favorito
 - [ ]  Corregir buscar carpeta en configuracion
+
+
+## Migrar FileCleaner a Tauri
+
+Migrar el código de fileCleaner.js a Rust, usar file_cleaner.rs para incluir la funcionalidad de limpiar nombres de archivos, migrar las funciones de utils.js a utils.rs que sean necesarias para el funcionamiento de file_cleaner.rs.
+
+Modificar el api.js para que use los Invoke de Tauri para llamar a las funciones de file_cleaner.rs.
+
+Añadir a main.rs la funcion de file_cleaner.rs para que sea llamada desde el api.js.
+
