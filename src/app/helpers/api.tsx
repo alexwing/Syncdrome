@@ -12,8 +12,12 @@ const Api = {
    * @param {string} searchParam - search param
    * @returns {object} - response from server
    */
-  getFind: (searchParam, extSelected) =>
-    Axios.get(`/find/${searchParam}/${extSelected}`),
+  getFind: (searchParam, extSelected) => {
+    return invoke("find_files", {
+      searchParam,
+      extensions: extSelected,
+    }) as Promise<any>;
+  },
 
   getDrives: () => invoke("get_drives") as Promise<any>,
 
@@ -56,10 +60,10 @@ const Api = {
    * @returns {object} - response from server
    */
   openFile(fileName, folder, driveLetter) {
-    const url = !folder
-      ? btoa(driveLetter + "\\" + fileName)
-      : btoa(driveLetter + "\\" + folder + "\\" + fileName);
-    return Axios.get(`/openFile/${url}`);
+    const url = btoa(`${driveLetter}\\${folder}\\${fileName}`);
+    return invoke("open_file_rust", {
+      encodedUrl: url,
+    });
   },
 
   /***
@@ -69,11 +73,10 @@ const Api = {
    * @returns {object} - response from server
    */
   openFolder(folder, driveLetter) {
-    const folderName = folder;
-    const url = !folder
-      ? btoa(driveLetter + "\\")
-      : btoa(driveLetter + "\\" + folderName);
-    return Axios.get(`/openFolder/${url}`);
+    const url = btoa(`${driveLetter}\\${folder}`);
+    return invoke("open_folder_rust", {
+      encodedUrl: url,
+    });
   },
 
   /***

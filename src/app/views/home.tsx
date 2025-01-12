@@ -79,8 +79,8 @@ const Home = () => {
 
     Api.getFind(searchTerm, extSelectedUrl)
       .then((res) => {
-        setFiles(res.data);
-        if (Object.keys(res.data).length > 0) {
+        setFiles(res);
+        if (Object.keys(res).length > 0) {
           setFound(true);
         } else {
           setFound(false);

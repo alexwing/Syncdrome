@@ -1,8 +1,8 @@
 use std::{fs, path::{Path}, str};
+use base64;
 use serde_json::json;
 use chrono::{DateTime, Local};
-
-
+use std::process::Command;
 
 pub fn get_space_disk(drive_letter: &str) -> (u64, u64) {
     use std::os::windows::ffi::OsStrExt;
@@ -241,5 +241,85 @@ pub fn get_extensions(config: &serde_json::Value) -> Vec<String> {
     all_exts.sort();
     all_exts.dedup();
     all_exts
+}
+
+// Migración de funciones de utils.js para búsqueda:
+pub fn get_drive_connected(drive_name: &str) -> String {
+    use std::process::Command;
+    let cmd = Command::new("wmic")
+        .args([
+            "logicaldisk",
+            "where",
+            &format!("volumename=\"{}\"", drive_name),
+            "get",
+            "DeviceID",
+        ])
+        .output();
+
+    if let Ok(output) = cmd {
+        let out_str = String::from_utf8_lossy(&output.stdout);
+        let mut letter = String::new();
+        for line in out_str.lines() {
+            let trimmed = line.trim();
+            if !trimmed.is_empty() && trimmed != "DeviceID" {
+                letter = trimmed.to_string();
+            }
+        }
+        letter
+    } else {
+        String::new()
+    }
+}
+
+pub fn get_name_from_file(file: &str) -> String {
+    // Elimina .txt, etc.
+    file.trim_end_matches(".txt").to_string()
+}
+
+pub fn open_file(encoded_url: &str) -> Result<(), std::io::Error> {
+    // Decodificar y abrir con "explorer"
+    let decoded = base64::decode(encoded_url).unwrap_or_default();
+    let path_str = String::from_utf8_lossy(&decoded).replace("/", "\\");
+    Command::new("explorer").arg(path_str).spawn()?;
+    Ok(())
+}
+
+pub fn open_folder(encoded_url: &str) -> Result<(), std::io::Error> {
+    // Similar a open_file
+    let decoded = base64::decode(encoded_url).unwrap_or_default();
+    let path_str = String::from_utf8_lossy(&decoded).replace("/", "\\");
+    Command::new("explorer").arg(path_str).spawn()?;
+    Ok(())
+}
+
+pub fn get_extensions_by_type(extensions: &[&str], config_folder: &str) -> Vec<String> {
+    let config_path = std::path::Path::new(config_folder).join("config.json");
+    let mut final_ext = Vec::new();
+    if !config_path.exists() || extensions.is_empty() {
+        return final_ext;
+    }
+    let content = match std::fs::read_to_string(&config_path) {
+        Ok(c) => c,
+        Err(_) => return final_ext,
+    };
+    let config: serde_json::Value = match serde_json::from_str(&content) {
+        Ok(val) => val,
+        Err(_) => return final_ext,
+    };
+
+    for key in extensions {
+        if let Some(obj) = config["extensions"][*key].as_object() {
+            if let Some(ext_array) = obj["extensions"].as_array() {
+                for item in ext_array {
+                    if let Some(ext_str) = item.as_str() {
+                        final_ext.push(ext_str.trim().to_lowercase());
+                    }
+                }
+            }
+        }
+    }
+    final_ext.sort();
+    final_ext.dedup();
+    final_ext
 }
 

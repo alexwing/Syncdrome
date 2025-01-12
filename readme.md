@@ -208,3 +208,11 @@ Modificar el api.js para que use los Invoke de Tauri para llamar a las funciones
 
 Añadir a main.rs la funcion de file_cleaner.rs para que sea llamada desde el api.js.
 
+## Migrar Search a Tauri
+
+Migrar el código de search.js a Rust, usar search.rs para incluir la funcionalidad de buscar archivos, migrar las funciones de utils.js a utils.rs que sean necesarias para el funcionamiento de search.rs.
+
+Modificar el api.js para que use los Invoke de Tauri para llamar a las funciones de search.rs.
+
+Añadir a main.rs la funcion de search.rs para que sea llamada desde el api.tsx
+
