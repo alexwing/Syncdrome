@@ -13,35 +13,41 @@ pub struct SearchResult {
 
 #[command]
 pub fn find_files(search_param: String, extensions: String) -> Result<serde_json::Value, String> {
+    println!("DEBUG: Iniciando find_files con search_param: {}, extensions: {}", search_param, extensions);
     let config = load_config().map_err(|e| e.to_string())?;
     let config_folder = config.folder;
+    println!("DEBUG: Config folder: {}", config_folder);
     let search_text = search_param.to_lowercase();
     let extensions_lower = extensions.to_lowercase(); // Crear una variable temporal
     let extension_types: Vec<&str> = extensions_lower.split('&').collect();
     let mut results = serde_json::json!({});
 
     if search_text.len() < 3 {
+        println!("DEBUG: search_text demasiado corto");
         return Ok(results);
     }
 
     let bookmarks = fetch_bookmarks(None).unwrap_or_default();
+    println!("DEBUG: Bookmarks cargados: {:?}", bookmarks);
     let exts = if extension_types.get(0).unwrap_or(&"") != &"all" {
         get_extensions_by_type(&extension_types, &config_folder)
     } else {
         vec![]
     };
+    println!("DEBUG: Extensiones filtradas: {:?}", exts);
 
     for entry in fs::read_dir(&config_folder).map_err(|e| e.to_string())? {
         if let Ok(file) = entry {
             let fname = file.file_name().to_string_lossy().to_string();
             if fname.ends_with(".txt") {
+                println!("DEBUG: Procesando archivo: {}", fname);
                 let full_path = path::Path::new(&config_folder).join(&fname);
                 let file_data = fs::read_to_string(&full_path).unwrap_or_default();
                 let drive_name = get_name_from_file(&fname);
                 let connected = get_drive_connected(&drive_name);
                 let mut founds = Vec::new();
 
-                for (line_number, row) in file_data.lines().enumerate() {
+                for (_, row) in file_data.lines().enumerate() {
                     let row_trimmed = row.trim().replace("\r", "").replace("\n", "");
                     if row_trimmed.to_lowercase().contains(&search_text)
                         && !row_trimmed.contains("$RECYCLE.BIN")
@@ -127,11 +133,13 @@ pub fn find_files(search_param: String, extensions: String) -> Result<serde_json
                         "connected": connected,
                         "content": grouped
                     });
+                    println!("DEBUG: Resultados para {}: {:?}", drive_name, results[&drive_name]);
                 }
             }
         }
     }
 
+    println!("DEBUG: Resultados finales: {:?}", results);
     Ok(results)
 }
 
