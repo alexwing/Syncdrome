@@ -5,7 +5,6 @@ const cors = require("cors");
 const fs = require("fs");
 
 const search = require("./backend/search.js");
-const folderSync = require("./backend/folderSync.js");
 
 const app = express();
 console.log("Leyendo configuración...");
@@ -25,7 +24,6 @@ app.use(cors());
 const port = process.env?.PORT || 3001;
 
 search(app);
-folderSync(app);
 
 app.listen(port, () => {
   console.log(`The app is listening on http://localhost:${port}/settings`);
