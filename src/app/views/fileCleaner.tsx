@@ -41,10 +41,11 @@ const FileCleaner = () => {
   const getConfig = async () => {
     try {
       const response:any = await Api.getSettings();
+      console.log("response", response);
       if (response.pattern) {
         setPattern(response.pattern);
       }
-      if (response.data.defaultSubstitutions) {
+      if (response.defaultSubstitutions) {
         setSubstitutions(response.defaultSubstitutions);
       }
     } catch (error) {
@@ -204,7 +205,7 @@ const FileCleaner = () => {
           type: TypeAlert.success,
         });
         setShowAlert(true);
-        setFileNames(response);
+        setFileNames(response as FileCleanerProps[]);
       })
       .catch((error) => {
         setAlert({

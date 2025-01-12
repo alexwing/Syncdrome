@@ -305,7 +305,102 @@ pub fn get_default_config_json() -> String {
             "mpeg"
           ]
         }}
-      }}
+      }},
+      "defaultSubstitutions": [
+        {{
+          "find": "1080p",
+          "replace": ""
+        }},
+        {{
+          "find": "720",
+          "replace": ""
+        }},
+        {{
+          "find": "1080",
+          "replace": ""
+        }},
+        {{
+          "find": "4K",
+          "replace": ""
+        }},
+        {{
+          "find": "(Spanish English)",
+          "replace": ""
+        }},
+        {{
+          "find": "web-dl",
+          "replace": ""
+        }},
+        {{
+          "find": "x264",
+          "replace": ""
+        }},
+        {{
+          "find": "x265",
+          "replace": ""
+        }},
+        {{
+          "find": "h264",
+          "replace": ""
+        }},
+        {{
+          "find": "h265",
+          "replace": ""
+        }},
+        {{
+          "find": "10bit",
+          "replace": ""
+        }},
+        {{
+          "find": "8bit",
+          "replace": ""
+        }},
+        {{
+          "find": "6ch",
+          "replace": ""
+        }},
+        {{
+          "find": "Spanish",
+          "replace": ""
+        }},
+        {{
+          "find": "English",
+          "replace": ""
+        }},
+        {{
+          "find": "Latino",
+          "replace": ""
+        }},
+        {{
+          "find": "Castellano",
+          "replace": ""
+        }},
+        {{
+          "find": "Español",
+          "replace": ""
+        }},
+        {{
+          "find": "Dual",
+          "replace": ""
+        }},
+        {{
+          "find": "Subtitulado",
+          "replace": ""
+        }},
+        {{
+          "find": "Subtitulos",
+          "replace": ""
+        }},
+        {{
+          "find": "AC3",
+          "replace": ""
+        }},
+        {{
+          "find": "()",
+          "replace": ""
+        }}
+      ],
+      "pattern": "(Spa"
     }}
     "#, folder_str)
 }

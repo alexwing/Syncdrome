@@ -12,6 +12,14 @@ pub struct Config {
     #[serde(default = "default_node_env")]
     pub node_env: String, 
     pub extensions: serde_json::Value,
+    pub defaultSubstitutions: Vec<Substitution>,
+    pub pattern: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Substitution {
+    pub find: String,
+    pub replace: String,
 }
 
 fn default_node_env() -> String {

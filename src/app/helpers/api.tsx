@@ -24,7 +24,7 @@ const Api = {
    */
   getExecute: (driveLetter) => invoke("execute_node", { driveLetter }),
 
-  /***
+  /***P
    * Delete drive syncronization
    * @param {string} driveLetter - drive letter
    * @returns {object} - response from server
@@ -180,9 +180,7 @@ const Api = {
    *
    */
   getFilesInFolder: (folder): Promise<FileCleanerProps[]> => {
-    return Axios.post("/getFilesInFolder", { folder }).then(
-      (response) => response.data
-    );
+    return invoke("get_files_in_folder", { folder });
   },
 
   /*** rename files in folder use post method renameFilesInFolder
@@ -191,9 +189,7 @@ const Api = {
    * @example renameFilesInFolder([{ path: "D:\\Pictures\\IMG_0001.jpg", filename: "IMG_0001.jpg", fixed: "IMG_0001.jpg" },...])
    * */
   renameFilesInFolder: (files: FileCleanerProps[]) => {
-    return Axios.post("/renameFilesInFolder", files).then(
-      (response) => response.data
-    );
+    return invoke("rename_files_in_folder", { files });
   },
 
   navigate: (currentPath, command) => {

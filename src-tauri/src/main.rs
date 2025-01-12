@@ -7,9 +7,11 @@ mod bookmarks;
 mod process;
 mod utils;
 mod config_file; // Declara el módulo config_file en main.rs
+mod file_cleaner;
 use config::{load_config, save_config}; // Importa las funciones load_config y save_config correctamente
 use bookmarks::{get_bookmarks, add_bookmark, delete_bookmark};
 use process::{execute_node, get_drives, delete_drive, update_drive};
+use file_cleaner::{get_files_in_folder, rename_files_in_folder};
 use tauri::command;
 
 #[command]
@@ -34,7 +36,9 @@ fn main() {
             add_bookmark,
             delete_bookmark,
             get_config,
-            save_config // Asegúrate de que save_config esté incluido en el handler
+            save_config, // Asegúrate de que save_config esté incluido en el handler
+            get_files_in_folder,
+            rename_files_in_folder
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
