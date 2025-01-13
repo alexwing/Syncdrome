@@ -1,4 +1,3 @@
-// En Settings.tsx
 import React, { useState, useEffect } from "react";
 import Api from "../helpers/api";
 import {
@@ -14,6 +13,7 @@ import {
 import { AlertModel , FileTypes, TypeAlert } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import * as Icon from "react-bootstrap-icons";
+import { open } from '@tauri-apps/plugin-dialog';
 
 const Config = () => {
   const [folder, setFolder] = useState("");
@@ -106,9 +106,22 @@ const Config = () => {
   };
 
   const onChangeFolder = async () => {
-    const settings = await Api.getSettings();
-    const path = settings.folder;
-    setFolder(path as string);
+    try {
+      const folder = await open({
+        directory: true,
+        multiple: false,
+        title: 'Selecciona una carpeta',
+        defaultPath: '/ruta/inicial'
+      });
+      setFolder(folder as string);
+      if (folder) {
+        console.log('Carpeta seleccionada:', folder);
+      } else {
+        console.log('No se seleccionó ninguna carpeta.');
+      }
+    } catch (error) {
+      console.error('Error al abrir el diálogo:', error);
+    }
   };
 
   /* settings json 

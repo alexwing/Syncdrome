@@ -42,7 +42,7 @@ pub fn execute_node(drive_letter: String) -> Value {
         ])
         .output();
 
-    println!("DEBUG: Resultado del comando: {:?}", cmd_output);
+    // println!("DEBUG: Resultado del comando: {:?}", cmd_output);
     match cmd_output {
         Ok(output) => {
             let list = String::from_utf8_lossy(&output.stdout)
