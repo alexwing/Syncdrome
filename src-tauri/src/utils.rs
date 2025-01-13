@@ -3,12 +3,16 @@ use base64;
 use serde_json::json;
 use chrono::{DateTime, Local};
 use std::process::Command;
+use std::ffi::OsString;
+use std::os::windows::ffi::OsStringExt;
+use winapi::um::fileapi::GetVolumeInformationW;
+use winapi::shared::minwindef::{DWORD, MAX_PATH};
+use winapi::um::winnt::ULARGE_INTEGER;
+use winapi::um::fileapi::GetDiskFreeSpaceExW;
 
 pub fn get_space_disk(drive_letter: &str) -> (u64, u64) {
     use std::os::windows::ffi::OsStrExt;
     use std::ffi::OsStr;
-    use winapi::um::fileapi::GetDiskFreeSpaceExW;
-    use winapi::um::winnt::ULARGE_INTEGER;
     
     let drive = format!("{}\\", drive_letter);
     let wide: Vec<u16> = OsStr::new(&drive).encode_wide().chain(Some(0)).collect();
@@ -244,31 +248,43 @@ pub fn get_extensions(config: &serde_json::Value) -> Vec<String> {
 }
 
 // Migración de funciones de utils.js para búsqueda:
+#[cfg(windows)]
 pub fn get_drive_connected(drive_name: &str) -> String {
-    use std::process::Command;
-    let cmd = Command::new("wmic")
-        .args([
-            "logicaldisk",
-            "where",
-            &format!("volumename=\"{}\"", drive_name),
-            "get",
-            "DeviceID",
-        ])
-        .output();
+    use std::os::windows::ffi::OsStrExt;
 
-    if let Ok(output) = cmd {
-        let out_str = String::from_utf8_lossy(&output.stdout);
-        let mut letter = String::new();
-        for line in out_str.lines() {
-            let trimmed = line.trim();
-            if !trimmed.is_empty() && trimmed != "DeviceID" {
-                letter = trimmed.to_string();
+    let mut drive_letter = String::new();
+    for letter in 'A'..='Z' {
+        let drive = format!("{}:\\", letter);
+        let wide: Vec<u16> = OsString::from(drive.clone()).encode_wide().chain(Some(0)).collect();
+        let mut volume_name_buffer = [0u16; MAX_PATH + 1];
+        let mut volume_serial_number: DWORD = 0;
+        let mut max_component_length: DWORD = 0;
+        let mut file_system_flags: DWORD = 0;
+        let mut file_system_name_buffer = [0u16; MAX_PATH + 1];
+
+        let result = unsafe {
+            GetVolumeInformationW(
+                wide.as_ptr(),
+                volume_name_buffer.as_mut_ptr(),
+                volume_name_buffer.len() as DWORD,
+                &mut volume_serial_number,
+                &mut max_component_length,
+                &mut file_system_flags,
+                file_system_name_buffer.as_mut_ptr(),
+                file_system_name_buffer.len() as DWORD,
+            )
+        };
+
+        if result != 0 {
+            let len = volume_name_buffer.iter().position(|&c| c == 0).unwrap_or(volume_name_buffer.len());
+            let volume_name = String::from_utf16_lossy(&volume_name_buffer[..len]);
+            if volume_name == drive_name {
+                drive_letter = drive;
+                break;
             }
         }
-        letter
-    } else {
-        String::new()
     }
+    drive_letter
 }
 
 pub fn get_name_from_file(file: &str) -> String {
@@ -279,7 +295,8 @@ pub fn get_name_from_file(file: &str) -> String {
 pub fn open_file(encoded_url: &str) -> Result<(), std::io::Error> {
     // Decodificar y abrir con "explorer"
     let decoded = base64::decode(encoded_url).unwrap_or_default();
-    let path_str = String::from_utf8_lossy(&decoded).replace("/", "\\");
+    let path_str = String::from_utf8_lossy(&decoded).replace("/", "\\\\");
+    println!("DEBUG: Abriendo archivo: {}", path_str);
     Command::new("explorer").arg(path_str).spawn()?;
     Ok(())
 }
@@ -287,7 +304,8 @@ pub fn open_file(encoded_url: &str) -> Result<(), std::io::Error> {
 pub fn open_folder(encoded_url: &str) -> Result<(), std::io::Error> {
     // Similar a open_file
     let decoded = base64::decode(encoded_url).unwrap_or_default();
-    let path_str = String::from_utf8_lossy(&decoded).replace("/", "\\");
+    let path_str = String::from_utf8_lossy(&decoded).replace("/", "\\\\");
+    println!("DEBUG: Abriendo carpeta: {}", path_str);
     Command::new("explorer").arg(path_str).spawn()?;
     Ok(())
 }
