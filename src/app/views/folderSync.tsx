@@ -6,6 +6,7 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import { invoke } from "@tauri-apps/api/core";
 import Api from "../helpers/api";
 import { LogFile } from "../models/Interfaces";
+import { open } from '@tauri-apps/plugin-dialog';
 
 const FolderSync = () => {
   // Estado para almacenar los logs
@@ -74,19 +75,43 @@ const FolderSync = () => {
   };
 
   const onChangeFolderOrigin = async () => {
-    const path = await invoke(
-      "open-directory-dialog",
-      { folder: originFolder }
-    );
-    changeOriginFolder(path as string);
+    try {
+      const folder = await open({
+        directory: true,
+        multiple: false,
+        title: 'Selecciona una carpeta',
+        defaultPath: '/ruta/inicial'
+      });
+      setOriginFolder(folder as string);
+      if (folder) {
+        console.log('Carpeta seleccionada:', folder);
+        changeOriginFolder(folder as string);
+      } else {
+        console.log('No se seleccionó ninguna carpeta.');
+      }
+    } catch (error) {
+      console.error('Error al abrir el diálogo:', error);
+    }
   };
 
   const onChangeFolderDestination = async () => {
-    const path = await invoke(
-      "open-directory-dialog",
-      { folder: destinationFolder }
-    );
-    changeDestinationFolder(path as string);
+    try {
+      const folder = await open({
+        directory: true,
+        multiple: false,
+        title: 'Selecciona una carpeta',
+        defaultPath: '/ruta/inicial'
+      });
+      setDestinationFolder(folder as string);
+      if (folder) {
+        console.log('Carpeta seleccionada:', folder);
+        changeDestinationFolder(folder as string);
+      } else {
+        console.log('No se seleccionó ninguna carpeta.');
+      }
+    } catch (error) {
+      console.error('Error al abrir el diálogo:', error);
+    }
   };
 
   // open origin folder on click
