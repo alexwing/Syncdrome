@@ -17,6 +17,7 @@ import AddBookmarkModal from "../components/AddBookmarkModal";
 import { invoke } from "@tauri-apps/api/core";
 import AlertMessage from "../components/AlertMessage";
 import { connectedIcon, getFileIcon } from "../helpers/utils";
+import { open } from '@tauri-apps/plugin-dialog';
 
 
 
@@ -47,9 +48,23 @@ const bookmarks = () => {
   const [draggingOver, setDraggingOver] = useState(false);
 
   const onChangeFile = async () => {
-    const path = await invoke("open-file-dialog", { file });
-    setFile(path as string);
-    createBookmark(path as string);
+    try {
+      const file = await open({
+        directory: false,
+        multiple: false,
+        title: 'Selecciona un archivo',
+        defaultPath: '/ruta/inicial'
+      });
+      setFile(file as string);
+      if (file) {
+        console.log('Archivo seleccionado:', file);
+        createBookmark(file as string);
+      } else {
+        console.log('No se seleccionó ningún archivo.');
+      }
+    } catch (error) {
+      console.error('Error al abrir el diálogo:', error);
+    }
   };
 
   // Agrega un manejador de eventos para el evento de soltar en el contenedor adecuado

@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Breadcrumb, Button, Col, Container, Form, Row } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 import ConfirmDialog from "../components/ConfirmDialog";
-//import { ipcRenderer } from "electron";
-import { invoke } from "@tauri-apps/api/core";
 import Api from "../helpers/api";
 import { LogFile } from "../models/Interfaces";
 import { open } from '@tauri-apps/plugin-dialog';
