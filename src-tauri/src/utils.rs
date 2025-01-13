@@ -2,13 +2,15 @@ use std::{fs, path::{Path}, str};
 use base64;
 use serde_json::json;
 use chrono::{DateTime, Local};
-use std::process::Command;
-use std::ffi::OsString;
-use std::os::windows::ffi::OsStringExt;
+use std::ffi::{OsString, OsStr};
+use std::os::windows::ffi::OsStrExt;
 use winapi::um::fileapi::GetVolumeInformationW;
 use winapi::shared::minwindef::{DWORD, MAX_PATH};
 use winapi::um::winnt::ULARGE_INTEGER;
 use winapi::um::fileapi::GetDiskFreeSpaceExW;
+use winapi::um::shellapi::ShellExecuteW;
+use winapi::um::winuser::SW_SHOW;
+use std::ptr::null_mut;
 
 pub fn get_space_disk(drive_letter: &str) -> (u64, u64) {
     use std::os::windows::ffi::OsStrExt;
@@ -265,13 +267,13 @@ pub fn get_drive_connected(drive_name: &str) -> String {
         let result = unsafe {
             GetVolumeInformationW(
                 wide.as_ptr(),
-                volume_name_buffer.as_mut_ptr(),
-                volume_name_buffer.len() as DWORD,
-                &mut volume_serial_number,
-                &mut max_component_length,
-                &mut file_system_flags,
-                file_system_name_buffer.as_mut_ptr(),
-                file_system_name_buffer.len() as DWORD,
+            volume_name_buffer.as_mut_ptr(),
+            volume_name_buffer.len() as DWORD,
+            &mut volume_serial_number,
+            &mut max_component_length,
+            &mut file_system_flags,
+            file_system_name_buffer.as_mut_ptr(),
+            file_system_name_buffer.len() as DWORD,
             )
         };
 
@@ -293,20 +295,52 @@ pub fn get_name_from_file(file: &str) -> String {
 }
 
 pub fn open_file(encoded_url: &str) -> Result<(), std::io::Error> {
-    // Decodificar y abrir con "explorer"
     let decoded = base64::decode(encoded_url).unwrap_or_default();
     let path_str = String::from_utf8_lossy(&decoded).replace("/", "\\\\");
     println!("DEBUG: Abriendo archivo: {}", path_str);
-    Command::new("explorer").arg(path_str).spawn()?;
+
+    let wide_path: Vec<u16> = OsStr::new(&path_str).encode_wide().chain(Some(0)).collect();
+    let result = unsafe {
+        ShellExecuteW(
+            null_mut(),
+            OsStr::new("open").encode_wide().chain(Some(0)).collect::<Vec<u16>>().as_ptr(),
+            wide_path.as_ptr(),
+            null_mut(),
+            null_mut(),
+            SW_SHOW,
+        )
+    };
+
+    if result as i32 <= 32 {
+        println!("ERROR: Fallo al abrir el archivo con ShellExecuteW, código de error: {}", result as i32);
+        return Err(std::io::Error::new(std::io::ErrorKind::Other, "Fallo al abrir el archivo"));
+    }
+
     Ok(())
 }
 
 pub fn open_folder(encoded_url: &str) -> Result<(), std::io::Error> {
-    // Similar a open_file
     let decoded = base64::decode(encoded_url).unwrap_or_default();
     let path_str = String::from_utf8_lossy(&decoded).replace("/", "\\\\");
     println!("DEBUG: Abriendo carpeta: {}", path_str);
-    Command::new("explorer").arg(path_str).spawn()?;
+
+    let wide_path: Vec<u16> = OsStr::new(&path_str).encode_wide().chain(Some(0)).collect();
+    let result = unsafe {
+        ShellExecuteW(
+            null_mut(),
+            OsStr::new("open").encode_wide().chain(Some(0)).collect::<Vec<u16>>().as_ptr(),
+            wide_path.as_ptr(),
+            null_mut(),
+            null_mut(),
+            SW_SHOW,
+        )
+    };
+
+    if result as i32 <= 32 {
+        println!("ERROR: Fallo al abrir la carpeta con ShellExecuteW, código de error: {}", result as i32);
+        return Err(std::io::Error::new(std::io::ErrorKind::Other, "Fallo al abrir la carpeta"));
+    }
+
     Ok(())
 }
 
