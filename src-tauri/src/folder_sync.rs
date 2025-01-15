@@ -1,6 +1,6 @@
 use std::{fs, process::Command, path::Path};
 use serde::{Serialize, Deserialize};
-use encoding_rs::*;
+use encoding_rs::WINDOWS_1252;
 
 #[derive(Serialize, Deserialize)]
 pub struct LogFile {
@@ -41,9 +41,38 @@ pub fn get_sync_log() -> Result<LogFile, String> {
     let data = fs::read(&log_path).map_err(|e| e.to_string())?;
     let (decoded, _, _) = WINDOWS_1252.decode(&data);
     let content = decoded.to_string();
-    let info = content.lines().take(10).collect::<Vec<_>>().join("\n");
-    let refresh = "".to_string(); 
-    let summary = content.lines().rev().take(5).collect::<Vec<_>>().join("\n");
-    println!("Total de líneas del log: {}", content.lines().count());
+    
+    let sections: Vec<&str> = content.split("------------------------------------------------------------------------------").collect();
+    
+    // Node.js usa i = 2 para empezar después del header
+    let info = if sections.len() > 2 { 
+        sections[2]
+            .lines()
+            .skip(1) // Saltamos la primera línea vacía
+            .map(|line| line.trim())
+            .filter(|line| !line.is_empty())
+            .collect::<Vec<&str>>()
+            .join("\n")
+    } else { 
+        String::new() 
+    };
+    
+    let refresh = if sections.len() > 3 {
+        sections[3]
+            .lines()
+            .map(|line| line.trim())
+            .filter(|line| !line.is_empty() && !line.contains("%"))
+            .collect::<Vec<&str>>()
+            .join("\n")
+    } else { 
+        String::new() 
+    };
+    
+    let summary = if sections.len() > 4 { 
+        sections[4].trim().to_string()
+    } else { 
+        String::new() 
+    };
+
     Ok(LogFile { info, refresh, summary })
 }
