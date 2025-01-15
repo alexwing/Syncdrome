@@ -1,6 +1,7 @@
-use std::{fs, process::Command, path::Path};
+use std::{fs, path::Path};
 use serde::{Serialize, Deserialize};
 use encoding_rs::WINDOWS_1252;
+use tokio::process::Command;
 
 #[derive(Serialize, Deserialize)]
 pub struct LogFile {
@@ -10,28 +11,33 @@ pub struct LogFile {
 }
 
 #[tauri::command]
-pub fn sync_folders(source: String, target: String) -> Result<String, String> {
+pub async fn sync_folders(source: String, target: String) -> Result<String, String> {
     let log_path = std::env::temp_dir().join("syncTofolder.log");
     println!("Iniciando sincronización de '{}' a '{}'", source, target);
-    let output = Command::new("robocopy")
-        .arg(&source)
-        .arg(&target)
-        .arg("/MIR")
-        .arg("/R:3")
-        .arg("/W:10")
-        .arg(format!("/LOG:{}", log_path.display()))
-        .output();
+    
+    // Iniciamos el proceso de manera asíncrona
+    tokio::spawn(async move {
+        let output = Command::new("robocopy")
+            .arg(&source)
+            .arg(&target)
+            .arg("/MIR")
+            .arg("/R:3")
+            .arg("/W:10")
+            .arg(format!("/LOG:{}", log_path.display()))
+            .spawn();
 
-    match output {
-        Ok(_) => {
-            println!("Sync finalizada exitosamente");
-            Ok(format!("Sync {} to {} success", source, target))
-        },
-        Err(e) => {
-            println!("Error de robocopy: {}", e);
-            Err(format!("Error: {}", e))
-        },
-    }
+        match output {
+            Ok(mut child) => {
+                let status = child.wait().await;
+                println!("Proceso completado con estado: {:?}", status);
+            },
+            Err(e) => {
+                println!("Error al iniciar robocopy: {}", e);
+            }
+        }
+    });
+
+    Ok(String::from("Sincronización iniciada en segundo plano"))
 }
 
 #[tauri::command]

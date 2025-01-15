@@ -162,8 +162,10 @@ const Api = {
    * @example
    * syncToFolder("D:\\Pictures", "F:\\backup\\Pictures")
    */
-  syncToFolder: (source, target) => {
-    return invoke("sync_folders", { source, target });
+  syncToFolder: async (source, target) => {
+    const response = await invoke("sync_folders", { source, target });
+    // Podemos empezar a consultar el log inmediatamente
+    return response;
   },
 
   /***
