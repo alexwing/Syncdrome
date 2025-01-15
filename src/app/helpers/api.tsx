@@ -163,7 +163,7 @@ const Api = {
    * syncToFolder("D:\\Pictures", "F:\\backup\\Pictures")
    */
   syncToFolder: (source, target) => {
-    return Axios.post("/syncToFolder", { source, target });
+    return invoke("sync_folders", { source, target });
   },
 
   /***
@@ -173,7 +173,7 @@ const Api = {
    */
 
   getSyncLog: (): Promise<LogFile> => {
-    return Axios.get("/getSyncLog").then((response) => response.data);
+    return invoke("get_sync_log");
   },
 
   /***

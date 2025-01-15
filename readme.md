@@ -216,3 +216,11 @@ Modificar el api.js para que use los Invoke de Tauri para llamar a las funciones
 
 Añadir a main.rs la funcion de search.rs para que sea llamada desde el api.tsx
 
+
+## Migrar Folder Sync a Tauri
+
+Migrar el código de folderSync.js a Rust, usar folder_sync.rs para incluir la funcionalidad de sincronizar carpetas, migrar las funciones de utils.js a utils.rs que sean necesarias (si es el caso) para el funcionamiento de folder_sync.rs.
+
+Modificar el api.js para que use los Invoke de Tauri para llamar a las funciones de folder_sync.rs.
+
+Añadir a main.rs la funcion de folder_sync.rs para que sea llamada desde el api.tsx

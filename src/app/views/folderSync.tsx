@@ -28,7 +28,7 @@ const FolderSync = () => {
   const handleSync = () => {
     Api.syncToFolder(originFolder, destinationFolder)
       .then((response: any) => {
-        const newLog = response.data.message;
+        const newLog = response.message;
         setLogs([newLog]); // Añade el nuevo log al estado
         setRefreshFlag(true);
       })
