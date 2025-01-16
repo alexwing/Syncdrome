@@ -3,7 +3,6 @@ import { AppContainer, AppTheme } from "react-windows-ui";
 import Navbar from "../components/navbar";
 import { Switch, Route } from "react-router-dom";
 import Home from "../views/home";
-import ChatRtx from "../components/ChatRtx";
 import About from "../views/about";
 import bookmarks from "../views/bookmarks";
 import FileCleaner from "../views/fileCleaner";
@@ -24,7 +23,6 @@ const AppLayout = () => {
         <Route path="/" exact component={Home} />
         <Route path="/sync" component={Sync} />
         <Route path="/bookmarks" component={bookmarks} />
-        <Route path="/chat" component={ChatRtx} />
         <Route path="/folderSync" component={FolderSync} />
         <Route path="/fileCleaner" component={FileCleaner} />
         <Route path="/settings" component={Settings} />

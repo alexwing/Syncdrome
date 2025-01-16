@@ -73,15 +73,6 @@ const Navbar = () => {
           navigateTo("/bookmarks");
         }}
       />
-      {config.NODE_ENV === "development" && (
-        <NavBarLink
-          text="Chat"
-          icon={<i className="icons10-chat"></i>}
-          onClick={() => {
-            navigateTo("/chat");
-          }}
-        />
-      )}
       <NavBarLink
         text="Folder Sync"
         icon={<i className="icons10-columns"></i>}
