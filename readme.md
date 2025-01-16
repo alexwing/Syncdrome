@@ -1,7 +1,6 @@
 Syncdrome - Content Drives Finder App
 =====================================
 
-
 <img src="public/assets/icon.png" style="width: 150px; height: 150px;margin-left: auto;margin-right: auto;display: block;margin-bottom: 20px;">
 
 Syncdrome simplifies the organization and search of your digital files on specific hard drives.
@@ -16,27 +15,43 @@ Syncdrome is a Tauri application with React in the frontend and Node.js in the b
 Installation
 ------------
 
-1.  Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
-    
-2.  Clone this repository:
-    
+1. Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
+
+2. Clone this repository:
+
     `git clone https://github.com/alexwing/Syncdrome`
-    
-3.  Navigate to the project directory:
-    
+
+3. Navigate to the project directory:
+
     `cd Syncdrome`
-    
-4.  Install the dependencies:
-    
-    
+
+4. Install the dependencies:
+
     `npm install`
+
+## Dependency Installation with Cargo
+
+To compile and run the application, make sure you have Rust and Cargo installed:
+
+1. Install Rust (which includes Cargo) from [https://www.rust-lang.org/tools/install](https://www.rust-lang.org/tools/install)
+2. In the root of the project, run:
+
+   ```bash
+   cargo build
+   ```
+
+3. Optionally, you can also compile and package the Tauri application with:
+
+   ```bash
+   cargo tauri build
+   ```
 
 Configuration
 -------------
 
 In the `Settings` section of the application menu, you can configure the working folder where the file catalog will be stored. It's an interesting idea to store the catalog in a cloud storage service, such as Dropbox or Google Drive, for easy access from any device.
 
-The working folder is stored within the application folder in the `resources\config.json` file. You can also configure file extensions to change the color of file icons or add new file extensions.
+The `config.json` file is now defined in `config.rs` and is installed in the `.\syncdrome` folder within your home directory.
 
 ```json
 {
@@ -77,55 +92,12 @@ In the `Bookmarks` section of the application menu, a list of favorite files is 
 
 Favorites are stored in an SQLite database, in the application folder, in the `db.sqlite` file.
 
-Batch File Version
-------------------
-
-The `ContentDrive.bat` batch file is used to generate text files with the content of the hard drives. The batch file description is as follows:
-
-Copy file to hard drive and run it. The file will create a text file with the list of all files on the drive. The text file will be saved in the Google drive/ Dropbox (or other folder). The file name will be the drive name with the extension `.txt`. For example, if the drive name is `My Passport`, the file name will be `My Passport.txt`.
-
-In current version, not is necessary to copy the file to the hard drive, you can run syncronization from the application.
-
-
-```bat
-@rem  Batch file to create a list of all files on a drive. 
-@rem  The list is saved in the Google drive folder.
-
-@ set drive="C:\Users\Windows\Mi unidad\Software\DiscosDuros\"
-
-@echo off
-
-for /f "tokens=1-5*" %%1 in ('vol') do (
-   set vol=%%6 & goto done
-)
-:done
-set vol=%vol:~0,-1%
-dir . /s /b > %drive%%vol:~5%".txt" 
-
-@echo on
-@echo List of files on %vol% saved in %drive%%vol:~5%".txt"
-@pause
-
-```
-
 Code Details
 ------------
 
-*   The application uses Express.js for route handling and server creation.
-*   The code searches through all text files (`*.txt`) in the specified directory and groups the results by folder.
-*   Each result includes information such as line number, clean file name, type (file or folder), file name, and folder path.
-
-
-
-Todo
-----
-
-- [x]  Add a drag and drop feature to the bookmark list, add a comment to the file, and save the comment in the database.
-- [ ]  Sincronize a folder specified by the user, not a drive.
-- [x]  Add file explorer option, to browse the files in all drives connected to the computer.
-- [ ]   Add a real search option to search for a file in all drives connected to the computer.
-- [x]   Rename utility to rename files and folders.
-
+* The application uses the Tauri framework, which allows the use of Rust in the backend and React in the frontend.
+* The code searches through all text files (`*.txt`) in the specified directory and groups the results by folder.
+* Each result includes information such as line number, clean file name, type (file or folder), file name, and folder path.
 
 About
 -----
@@ -136,46 +108,10 @@ As someone who tends to accumulate digital files in a disorganized manner, I fel
 
 This intuitive tool streamlines the search and organization of your files on specific hard drives. With a simple yet powerful interface, Syncdrome allows quick keyword searches and presents results organized by folders.
 
-
-## Chat With RTX option in Syncdrome
-
-This section has a test of a chat with "Chat to RTX" API, you can try this in development mode, you need to have the ChatRTX server running in your local machine.
-
-In the menu of the application you can find the option "Chat" to test the chat with the RTX server.
-
-### What is ChatRTX?
-
-ChatRTX is a demonstration application that allows you to customize a large language model (LLM) GPT connected to your own content: documents, notes, videos, or other data. By leveraging retrieval-augmented generation (RAG), TensorRT-LLM, and RTX acceleration, you can query a customized chatbot for contextually relevant answers quickly. Since everything runs locally on your RTX Windows PC or workstation, you'll get fast, secure results.
-
-You can find more information about ChatRTX in the following link: [ChatRTX](https://www.nvidia.com/en-us/ai-on-rtx/chatrtx/)
-
-### API Documentation
-
-**File**: chatApi.ts
-
-**Description**: This class is used to send a message to the RTX chat server and get the response.
-
-**Usage**:
-```javascript
-    const port = 5000;
-    const queueManager = new chatApi(port);
-    queueManager
-        .sendMessage(message)
-        .then((response) => {
-            console.log("Server response: ", response);
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-        });
-```
-
-This code is a TypeScript version of the original Python code at the following link: [Chat-With-RTX-python-api](https://github.com/rpehkone/Chat-With-RTX-python-api)
-
-
 License
 -------
 
-This project is under the MIT License. See the [LICENSE](LICENSE) file for more details.
+This project is under the MIT License. See the LICENSE file for more details.
 
 You can access the Syncdrome repository on [GitHub](https://github.com/alexwing/Syncdrome).
 
@@ -192,35 +128,3 @@ Copyleft © 2025 [Alejandro Aranda](https://aaranda.es/).
 ### Issues
 
 Report any issues or suggestions related to this project on the [GitHub repository](https://github.com/alexwing/Syncdrome/issues).
-
-
-List to fix 
-
-- [ ]  Corregir el boton de cancelar al añadir un favorito
-- [ ]  Corregir buscar carpeta en configuracion
-
-
-## Migrar FileCleaner a Tauri
-
-Migrar el código de fileCleaner.js a Rust, usar file_cleaner.rs para incluir la funcionalidad de limpiar nombres de archivos, migrar las funciones de utils.js a utils.rs que sean necesarias para el funcionamiento de file_cleaner.rs.
-
-Modificar el api.js para que use los Invoke de Tauri para llamar a las funciones de file_cleaner.rs.
-
-Añadir a main.rs la funcion de file_cleaner.rs para que sea llamada desde el api.js.
-
-## Migrar Search a Tauri
-
-Migrar el código de search.js a Rust, usar search.rs para incluir la funcionalidad de buscar archivos, migrar las funciones de utils.js a utils.rs que sean necesarias para el funcionamiento de search.rs.
-
-Modificar el api.js para que use los Invoke de Tauri para llamar a las funciones de search.rs.
-
-Añadir a main.rs la funcion de search.rs para que sea llamada desde el api.tsx
-
-
-## Migrar Folder Sync a Tauri
-
-Migrar el código de folderSync.js a Rust, usar folder_sync.rs para incluir la funcionalidad de sincronizar carpetas, migrar las funciones de utils.js a utils.rs que sean necesarias (si es el caso) para el funcionamiento de folder_sync.rs.
-
-Modificar el api.js para que use los Invoke de Tauri para llamar a las funciones de folder_sync.rs.
-
-Añadir a main.rs la funcion de folder_sync.rs para que sea llamada desde el api.tsx
