@@ -1,7 +1,7 @@
 Syncdrome - Content Drives Finder App
 =====================================
 
-<img src="public/assets/icon.png" style="width: 150px; height: 150px;margin-left: auto;margin-right: auto;display: block;margin-bottom: 20px;">
+<img src="src-tauri\icons\icon.png" style="width: 150px; height: 150px;margin-left: auto;margin-right: auto;display: block;margin-bottom: 20px;">
 
 Syncdrome simplifies the organization and search of your digital files on specific hard drives.
 
@@ -34,7 +34,7 @@ Installation
 To compile and run the application, make sure you have Rust and Cargo installed:
 
 1. Install Rust (which includes Cargo) from [https://www.rust-lang.org/tools/install](https://www.rust-lang.org/tools/install)
-2. In the root of the project, run:
+2. In the src-tauri of the project, run:
 
    ```bash
    cargo build

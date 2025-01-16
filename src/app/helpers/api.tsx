@@ -4,8 +4,6 @@ import { invoke } from "@tauri-apps/api/core";
 const repoOwner = "alexwing";
 const repoName = "Syncdrome";
 
-//port 5000 is the default port for the server
-Axios.defaults.baseURL = "http://localhost:3001";
 const Api = {
   /***
    * Find files in catalog by search param
