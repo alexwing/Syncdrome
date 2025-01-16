@@ -1,104 +1,79 @@
 {
-  "name": "syncdrome",
-  "version": "1.4.0",
-  "description": "Create a catalog of all files on specified hard drives",
-  "main": "electron.js",
-  "scripts": {
-    "dev": "set NODE_ENV=development && concurrently \"webpack --watch\" \"electron --inspect .\"",
-    "build": "rimraf ./public && mkdir public && webpack --progress -p",
-    "windows": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=app/assets/icon.png --prune=true --out=release-builds",
-    "windows64": "electron-packager . --overwrite --platform=win32 --arch=x64 --icon=app/assets/icon.png --prune=true --out=release-builds",
-    "windows-asar": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=app/assets/icon.png --prune=true --asar --out=release-builds --extra-resource=config.json",
-    "windows64-asar": "electron-packager . --overwrite --platform=win32 --arch=x64 --icon=app/assets/icon.png --prune=true --asar --out=release-builds --extra-resource=config.json",
-    "linux": "electron-packager . --overwrite --platform=linux --arch=x64 --icon=app/assets/icon.png --prune=true --out=release-builds"
-  },
-  "repository": "https://github.com/alexwing/content-drives-finder",
-  "keywords": [
-    "Electron",
-    "catalog",
-    "hard drive",
-    "files"
-  ],
-  "author": "Alejandro Aranda",
-  "license": "MIT",
-  "devDependencies": {
-    "@babel/core": "7.12.9",
-    "@babel/plugin-proposal-class-properties": "7.12.1",
-    "@babel/preset-env": "7.12.7",
-    "@babel/preset-react": "7.12.7",
-    "@babel/preset-typescript": "^7.23.3",
-    "babel-loader": "8.2.1",
-    "babel-preset-es2015": "6.24.1",
-    "concurrently": "5.3.0",
-    "copy-webpack-plugin": "6.3.2",
-    "css-loader": "3.6.0",
-    "electron": "^28.1.0",
-    "electron-packager": "^17.1.2",
-    "extract-text-webpack-plugin": "3.0.2",
-    "file-loader": "6.2.0",
-    "html-webpack-plugin": "4.5.0",
-    "postcss": "7.0.32",
-    "postcss-cssnext": "3.1.0",
-    "postcss-import": "12.0.1",
-    "postcss-load-config": "2.1.0",
-    "postcss-loader": "3.0.0",
-    "postcss-nesting": "7.0.1",
-    "rimraf": "3.0.2",
-    "style-loader": "1.2.1",
-    "typescript": "^5.3.3",
-    "url-loader": "4.1.0",
-    "webpack": "4.43.0",
-    "webpack-cli": "3.3.12"
-  },
-  "dependencies": {
-    "@electron/remote": "^2.1.1",
-    "axios": "^0.21.0",
-    "body-parser": "1.19.0",
-    "bootstrap": "^5.3.2",
-    "classnames": "2.2.6",
-    "core-js": "^3.34.0",
-    "dotenv": "8.2.0",
-    "electron-reload": "^2.0.0-alpha.1",
-    "express": "4.17.1",
-    "fs-extra": "^11.2.0",
-    "morgan": "^1.10.0",
-    "node-sass": "^7.0.1",
-    "react": "^18.2.0",
-    "react-bootstrap": "^2.9.1",
-    "react-bootstrap-icons": "^1.10.3",
-    "react-dom": "^18.2.0",
-    "react-markdown": "^6.0.2",
-    "react-router-dom": "5.2.0",
-    "react-select": "^5.8.0",
-    "react-windows-ui": "^4.2.2",
-    "sqlite3": "^5.1.7",
-    "webpack-target-electron-renderer": "^0.4.0"
-  },
-  "babel": {
-    "presets": [
-      [
-        "@babel/preset-env",
-        {
-          "modules": false
-        }
-      ],
-      "@babel/preset-react",
-      "@babel/preset-typescript"
+    "name": "syncdrome",
+    "version": "2.0.1",
+    "description": "Create a catalog of all files on specified hard drives",
+    "type": "commonjs",
+    "repository": "https://github.com/alexwing/Syncdrome",
+    "keywords": [
+      "tauri",
+      "catalog",
+      "hard drive",
+      "files",
+      "sync",
+      "syncdrome",
+      "fileCleaner"
     ],
-    "plugins": [
-      "@babel/plugin-proposal-class-properties"
-    ]
-  },
-  "postcss": {
-    "plugins": {
-      "postcss-import": {},
-      "postcss-cssnext": {
-        "browsers": [
-          "last 2 versions",
-          "> 5%"
-        ]
-      },
-      "postcss-nesting": {}
+    "author": "Alejandro Aranda",
+    "license": "MIT",
+    "scripts": {
+      "front:dev": "vite",
+      "front:build": "tsc && vite build",
+      "front:preview": "vite preview",
+      "tauri:build": "tauri build",
+      "tauri:dev": "tauri dev",
+      "build": "npm run front:build"
+    },
+    "dependencies": {
+      "@tauri-apps/api": "^2.1.1",
+      "@tauri-apps/plugin-dialog": "^2.2.0",
+      "@tauri-apps/plugin-opener": "^2",
+      "axios": "^0.21.0",
+      "body-parser": "1.19.0",
+      "bootstrap": "^5.3.2",
+      "classnames": "2.2.6",
+      "core-js": "^3.34.0",
+      "cors": "^2.8.5",
+      "dotenv": "8.2.0",
+      "express": "^4.17.1",
+      "fs-extra": "^11.2.0",
+      "morgan": "^1.10.0",
+      "node-sass": "^7.0.1",
+      "react": "^18.3.1",
+      "react-bootstrap": "^2.9.1",
+      "react-bootstrap-icons": "^1.10.3",
+      "react-dom": "^18.3.1",
+      "react-markdown": "^6.0.2",
+      "react-router-dom": "5.2.0",
+      "react-select": "^5.8.0",
+      "react-windows-ui": "^4.2.4"
+    },
+    "devDependencies": {
+      "@babel/core": "7.12.9",
+      "@babel/plugin-proposal-class-properties": "7.12.1",
+      "@babel/preset-env": "7.12.7",
+      "@babel/preset-react": "7.12.7",
+      "@babel/preset-typescript": "^7.23.3",
+      "@tauri-apps/cli": "^2",
+      "@types/react": "^18.3.1",
+      "@types/react-dom": "^18.3.1",
+      "@vitejs/plugin-react": "^4.3.4",
+      "babel-loader": "8.2.1",
+      "babel-preset-es2015": "6.24.1",
+      "concurrently": "5.3.0",
+      "copy-webpack-plugin": "6.3.2",
+      "css-loader": "3.6.0",
+      "file-loader": "6.2.0",
+      "html-webpack-plugin": "4.5.0",
+      "postcss": "7.0.32",
+      "postcss-cssnext": "3.1.0",
+      "postcss-import": "12.0.1",
+      "postcss-load-config": "2.1.0",
+      "postcss-loader": "3.0.0",
+      "postcss-nesting": "7.0.1",
+      "rimraf": "3.0.2",
+      "style-loader": "1.2.1",
+      "typescript": "~5.6.2",
+      "url-loader": "4.1.0",
+      "vite": "^4.3.4"
     }
   }
-}

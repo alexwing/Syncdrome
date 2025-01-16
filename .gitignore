@@ -1,40 +1,24 @@
-
-lib-cov
-*.seed
-*.log
-*.csv
-*.dat
-*.out
-*.pid
-*.gz
-*.swp
-
-pids
+# Logs
 logs
-results
-tmp
-coverage
-dist
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# API keys
-.env
-
-# Dependency directory
 node_modules
-bower_components
-package-lock.json
+dist
+dist-ssr
+*.local
 
-#public 
-public
-
-# builds
-release-builds
-
-# Editors
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
 .idea
-*.iml
-
-# OS metadata
 .DS_Store
-Thumbs.db
-public/app.bundle.js
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
