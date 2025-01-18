@@ -15,11 +15,13 @@ import {
   BookmarksByVolume,
   DrivesProps,
   FileTypes,
+  NavigateResponse,
   TypeAlert,
 } from "../models/Interfaces";
 import Api from "../helpers/api";
 import { getFileIcon, callOpenFolder, getConfig } from "../helpers/utils";
 import { AddBookmarkBadge } from "../components/AddBookmarkBadge";
+
 
 const Navigator = () => {
   const [currentPath, setCurrentPath] = useState("");
@@ -71,7 +73,7 @@ const Navigator = () => {
   const navigate = async (command, path = "") => {
     setIsLoading(true);
     try {
-      const response = await Api.navigate(path, command);
+      const response = await Api.navigate(path, command) as NavigateResponse;
 
       // Verificar si la respuesta es {"isConnected":false,"driveLetter":null}
       if (!response.directoryContents) {
@@ -134,7 +136,7 @@ const Navigator = () => {
 
   const handleDriveChange = async (driveName) => {
     try {
-      await Api.changeFileSystem({ filename: driveName });
+      await Api.changeFileSystem(  driveName );
       setCurrentPath("");
       setDirectoryContents([]);
       navigate("cd", "");

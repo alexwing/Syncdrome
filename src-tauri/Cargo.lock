@@ -3861,6 +3861,7 @@ dependencies = [
  "chrono",
  "dirs",
  "encoding_rs",
+ "lazy_static",
  "rusqlite",
  "serde",
  "serde_json",

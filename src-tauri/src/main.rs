@@ -1,20 +1,23 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod config; // Asegúrate de que el nombre del módulo sea correcto
+mod config; 
 mod sqlite;
 mod bookmarks;
 mod process;
 mod utils;
-mod config_file; // Declara el módulo config_file en main.rs
+mod config_file; 
 mod file_cleaner;
 mod search;
 mod folder_sync;
+mod volume_navigator; 
+
 use config::{load_config, save_config}; // Importa las funciones load_config y save_config correctamente
 use bookmarks::{get_bookmarks, add_bookmark, delete_bookmark};
 use process::{execute_node, get_drives, delete_drive, update_drive};
 use file_cleaner::{get_files_in_folder, rename_files_in_folder};
 use folder_sync::{sync_folders, get_sync_log};
+use volume_navigator::{change_file_system, navigate};
 use tauri::command;
 
 #[command]
@@ -47,7 +50,9 @@ fn main() {
             search::open_file_rust,
             search::open_folder_rust,
             sync_folders,
-            get_sync_log
+            get_sync_log,
+            change_file_system,
+            navigate
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

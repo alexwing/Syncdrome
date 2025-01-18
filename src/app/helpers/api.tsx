@@ -195,21 +195,21 @@ const Api = {
     return invoke("rename_files_in_folder", { files });
   },
 
-  navigate: (currentPath, command) => {
-    return Axios.post("/navigate", { currentPath, command }).then(
-      (response) => response.data
-    );
-  },
-
   /***
    * Change the file system to use
    * @param {object} params - parameters containing the filename
    * @returns {object} - response from server
    */
-  changeFileSystem: (params) => {
-    return Axios.post("/changeFileSystem", params).then(
-      (response) => response.data
-    );
+  changeFileSystem: async (filename: string) => {
+    return await invoke("change_file_system", { filename });
+  },
+
+  /***
+   * Get file content on currentPath
+   * @returns {object} - response from server
+   */
+  navigate: async (currentPath: string, command: string) => {
+    return await invoke("navigate", { currentPath, command });
   },
 };
 

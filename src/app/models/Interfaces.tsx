@@ -99,3 +99,8 @@ export interface BookmarksByVolume {
   volume: string;
   bookmarks: Bookmark[];
 }
+
+export interface NavigateResponse {
+  directoryContents?: { name: string; type: string }[];
+  currentPath: string;
+}
