@@ -30,6 +30,7 @@ struct Node {
 lazy_static! {
     static ref FILE_SYSTEM: Mutex<Node> = Mutex::new(Node::default());
     static ref DRIVE_LETTER: Mutex<String> = Mutex::new(String::new());
+    static ref RE_DRIVE: Regex = Regex::new(r"^[A-Za-z]:\\").unwrap();
 }
 
 fn build_file_system(contents: &str) -> Node {
@@ -38,9 +39,7 @@ fn build_file_system(contents: &str) -> Node {
     
     for line in contents.lines() {
         let line = line.trim().replace(|c: char| c.is_ascii_control(), "");
-        // Quitar [X]:\ al inicio
-        let without_drive = Regex::new(r"^[A-Za-z]:\\").unwrap()
-            .replace(&line, "");
+        let without_drive = RE_DRIVE.replace(&line, "");
         let parts: Vec<_> = without_drive.split('\\')
             .filter(|p| !p.is_empty())
             .collect();

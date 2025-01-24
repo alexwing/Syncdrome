@@ -40,6 +40,7 @@ const Navigator = () => {
   const [selectedDrive, setSelectedDrive] = useState("");
   const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
   const [bookmarksByVolume, setBookmarksByVolume] = useState([] as Bookmark[]);
+  const [isChangingDrive, setIsChangingDrive] = useState(false);
 
   useEffect(() => {
     getConfig(setFileIconMappings, setAlert, setShowAlert);
@@ -136,9 +137,10 @@ const Navigator = () => {
 
   const handleDriveChange = async (driveName) => {
     try {
-      await Api.changeFileSystem(  driveName );
+      setIsChangingDrive(true);
       setCurrentPath("");
       setDirectoryContents([]);
+      await Api.changeFileSystem(driveName);
       navigate("cd", "");
       loadBookmarks(driveName);
     } catch (error) {
@@ -148,6 +150,8 @@ const Navigator = () => {
         type: TypeAlert.danger,
       });
       setShowAlert(true);
+    } finally {
+      setIsChangingDrive(false);
     }
   };
 
@@ -209,9 +213,7 @@ const Navigator = () => {
         <Badge
           bg="none"
           style={{ cursor: "pointer", height: "28px" }}
-          onClick={(e) =>
-            callOpenFolder(folder, driveLetter, e, setAlert, setShowAlert)
-          }
+          onClick={(e) => callOpenFolder(folder, driveLetter, e, setAlert, setShowAlert)}
         >
           <Icon.Eye size={18} color="green" />
         </Badge>
@@ -263,7 +265,18 @@ const Navigator = () => {
             ))}
           </Dropdown.Menu>
         </Dropdown>
-        {selectedDrive && (
+        {isChangingDrive && (
+          <div className="loading-icon">
+            <Spinner
+              className="loading-icon"
+              variant="primary"
+              animation="grow"
+              role="status"
+              aria-hidden="true"
+            />
+          </div>
+        )}
+        {!isChangingDrive && selectedDrive && (
           <>
             <Breadcrumb className="w-100 bg-light p-0 m-0 mt-2">
               <Breadcrumb.Item
