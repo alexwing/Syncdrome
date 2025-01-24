@@ -20,7 +20,6 @@ export const AddBookmarkBadge: React.FC<AddBookmarkBadgeProps> = ({
   path,
   volume,
   description,
-  setFiles,
   onAddBookmark,
 }) => {
   const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
@@ -79,15 +78,18 @@ export const AddBookmarkBadge: React.FC<AddBookmarkBadgeProps> = ({
       }}
     >
       <BookmarkPlusFill size={16} />
-      <AddBookmarkModal
+      { !showAddBookmarkModal ? null : <AddBookmarkModal
         show={showAddBookmarkModal}
-        onHide={() => setShowAddBookmarkModal(false)}
+        onHide={() => {
+          setShowAddBookmarkModal(false);
+          setBookmarkSelected({} as Bookmark);
+        }}
         bookmark={bookmarkSelected}
         onAddBookmark={(bookmark: Bookmark) => {
           addBookmark(bookmark, setBookmarkSelected);
           onAddBookmark(bookmark);
         }}
-      />
+      /> }      
     </Badge>
   );
 

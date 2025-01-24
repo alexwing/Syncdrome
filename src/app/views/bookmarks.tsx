@@ -14,7 +14,6 @@ import {
 import Api from "../helpers/api";
 import ConfirmDialog from "../components/ConfirmDialog";
 import AddBookmarkModal from "../components/AddBookmarkModal";
-import { invoke } from "@tauri-apps/api/core";
 import AlertMessage from "../components/AlertMessage";
 import { connectedIcon, getFileIcon } from "../helpers/utils";
 import { open } from '@tauri-apps/plugin-dialog';

@@ -14,6 +14,7 @@ function AddBookmarkModal({ show = false, onHide, bookmark, onAddBookmark }) {
   }, [bookmark]);
 
   function handleClose() {
+    setTimeout(() => onHide(), 100);
     onHide();
   }
 
@@ -90,7 +91,7 @@ function AddBookmarkModal({ show = false, onHide, bookmark, onAddBookmark }) {
               Ok
             </Button>
             <Button variant="secondary" onClick={handleClose}>
-              Cancelar
+              Cancel
             </Button>
           </div>
         </Form>
