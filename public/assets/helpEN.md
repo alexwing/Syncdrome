@@ -14,7 +14,7 @@ It is developed in Electron, so in the future it can be compiled for other platf
 
 In the `Settings` section of the application menu, you can configure the working folder where the file catalog will be stored. An interesting idea is to store the catalog in a cloud storage service like Dropbox, Google Drive, etc., allowing access to files from any computer.
 
-This working folder is stored within the application folder in the `resources\config.json` file. You can also configure file extensions to change the color of file icons or add new file extensions. These extensions are used to determine if the file is multimedia or not.
+The `config.json` file is now defined in `config.rs` and is installed in the `.\syncdrome` folder within your home directory.
 
 ```json
 {
@@ -99,6 +99,10 @@ Drives that are connected to the computer are displayed with a green `ok` icon. 
 Additionally, you can filter by multimedia files, for this, you can select one or several types of files in the selector and click on the `Search` button.
 
 To the right of the files, an icon is displayed to add to favorites, which allows you to add the file to the favorites list, which is displayed in the `Bookmarks` section of the application menu. This favorite also allows a comment.
+
+### Navigator
+
+In the `Navigator` section of the application menu, you can navigate through the synchronized volumes, showing the structure of folders and files, allowing you to open the file with the system's default program or show the folder in the file explorer.
 
 ### Bookmarks
 

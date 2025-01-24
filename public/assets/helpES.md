@@ -15,8 +15,7 @@ Esta desarrollado en Electron, por lo que en un futuro se podrá compilar para o
 
 En la seccion `Settings` del menú de la aplicación, se puede configurar la carpeta de trabajo, donde se almacenará el catálogo de archivos. Como idea interesante, se puede almacenar el catálogo en un servicio de almacenamiento en la nube, como Dropbox, Google Drive, etc. de esta forma se puede acceder a los archivos desde cualquier equipo.
 
-Esta carpeta de trabajo, se almacena dentro de la carpeta de la aplicación, en el fichero `resources\config.json` además se puede configurar las extensiones de archivo, para
- cambiar el color de los iconos de los archivos, o para añadir nuevas extensiones de archivo. Estas extensiones además son usadas para determinar si el archivo es multimedia o no.
+El archivo `config.json` se define en `config.rs` y se instala en la carpeta `.\syncdrome` dentro de su directorio de inicio.
 
 ```json
 {
@@ -102,6 +101,10 @@ Los discos que estan conectados al equipo, se muestran con un icono de `ok` verd
 Adicionalmente, se puede filtrar por archivos multimedia, para ello, puede seleccionar uno o varios tipos de archivos en el selector y hacer clic en el botón `Search`.
 
 A la derecha de los archivos, se muestra un icono para añadir a favoritos, que permite añadir el archivo a la lista de favoritos, que se muestra en la sección `Bookmarks` del menú de la aplicación. Este favorito además permite un comentario.
+
+### Navegador
+
+En la sección `Navigator` del menú de la aplicación, se muestra se puede navegar por los volúmenes sincronizados, mostrando la estructura de carpetas y archivos, permitiendo abrir el archivo con el programa predeterminado del sistema o mostrar la carpeta en el explorador de archivos.
 
 ### Favoritos
 

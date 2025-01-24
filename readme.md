@@ -12,8 +12,13 @@ As someone who tends to accumulate digital files in a disorganized manner, I fel
 
 Syncdrome is a Tauri application with React in the frontend and Node.js in the backend. This intuitive tool streamlines the search and organization of your files on specific hard drives. With a simple yet powerful interface, Syncdrome allows quick keyword searches and presents results organized by folders.
 
-Installation
-------------
+Download
+--------
+
+You can download the latest version of Syncdrome for Windows from the [Releases](https://github.com/alexwing/Syncdrome/releases) section of the GitHub repository.
+
+Code installation
+-----------------
 
 1. Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
 
@@ -86,6 +91,10 @@ Connected drives are shown with a green `ok` icon. For folders and files on conn
 
 To the right of the files, an icon is displayed to add to favorites, which allows you to add the file to the favorites list, which is displayed in the `Bookmarks` section of the application menu. This favorite also allows a comment.
 
+### Navigator
+
+In the `Navigator` section of the application menu, you can navigate through the synchronized volumes, showing the structure of folders and files, allowing you to open the file with the system's default program or show the folder in the file explorer.
+
 ### Bookmarks
 
 In the `Bookmarks` section of the application menu, a list of favorite files is displayed, allowing you to filter by file name and comment. You can also delete the favorite by clicking the trash can icon.
@@ -128,3 +137,10 @@ Copyleft © 2025 [Alejandro Aranda](https://aaranda.es/).
 ### Issues
 
 Report any issues or suggestions related to this project on the [GitHub repository](https://github.com/alexwing/Syncdrome/issues).
+
+#### List to fix
+
+* [ ]  Fix the cancel button when adding a favorite
+* [x]  Fix readme and about
+* [ ]  En navigator el el breadcrumb cuando es una ruta intermedia y pulsas falla
+* [ ]  En fileSync cuando se sicroniza un disco con espacios, luego aparecen dos unidades una con la primera parte del nombre del volumen y otra completa.
