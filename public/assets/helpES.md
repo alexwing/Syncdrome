@@ -104,7 +104,7 @@ A la derecha de los archivos, se muestra un icono para añadir a favoritos, que 
 
 ### Navegador
 
-En la sección `Navigator` del menú de la aplicación, se muestra se puede navegar por los volúmenes sincronizados, mostrando la estructura de carpetas y archivos, permitiendo abrir el archivo con el programa predeterminado del sistema o mostrar la carpeta en el explorador de archivos.
+En la sección `Navigator` del menú de la aplicación, se puede navegar por los volúmenes sincronizados, mostrando la estructura de carpetas y archivos, permitiendo abrir el archivo con el programa predeterminado del sistema o mostrar la carpeta en el explorador de archivos.
 
 ### Favoritos
 
