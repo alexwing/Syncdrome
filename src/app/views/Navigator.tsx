@@ -229,6 +229,10 @@ const Navigator = () => {
     return bookmark;
   };
 
+  function toBackslashPath(parts: string[]) {
+    return "\\" + parts.join("\\");
+  }
+
   return (
     <Container
       style={{ overflowY: "scroll", height: "100vh" }}
@@ -290,8 +294,8 @@ const Navigator = () => {
                   key={index}
                   onClick={() =>
                     navigate(
-                      `cd ${pathParts.slice(0, index + 1).join("/")}`,
-                      ""
+                      `cd`,
+                      toBackslashPath(pathParts.slice(0, index + 1))
                     )
                   }
                   className={index === pathParts.length - 1 ? "fw-bold" : ""}

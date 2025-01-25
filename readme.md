@@ -137,11 +137,3 @@ Copyleft © 2025 [Alejandro Aranda](https://aaranda.es/).
 ### Issues
 
 Report any issues or suggestions related to this project on the [GitHub repository](https://github.com/alexwing/Syncdrome/issues).
-
-#### List to fix
-
-* [x]  Fix the cancel button when adding a favorite
-* [x]  Fix readme and about
-* [x]  No guarda el directorio de trabajo en el archivo de configuración
-* [ ]  En navigator el el breadcrumb cuando es una ruta intermedia y pulsas falla
-* [x]  En fileSync cuando se sincroniza un disco con espacios, luego aparecen dos unidades una con la primera parte del nombre del volumen y otra completa. El problema no esta al crear el fichero de sincronización, sino al leer las unidades conectadas.
