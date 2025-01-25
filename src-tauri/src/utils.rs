@@ -344,27 +344,22 @@ pub fn open_folder(encoded_url: &str) -> Result<(), std::io::Error> {
     Ok(())
 }
 
-pub fn get_extensions_by_type(extensions: &[&str], config_folder: &str) -> Vec<String> {
-    let config_path = std::path::Path::new(config_folder).join("config.json");
+pub fn get_extensions_by_type(extensions: &[&str], config: &serde_json::Value) -> Vec<String> {
     let mut final_ext = Vec::new();
-    if !config_path.exists() || extensions.is_empty() {
+    if extensions.is_empty() {
         return final_ext;
     }
-    let content = match std::fs::read_to_string(&config_path) {
-        Ok(c) => c,
-        Err(_) => return final_ext,
-    };
-    let config: serde_json::Value = match serde_json::from_str(&content) {
-        Ok(val) => val,
-        Err(_) => return final_ext,
-    };
 
     for key in extensions {
-        if let Some(obj) = config["extensions"][*key].as_object() {
-            if let Some(ext_array) = obj["extensions"].as_array() {
-                for item in ext_array {
-                    if let Some(ext_str) = item.as_str() {
-                        final_ext.push(ext_str.trim().to_lowercase());
+        if let Some(config_extensions) = config.get("extensions") {
+            if let Some(ext_object) = config_extensions.as_object() {
+                if let Some(entry) = ext_object.get(*key) {
+                    if let Some(exts_arr) = entry.get("extensions").and_then(|v| v.as_array()) {
+                        for ex in exts_arr {
+                            if let Some(ex_str) = ex.as_str() {
+                                final_ext.push(ex_str.trim().to_lowercase());
+                            }
+                        }
                     }
                 }
             }

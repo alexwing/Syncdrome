@@ -15,7 +15,9 @@ pub struct SearchResult {
 pub fn find_files(search_param: String, extensions: String) -> Result<serde_json::Value, String> {
     println!("DEBUG: Iniciando find_files con search_param: {}, extensions: {}", search_param, extensions);
     let config = load_config().map_err(|e| e.to_string())?;
-    let config_folder = config.folder;
+    let config_folder = config.folder.clone();
+    // Convertir Config a serde_json::Value
+    let config_value = serde_json::to_value(&config).map_err(|e| e.to_string())?;
     println!("DEBUG: Config folder: {}", config_folder);
     let search_text = search_param.to_lowercase();
     let extensions_lower = extensions.to_lowercase(); // Crear una variable temporal
@@ -30,7 +32,7 @@ pub fn find_files(search_param: String, extensions: String) -> Result<serde_json
     let bookmarks = fetch_bookmarks(None).unwrap_or_default();
     println!("DEBUG: Bookmarks cargados: {:?}", bookmarks);
     let exts = if extension_types.get(0).unwrap_or(&"") != &"all" {
-        get_extensions_by_type(&extension_types, &config_folder)
+        get_extensions_by_type(&extension_types, &config_value)
     } else {
         vec![]
     };
@@ -133,13 +135,11 @@ pub fn find_files(search_param: String, extensions: String) -> Result<serde_json
                         "connected": connected,
                         "content": grouped
                     });
-                    println!("DEBUG: Resultados para {}: {:?}", drive_name, results[&drive_name]);
                 }
             }
         }
     }
 
-    println!("DEBUG: Resultados finales: {:?}", results);
     Ok(results)
 }
 
