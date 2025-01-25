@@ -108,42 +108,37 @@ pub fn get_drives() -> Value {
     let mut drives_list = vec![];
     if let Ok(output) = cmd_output {
         let lines = String::from_utf8_lossy(&output.stdout);
-        //println!("Salida WMIC: {lines}");
         for line in lines.split('\n') {
             let line = line.trim();
             if line.is_empty() || line.contains("Name  VolumeName") {
                 continue;
             }
-            let parts: Vec<&str> = line.split_whitespace().collect();
-            // ...verificar longitud...
-            if parts.is_empty() {
-                continue;
-            }
-            let drive_letter = parts[0];
-            let drive_name = if parts.len() > 1 { parts[1] } else { "" };
-            let (free, size) = get_space_disk(drive_letter);
-            //println!("DEBUG: drive={drive_letter}, name={drive_name}, size={size}, free={free}");
-            if size > 0 {
-                let mut sync = false;
-                let mut sync_date = String::new();
-                if !drive_name.is_empty() {
-                    sync = crate::utils::get_drive_sync(drive_name, &config.folder);
-                    if sync {
-                        sync_date = crate::utils::get_drive_sync_date(drive_name, &config.folder);
+            if let Some((letter, rest)) = line.split_once(' ') {
+                let drive_letter = letter.trim();
+                let drive_name = rest.trim();
+                let (free, size) = get_space_disk(drive_letter);
+                if size > 0 {
+                    let mut sync = false;
+                    let mut sync_date = String::new();
+                    if !drive_name.is_empty() {
+                        sync = crate::utils::get_drive_sync(drive_name, &config.folder);
+                        if sync {
+                            sync_date = crate::utils::get_drive_sync_date(drive_name, &config.folder);
+                        }
                     }
+                    let (only_media, _, _) =
+                        crate::utils::get_drive_options(drive_name, &config.folder);
+                    drives_list.push(json!({
+                        "connected": true,
+                        "letter": drive_letter,
+                        "name": drive_name,
+                        "freeSpace": free,
+                        "size": size,
+                        "sync": sync,
+                        "syncDate": sync_date,
+                        "onlyMedia": only_media
+                    }));
                 }
-                let (only_media, _, _) =
-                    crate::utils::get_drive_options(drive_name, &config.folder);
-                drives_list.push(json!({
-                    "connected": true,
-                    "letter": drive_letter,
-                    "name": drive_name,
-                    "freeSpace": free,
-                    "size": size,
-                    "sync": sync,
-                    "syncDate": sync_date,
-                    "onlyMedia": only_media
-                }));
             }
         }
         println!("drives_list construido: {:?}", drives_list);
