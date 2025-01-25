@@ -10,13 +10,14 @@ import {
   Table,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
-import { open } from '@tauri-apps/plugin-dialog';
+import { open } from "@tauri-apps/plugin-dialog";
 import Api from "../helpers/api";
 import "../styles/components/fileCleaner.css";
 import ConfirmDialog from "../components/ConfirmDialog";
 import {
   AlertModel,
   FileCleanerProps,
+  Settings,
   Substitution,
   TypeAlert,
 } from "../models/Interfaces";
@@ -37,12 +38,12 @@ const FileCleaner = () => {
   const [pattern, setPattern] = useState(initialPattenrTerm);
   const [showAlert, setShowAlert] = useState(false);
   const [alert, setAlert] = useState({} as AlertModel);
-  const [config, setConfig] = useState({} as Config);
+  const [config, setConfig] = useState({} as Settings);
 
   // get config from server
   const getConfig = async () => {
     try {
-      const response:any = await Api.getSettings();
+      const response: any = await Api.getSettings();
       console.log("response", response);
       setConfig(response);
       if (response.pattern) {
@@ -62,15 +63,10 @@ const FileCleaner = () => {
     }
   };
 
-  interface Config {
-    pattern: string;
-    defaultSubstitutions: Substitution[];
-  }
-
-  const saveConfig = async (newConfig: Config): Promise<any> => {
+  const saveConfig = async (newConfig: Settings): Promise<any> => {
     try {
       setConfig({ ...config, ...newConfig });
-      newConfig = { ...config, ...newConfig };
+      newConfig = { ...config, ...newConfig } as Settings;
       const response = await Api.saveSettings(newConfig);
       return response;
     } catch (error) {
@@ -88,24 +84,23 @@ const FileCleaner = () => {
     getConfig();
   }, []);
 
-
   async function changeOriginFolder() {
     try {
       const folder = await open({
         directory: true, // Permite seleccionar carpetas
         multiple: false, // Permite seleccionar solo una carpeta
-        title: 'Selecciona una carpeta',
-        defaultPath: '/ruta/inicial' // Opcional: establece una ruta inicial
+        title: "Selecciona una carpeta",
+        defaultPath: "/ruta/inicial", // Opcional: establece una ruta inicial
       });
       setOriginFolder(folder as string);
       if (folder) {
-        console.log('Carpeta seleccionada:', folder);
+        console.log("Carpeta seleccionada:", folder);
         // Aquí puedes enviar la ruta al backend o utilizarla según tus necesidades
       } else {
-        console.log('No se seleccionó ninguna carpeta.');
+        console.log("No se seleccionó ninguna carpeta.");
       }
     } catch (error) {
-      console.error('Error al abrir el diálogo:', error);
+      console.error("Error al abrir el diálogo:", error);
     }
   }
   const loadFileNames = async () => {
@@ -148,7 +143,7 @@ const FileCleaner = () => {
     setSubstitutions(newSubstitutions);
     setShowConfirm(false);
     setDeleteIndex(0);
-    saveConfig({ pattern: pattern, defaultSubstitutions: newSubstitutions });
+    saveConfig({ ...config, pattern, defaultSubstitutions: newSubstitutions });
   };
 
   interface HandleSubstitutionChangeProps {
@@ -157,7 +152,11 @@ const FileCleaner = () => {
     value: string;
   }
 
-  const handleSubstitutionChange = ({ index, field, value }: HandleSubstitutionChangeProps) => {
+  const handleSubstitutionChange = ({
+    index,
+    field,
+    value,
+  }: HandleSubstitutionChangeProps) => {
     const newSubstitutions = [...substitutions];
     newSubstitutions[index][field] = value;
     setSubstitutions(newSubstitutions);
@@ -231,40 +230,39 @@ const FileCleaner = () => {
       <h2>File Name Cleaner</h2>
       <Row style={{ backgroundColor: "#f8f9fa", padding: "20px" }}>
         <Col md={6}>
-          <Form>
-          </Form>
-            <Form.Group controlId="formOriginFolder" className="mt-2">
-              <Form.Label>
-                <Icon.Folder2Open className="me-2" size={20} color="blue" />
-                Origin Folder
-              </Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Origin Folder"
-                value={originFolder}
-                readOnly
-                className="mt-3"
-              />
-              <Button
-                variant="outline-secondary"
-                type="button"
-                onClick={changeOriginFolder}
-              >
-                ...
-              </Button>
-            </Form.Group>
-            <Form.Group controlId="formPattern" className="mt-5">
-              <Form.Label>
-                <Icon.Scissors className="me-2" size={20} color="blue" />
-                Pattern
-              </Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Pattern"
-                onChange={handlePatternChange}
-                value={pattern || ""}
-              />
-            </Form.Group>
+          <Form></Form>
+          <Form.Group controlId="formOriginFolder" className="mt-2">
+            <Form.Label>
+              <Icon.Folder2Open className="me-2" size={20} color="blue" />
+              Origin Folder
+            </Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter Origin Folder"
+              value={originFolder}
+              readOnly
+              className="mt-3"
+            />
+            <Button
+              variant="outline-secondary"
+              type="button"
+              onClick={changeOriginFolder}
+            >
+              ...
+            </Button>
+          </Form.Group>
+          <Form.Group controlId="formPattern" className="mt-5">
+            <Form.Label>
+              <Icon.Scissors className="me-2" size={20} color="blue" />
+              Pattern
+            </Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter Pattern"
+              onChange={handlePatternChange}
+              value={pattern || ""}
+            />
+          </Form.Group>
         </Col>
         <Col md={6}>
           <Form.Label>
@@ -281,6 +279,7 @@ const FileCleaner = () => {
               variant="none"
               onClick={() =>
                 saveConfig({
+                  ...config,
                   pattern: pattern,
                   defaultSubstitutions: substitutions,
                 })
@@ -310,7 +309,7 @@ const FileCleaner = () => {
                           handleSubstitutionChange({
                             index,
                             field: "find",
-                            value: e.target.value
+                            value: e.target.value,
                           })
                         }
                         className="form-control-flat"
@@ -324,7 +323,7 @@ const FileCleaner = () => {
                           handleSubstitutionChange({
                             index,
                             field: "replace",
-                            value: e.target.value
+                            value: e.target.value,
                           })
                         }
                         className="form-control-flat"
@@ -419,7 +418,9 @@ const FileCleaner = () => {
                         <Form.Control
                           type="text"
                           value={file.fixed || ""}
-                          onChange={(event) => handleInputChange({ index, event })}
+                          onChange={(event) =>
+                            handleInputChange({ index, event })
+                          }
                         />
                       </div>
                       {file.status && (

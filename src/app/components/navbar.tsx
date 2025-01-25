@@ -1,18 +1,20 @@
-import React, { useContext, useEffect, useState } from "react";
+import useEffect from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { NavBar, NavBarThemeSwitch, NavBarLink } from "react-windows-ui";
-import { ThemeContext } from "../context/themeContext";
+// import { ThemeContext } from "../context/themeContext";
 import Api from "../helpers/api";
-import { Settings } from "../models/Interfaces";
+// import { Settings } from "../models/Interfaces";
 
 const Navbar = () => {
   const history = useHistory();
   const location = useLocation();
-  const { theme, setLightTheme, setDarkTheme } = useContext(ThemeContext);
+  /*const { theme, setLightTheme, setDarkTheme } = useContext(ThemeContext);
   const [config, setConfig] = useState({
     folder: "",
-    NODE_ENV: "",
+    node_env: "",
     extensions: {},
+    defaultSubstitutions: [],
+    pattern: "",
   } as Settings);
 
   const setTheme = () => {
@@ -28,7 +30,7 @@ const Navbar = () => {
       setConfig(response);
     });
   }, []);
-
+*/
   const navigateTo = (path: string) => {
     if (location.pathname !== path) {
       history.push(path);

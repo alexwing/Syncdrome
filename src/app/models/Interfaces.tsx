@@ -60,8 +60,10 @@ export interface Bookmark {
 
 export interface Settings {
   folder: string;
-  NODE_ENV: string;
+  node_env: string;
   extensions: FileTypes;
+  defaultSubstitutions: Substitution[];
+  pattern: string;
 }
 
 export interface IFile {
@@ -104,3 +106,4 @@ export interface NavigateResponse {
   directoryContents?: { name: string; type: string }[];
   currentPath: string;
 }
+

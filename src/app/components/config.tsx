@@ -10,7 +10,7 @@ import {
   Form,
 } from "react-bootstrap";
 
-import { AlertModel , FileTypes, TypeAlert } from "../models/Interfaces";
+import { AlertModel , FileTypes, Settings, TypeAlert } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import * as Icon from "react-bootstrap-icons";
 import { open } from '@tauri-apps/plugin-dialog';
@@ -29,11 +29,15 @@ const Config = () => {
     type: "danger",
   } as AlertModel);
   const [showAlert, setShowAlert] = useState(false);
+  const [loadedConfig, setLoadedConfig] = useState({} as Settings);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const newConfig = { folder } as any;
-    newConfig.extensions = fileTypes;
+    const newConfig = {
+      ... loadedConfig,
+      folder,
+      extensions: fileTypes,
+    } as Settings;
     try {
       const response = Api.saveSettings(newConfig);
       getConfig();
@@ -65,9 +69,10 @@ const Config = () => {
   const getConfig = async () => {
     try {
       const response = await Api.getSettings();
-      const config = response as { folder: string; extensions: FileTypes };
+      const config = response as Settings;
       setFolder(config.folder);
       setFileTypes(config.extensions);
+      setLoadedConfig(config);
     } catch (error) {
       setAlert({
         title: "Error",

@@ -14,7 +14,7 @@ function AddBookmarkModal({ show = false, onHide, bookmark, onAddBookmark }) {
   }, [bookmark]);
 
   function handleClose() {
-    setTimeout(() => onHide(), 100);
+      setTimeout(() => onHide(), 100);
     onHide();
   }
 

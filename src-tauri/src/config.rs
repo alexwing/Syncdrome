@@ -51,10 +51,15 @@ pub fn load_config() -> Result<Config, String> {
 
 #[command]
 pub fn save_config(config: Config) -> Result<String, String> {
+    println!("Iniciando save_config con folder: {:?}", config.folder);
+    println!("Config completo recibido: {:?}", config);
+    
     let full_path = ensure_config_file_exists()?;
 
-    let config_content = serde_json::to_string_pretty(&config) // serialize config
+    let config_content = serde_json::to_string_pretty(&config)
         .map_err(|e| format!("Error serializing config: {}", e))?;
+    
+    println!("Config serializado: {}", config_content);
 
     let mut file = OpenOptions::new()
         .write(true)
@@ -68,6 +73,8 @@ pub fn save_config(config: Config) -> Result<String, String> {
         .map_err(|e| format!("Error writing config file: {}", e))?;
 
     println!("Config file saved successfully at: {:?}", full_path);
+    println!("Contenido guardado: {}", config_content);
+    
     Ok(full_path.to_string_lossy().to_string())
 }
 

@@ -140,7 +140,8 @@ Report any issues or suggestions related to this project on the [GitHub reposito
 
 #### List to fix
 
-* [ ]  Fix the cancel button when adding a favorite
+* [x]  Fix the cancel button when adding a favorite
 * [x]  Fix readme and about
+* [x]  No guarda el directorio de trabajo en el archivo de configuración
 * [ ]  En navigator el el breadcrumb cuando es una ruta intermedia y pulsas falla
-* [ ]  En fileSync cuando se sicroniza un disco con espacios, luego aparecen dos unidades una con la primera parte del nombre del volumen y otra completa.
+* [ ]  En fileSync cuando se sincroniza un disco con espacios, luego aparecen dos unidades una con la primera parte del nombre del volumen y otra completa. El problema no esta al crear el fichero de sincronización, sino al leer las unidades conectadas.

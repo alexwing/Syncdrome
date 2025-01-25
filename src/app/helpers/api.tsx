@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { FileCleanerProps, LogFile } from "../models/Interfaces";
+import { FileCleanerProps, LogFile, Settings } from "../models/Interfaces";
 import { invoke } from "@tauri-apps/api/core";
 const repoOwner = "alexwing";
 const repoName = "Syncdrome";
@@ -8,9 +8,10 @@ const Api = {
   /***
    * Find files in catalog by search param
    * @param {string} searchParam - search param
+   * @param {string} extSelected - selected extensions
    * @returns {object} - response from server
    */
-  getFind: (searchParam, extSelected) => {
+  getFind: (searchParam:string, extSelected:string) => {
     return invoke("find_files", {
       searchParam,
       extensions: extSelected,
@@ -24,14 +25,14 @@ const Api = {
    * @param {string} driveLetter - drive letter
    * @returns {object} - response from server
    */
-  getExecute: (driveLetter) => invoke("execute_node", { driveLetter }),
+  getExecute: (driveLetter: string): Promise<any> => invoke("execute_node", { driveLetter }),
 
-  /***P
+  /***
    * Delete drive syncronization
    * @param {string} driveLetter - drive letter
    * @returns {object} - response from server
    */
-  deleteDrive: (driveLetter) => invoke("delete_drive", { driveLetter }),
+  deleteDrive: (driveLetter: string): Promise<any> => invoke("delete_drive", { driveLetter }),
 
   /***
    * Get settings from server
@@ -46,7 +47,7 @@ const Api = {
    * @param {object} newConfig - new settings
    * @returns {object} - response from server
    */
-  saveSettings(newConfig) {
+  saveSettings(newConfig: Settings) {
     return invoke("save_config", { config: newConfig }) as unknown as { result: string, message: string };
   },
 
@@ -57,7 +58,7 @@ const Api = {
    * @param {string} driveLetter - drive letter where file is located
    * @returns {object} - response from server
    */
-  openFile(fileName, folder, driveLetter) {
+  openFile(fileName: string, folder: string, driveLetter: string): Promise<any> {
     const url = btoa(`${driveLetter}\\${folder}\\${fileName}`);
     return invoke("open_file_rust", {
       encodedUrl: url,
@@ -70,7 +71,7 @@ const Api = {
    * @param {string} driveLetter - drive letter where file is located
    * @returns {object} - response from server
    */
-  openFolder(folder, driveLetter) {
+  openFolder(folder: string, driveLetter: string): Promise<any> {
     const url = btoa(`${driveLetter}\\${folder}`);
     return invoke("open_folder_rust", {
       encodedUrl: url,
@@ -83,7 +84,7 @@ const Api = {
    * @param {boolean} status - status to set
    * @returns {object} - response from server
    */
-  toogleMediaDrive(driveLetter, status) {
+  toogleMediaDrive(driveLetter:string, status:string) {
     return invoke("update_drive", {
       driveLetter,
       onlyMedia: status,
@@ -147,7 +148,7 @@ const Api = {
    * @param {string} id - bookmark id
    * @returns {object} - response from server
    */
-  deleteBookmark(id) {
+  deleteBookmark(id: Number) {
     return invoke("delete_bookmark", { id });
   },
 
@@ -160,7 +161,7 @@ const Api = {
    * @example
    * syncToFolder("D:\\Pictures", "F:\\backup\\Pictures")
    */
-  syncToFolder: async (source, target) => {
+  syncToFolder: async (source:string, target:string) => {
     const response = await invoke("sync_folders", { source, target });
     // Podemos empezar a consultar el log inmediatamente
     return response;
@@ -182,7 +183,7 @@ const Api = {
    * @returns {object} - response from server
    *
    */
-  getFilesInFolder: (folder): Promise<FileCleanerProps[]> => {
+  getFilesInFolder: (folder:string): Promise<FileCleanerProps[]> => {
     return invoke("get_files_in_folder", { folder });
   },
 
