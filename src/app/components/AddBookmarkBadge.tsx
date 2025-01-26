@@ -53,15 +53,9 @@ export const AddBookmarkBadge: React.FC<AddBookmarkBadgeProps> = ({
     <Badge
       bg="none"
       style={{
-        position: "absolute",
-        right: "-23px",
-        top: "8px",
-        width: "28px",
-        height: "28px",
         cursor: "pointer",
         color: isBookmarked ? "#16ab9c" : "#cdcdcd",
       }}
-      className="ms-4"
       onClick={() => {
         setBookmarkSelected(
           isBookmarked

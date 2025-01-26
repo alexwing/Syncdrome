@@ -201,24 +201,26 @@ const Navigator = () => {
   };
 
   const openFolder = (folder: string) => {
-    //get drive letter from selected drive
-    const driveLetter = drives.find(
-      (drive) => drive.name === selectedDrive
-    )?.letter;
-    if (driveLetter) {
-      folder = currentPath + folder;
-      //remove duplicates backslashes and first backslash
-      folder = folder.replace(/\\/g, "/").replace(/^\//, "");
-      return (
-        <Badge
-          bg="none"
-          style={{ cursor: "pointer", height: "28px" }}
-          onClick={(e) => callOpenFolder(folder, driveLetter, e, setAlert, setShowAlert)}
-        >
-          <Icon.Eye size={18} color="green" />
-        </Badge>
-      );
+    const driveObj = drives.find((drive) => drive.name === selectedDrive);
+    if (!driveObj || !driveObj.connected) {
+      return null;
     }
+    let fullPath = currentPath.replace(/\//g, "\\").replace(/\\$/, "").replace(/^\\/, "");
+    if (fullPath.match(/\\$/)) {
+      fullPath = `${fullPath}${folder}`;
+    } else {
+      fullPath = `${fullPath}\\${folder}`;
+    }
+    fullPath = fullPath.replace(/\\+/g, "\\").replace(/\/+/g, "/");
+    return (
+      <Badge
+        bg="none"
+        style={{ cursor: "pointer", height: "28px" }}
+        onClick={(e) => callOpenFolder(fullPath, driveObj.letter, e, setAlert, setShowAlert)}
+      >
+        <Icon.FolderSymlinkFill size={18} color="darkorange" />
+      </Badge>
+    );
   };
 
   const getFileBookmark = (fileName) => {
@@ -232,6 +234,20 @@ const Navigator = () => {
   function toBackslashPath(parts: string[]) {
     return "\\" + parts.join("\\");
   }
+
+  const updateFilesWithBookmark = (bookmark: Bookmark) => {
+    // Actualizar la lista de bookmarks
+    const newBookmarks = [...bookmarksByVolume];
+    const bookmarkIndex = newBookmarks.findIndex(
+      (b) => b.name === bookmark.name && b.path === bookmark.path
+    );
+    if (bookmarkIndex !== -1) {
+      newBookmarks[bookmarkIndex] = { ...newBookmarks[bookmarkIndex], ...bookmark };
+    } else {
+      newBookmarks.push(bookmark);
+    }
+    setBookmarksByVolume(newBookmarks);
+  };
 
   return (
     <Container
@@ -322,50 +338,54 @@ const Navigator = () => {
                   <tr>
                     <th style={{ width: "3%" }}>
                       <Icon.ThreeDots
+                        color="green"
+                        style={{ cursor: "pointer", height: "28px" }}
                         onClick={() => navigate("cd ..", currentPath)}
                       />
                     </th>
-                    <th style={{ width: "97%" }}>Name</th>
+                    <th style={{ width: "90%"}}>Name</th>
+                    <th style={{ width: "7%", textAlign: "center" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {directoryContents.map((item, index) => (
                     <tr key={index}>
                       <td>
-                        {item.type === "file" ? (
-                          getIcon(item.name.split(".").pop())
+                        {item.type === "directory" ? (
+                          <Icon.Folder
+                            color="green"
+                            style={{ cursor: "pointer", height: "28px" }}
+                            onClick={() => handleItemClick(item)}
+                            size={20}
+                          />
                         ) : (
-                          <>
-                            <Icon.Folder
-                              color="green"
-                              style={{ cursor: "pointer", height: "28px" }}
-                              onClick={() => handleItemClick(item)}
-                            />
-                            <AddBookmarkBadge
-                                isBookmarked={!!getFileBookmark(item.name)}
-                                fileName={item.name}
-                                path={currentPath}
-                                volume={selectedDrive}
-                                    description="" 
-                                    setFiles={() => {}} 
-                                    onAddBookmark={() => {}} 
-                                />
-                          </>
+                          getIcon(item.name.split(".").pop())
                         )}
                       </td>
                       <td>
-                        <Badge
-                          bg="none"
+                        <a
                           style={{
                             cursor: "pointer",
                             color: item.type === "file" ? "blue" : "green",
                             fontSize: "1em",
+                            fontWeight: item.type === "directory" ? "bold" : "normal",
                           }}
                           onClick={() => handleItemClick(item)}
                         >
                           {item.name}
-                        </Badge>
-                        {item.type === "directory" && openFolder(item.name)}
+                        </a>
+                      </td>
+                      <td style={{ textAlign: "center" }}>
+                        <AddBookmarkBadge
+                          isBookmarked={!!getFileBookmark(item.name)}
+                          fileName={item.name}
+                          path={currentPath}
+                          volume={selectedDrive}
+                          description={getFileBookmark(item.name)?.description || ""}
+                          setFiles={() => {}}
+                          onAddBookmark={updateFilesWithBookmark}
+                          />
+                          {item.type === "directory" && openFolder(item.name)}
                       </td>
                     </tr>
                   ))}
