@@ -5,6 +5,8 @@
   "identifier": "com.syncdrome.app",
   "build": {
     "beforeBuildCommand": "npm run front:build",
+    "beforeDevCommand": "npm run front:dev",
+    "devUrl": "http://localhost:1420",
     "frontendDist": "../dist"
   },
   "plugins": {
