@@ -2,7 +2,7 @@
 
 As someone who tends to accumulate digital files in a disorganized manner, I felt the need to develop a tool that would simplify my digital life. Syncdrome was born out of my own experience as a self-proclaimed "digital Diogenes".
 
-Syncdrome is an Electron application with React in the frontend and Node.js in the backend. This intuitive tool simplifies the search and organization of your files on specific hard drives. With a simple yet powerful interface, Syncdrome allows for quick keyword searches and presents results organized by folders.
+Syncdrome is an Tauri application with React in the frontend and Rust in the backend. This intuitive tool simplifies the search and organization of your files on specific hard drives. With a simple yet powerful interface, Syncdrome allows for quick keyword searches and presents results organized by folders.
 
 ## License
 
