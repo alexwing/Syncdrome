@@ -133,18 +133,24 @@ pub fn write_size(volume_name: &str, folder: &str, size: u64, free: u64) {
     }
 }
 
-pub fn delete_drive_options(volume_name: &str, folder: &str) {
+pub fn delete_drive_options(volume_name: &str, folder: &str) -> Result<bool, String> {
     let file_path = Path::new(folder).join("drives.json");
     if let Ok(content) = fs::read_to_string(&file_path) {
-        if let Ok(mut drives) = serde_json::from_str::<serde_json::Value>(&content) {
-            if drives.get(volume_name).is_some() {
-                drives.as_object_mut().unwrap().remove(volume_name);
-                if let Ok(serialized) = serde_json::to_string_pretty(&drives) {
-                    let _ = fs::write(&file_path, serialized);
-                }
-            }
+        let mut drives = serde_json::from_str::<serde_json::Value>(&content)
+            .map_err(|error| format!("Cannot parse drives.json: {}", error))?;
+        if drives.get(volume_name).is_some() {
+            let Some(drives_object) = drives.as_object_mut() else {
+                return Err("drives.json must be a JSON object".to_string());
+            };
+            drives_object.remove(volume_name);
+            let serialized = serde_json::to_string_pretty(&drives)
+                .map_err(|error| format!("Cannot serialize drives.json: {}", error))?;
+            fs::write(&file_path, serialized)
+                .map_err(|error| format!("Cannot update drives.json: {}", error))?;
+            return Ok(true);
         }
     }
+    Ok(false)
 }
 
 #[cfg(windows)]

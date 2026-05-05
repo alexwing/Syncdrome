@@ -19,8 +19,9 @@ import AlertMessage from "../components/AlertMessage";
 import ConfirmDialog from "../components/ConfirmDialog";
 
 const Sync = () => {
-  const [drives, setDrives] = useState([]);
+  const [drives, setDrives] = useState<DrivesProps[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingDrives, setLoadingDrives] = useState(false);
   const [alert, setAlert] = useState({
     title: "",
     message: "",
@@ -28,26 +29,28 @@ const Sync = () => {
   } as AlertModel);
   const [showAlert, setShowAlert] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [selectedDrive, setSelectedDrive] = useState("");
+  const [selectedDrive, setSelectedDrive] = useState<DrivesProps | null>(null);
 
   useEffect(() => {
     getDrives();
   }, []);
 
-  const getDrives = () => {
-    Api.getDrives()
-      .then((res) => {
-        setDrives(res);
-      })
-      .catch((err) => {
-        console.log(err);
-        setAlert({
-          title: "Error",
-          message: "Error getting drives list, verify if config file exists",
-          type: TypeAlert.danger,
-        });
-        setShowAlert(true);
+  const getDrives = async () => {
+    setLoadingDrives(true);
+    try {
+      const res = await Api.getDrives();
+      setDrives(Array.isArray(res) ? res : []);
+    } catch (err) {
+      console.log(err);
+      setAlert({
+        title: "Error",
+        message: "Error getting drives list, verify if config file exists",
+        type: TypeAlert.danger,
       });
+      setShowAlert(true);
+    } finally {
+      setLoadingDrives(false);
+    }
   };
 
   const executeContentDrive = (drive) => {
@@ -81,27 +84,39 @@ const Sync = () => {
 
   const handleOKConfirm = () => {
     setShowConfirm(false);
-    deleteDrive(selectedDrive);
+    if (selectedDrive) {
+      deleteDrive(selectedDrive);
+    }
   };
 
-  const showDeleteDrive = (drive) => {
+  const showDeleteDrive = (drive: DrivesProps) => {
     setSelectedDrive(drive);
     setShowConfirm(true);
   };
 
-  const deleteDrive = (drive) => {
-    Api.deleteDrive(drive)
+  const deleteDrive = (drive: DrivesProps) => {
+    const driveIdentifier = drive.connected && drive.letter ? drive.letter : drive.name;
+    Api.deleteDrive(driveIdentifier)
       .then((res) => {
+        if (!res?.success) {
+          throw new Error(res?.error || "Cannot delete drive catalog");
+        }
         getDrives();
         setAlert({
           title: "Deleted",
-          message: "Drive catalog deleted",
+          message: `Drive catalog deleted: ${drive.name}`,
           type: TypeAlert.success,
         });
         setShowAlert(true);
       })
       .catch((err) => {
         console.log(err);
+        setAlert({
+          title: "Error",
+          message: err?.message || "Cannot delete drive catalog",
+          type: TypeAlert.danger,
+        });
+        setShowAlert(true);
       });
   };
 
@@ -257,19 +272,42 @@ const Sync = () => {
               variant="primary"
               size="lg"
               onClick={() => getDrives()}
+              disabled={loadingDrives}
               style={{ width: "225px", margin: "16px" }}
             >
-              <Icon.ArrowRepeat color="white" size={16} className="me-2" />
+              {!loadingDrives ? (
+                <Icon.ArrowRepeat color="white" size={16} className="me-2" />
+              ) : (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                  className="me-2"
+                />
+              )}
               Refresh
             </Button>
           </Col>
         </Row>
       </Container>
       <Container fluid className="d-flex flex-wrap align-items-center  py-2">
-        {drives.map((drive: DrivesProps, index) => (
+        {loadingDrives && (
+          <div className="sync-loading-drives">
+            <Spinner animation="border" variant="primary" role="status" />
+            <span className="ms-3">Loading drives...</span>
+          </div>
+        )}
+        {!loadingDrives && drives.length === 0 && (
+          <div className="sync-loading-drives text-muted">
+            No drives found
+          </div>
+        )}
+        {!loadingDrives && drives.map((drive: DrivesProps, index) => (
           <Card
             style={{ width: "23.5rem" }}
-            className={drive.connected ? "me-3 mb-3" : "me-3 mb-3 disabled"}
+            className={drive.connected ? "me-3 mb-3" : "me-3 mb-3 drive-disconnected"}
             key={index}
             bg={!drive.connected ? "light" : "white"}
           >
@@ -316,7 +354,7 @@ const Sync = () => {
               {drive.sync && (
                 <Button
                   variant="danger"
-                  onClick={() => showDeleteDrive(drive.letter)}
+                  onClick={() => showDeleteDrive(drive)}
                 >
                   <Icon.TrashFill color="white" size={16} />
                 </Button>

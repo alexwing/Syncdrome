@@ -83,7 +83,7 @@ textarea {
   opacity: 0.4;
 }
 
-.sync .card.disabled {
+.sync .card.drive-disconnected {
   background: #ededed !important;
   border-color: #ededed;
 }
@@ -93,6 +93,15 @@ textarea {
   border-color: #7cac7c;
   border: 1.5px solid #7cac7c;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.sync-loading-drives {
+  align-items: center;
+  display: flex;
+  font-size: 1.2rem;
+  justify-content: center;
+  min-height: 220px;
+  width: 100%;
 }
 
 .sync .card > .list-group {

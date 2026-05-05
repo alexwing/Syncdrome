@@ -162,16 +162,49 @@ pub fn delete_drive(drive_letter: String) -> Value {
         Ok(cfg) => cfg,
         Err(e) => return json!({"error": e}),
     };
-    let volume_name = crate::utils::get_volume_name(&drive_letter);
+    let drive_identifier = drive_letter.trim();
+    if drive_identifier.is_empty() {
+        return json!({"success": false, "error": "Drive identifier is empty"});
+    }
+
+    let volume_name = if is_drive_letter(drive_identifier) {
+        crate::utils::get_volume_name(drive_identifier)
+    } else {
+        drive_identifier.to_string()
+    };
+
+    if volume_name.trim().is_empty() {
+        return json!({"success": false, "error": "Cannot resolve drive volume name"});
+    }
+
+    if volume_name.contains(['\\', '/', ':']) {
+        return json!({"success": false, "error": "Invalid drive volume name"});
+    }
+
     let file_path = Path::new(&config.folder).join(format!("{}.txt", volume_name));
+    let mut deleted_catalog = false;
     if file_path.exists() {
         if fs::remove_file(&file_path).is_err() {
-            return json!({"error": "Cannot remove .txt file"});
+            return json!({"success": false, "error": "Cannot remove .txt file"});
         }
+        deleted_catalog = true;
     }
     // Eliminar de drives.json
-    crate::utils::delete_drive_options(&volume_name, &config.folder);
+    let deleted_options = match crate::utils::delete_drive_options(&volume_name, &config.folder) {
+        Ok(deleted) => deleted,
+        Err(error) => return json!({"success": false, "error": error}),
+    };
+
+    if !deleted_catalog && !deleted_options {
+        return json!({"success": false, "error": format!("No catalog found for {}", volume_name)});
+    }
+
     json!({"success": true, "message": format!("Deleted file for {}", volume_name)})
+}
+
+fn is_drive_letter(value: &str) -> bool {
+    let bytes = value.as_bytes();
+    bytes.len() == 2 && bytes[0].is_ascii_alphabetic() && bytes[1] == b':'
 }
 
 /***
