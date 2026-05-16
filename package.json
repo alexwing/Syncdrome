@@ -38,8 +38,7 @@
         "react-dom": "^19.2.6",
         "react-markdown": "^10.1.0",
         "react-router-dom": "^7.15.1",
-        "react-select": "^5.8.0",
-        "react-windows-ui": "^4.2.4"
+        "react-select": "^5.8.0"
     },
     "devDependencies": {
         "@tauri-apps/cli": "^2",

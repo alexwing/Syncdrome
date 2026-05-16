@@ -1,5 +1,5 @@
 import React from "react";
-import { AppContainer, AppTheme } from "react-windows-ui";
+import { AppContainer, AppTheme } from "../vendor/winui";
 import Navbar from "../components/navbar";
 import { Routes, Route } from "react-router-dom";
 import Home from "../views/home";

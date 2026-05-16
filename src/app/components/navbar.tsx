@@ -1,6 +1,6 @@
 import useEffect from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { NavBar, NavBarThemeSwitch, NavBarLink } from "react-windows-ui";
+import { NavBar, NavBarThemeSwitch, NavBarLink } from "../vendor/winui";
 // import { ThemeContext } from "../context/themeContext";
 import Api from "../helpers/api";
 // import { Settings } from "../models/Interfaces";
