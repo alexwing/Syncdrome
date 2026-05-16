@@ -11,7 +11,9 @@ use crate::config_file::get_default_config_json;
 pub struct Config {
     pub folder: String,
     #[serde(default = "default_node_env")]
-    pub node_env: String, 
+    pub node_env: String,
+    #[serde(default = "default_theme")]
+    pub theme: String,
     pub extensions: serde_json::Value,
     pub defaultSubstitutions: Vec<Substitution>,
     pub pattern: String,
@@ -25,6 +27,10 @@ pub struct Substitution {
 
 fn default_node_env() -> String {
     "development".to_string()
+}
+
+fn default_theme() -> String {
+    "system".to_string()
 }
 
 pub fn load_config() -> Result<Config, String> {

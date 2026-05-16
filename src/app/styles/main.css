@@ -7,6 +7,7 @@
 @import "./components/forms.css";
 @import "./components/helpers.css";
 @import "./react-windows-ui.css";
+@import "./components/dark.css";
 
 :root {
   --PrimaryColor: #0078d7; /* Change of your choice */

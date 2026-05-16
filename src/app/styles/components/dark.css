@@ -1,0 +1,102 @@
+/* Dark-mode overrides. Scoped to [data-bs-theme="dark"], which ThemeProvider
+   sets on <html>. Fixes hardcoded light colors in the custom stylesheets and
+   third-party widgets (react-select) that don't follow Bootstrap's theme. */
+
+[data-bs-theme="dark"] body {
+  color: #e6e6e6;
+  background-color: #1b1b1b;
+}
+
+/* Plain inputs/selects/textarea (forms.css forces white) */
+[data-bs-theme="dark"] input,
+[data-bs-theme="dark"] select,
+[data-bs-theme="dark"] textarea {
+  background: #2b2b2b;
+  color: #e6e6e6;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+[data-bs-theme="dark"] input::placeholder,
+[data-bs-theme="dark"] textarea::placeholder {
+  color: #9aa0a6;
+}
+
+/* react-select (classNamePrefix="select") */
+[data-bs-theme="dark"] .select__control {
+  background: #2b2b2b;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+[data-bs-theme="dark"] .select__menu {
+  background: #2b2b2b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+[data-bs-theme="dark"] .select__option {
+  background: transparent;
+  color: #e6e6e6;
+}
+[data-bs-theme="dark"] .select__option--is-focused {
+  background: #3a3a3a;
+}
+[data-bs-theme="dark"] .select__multi-value {
+  background: #3a3a3a;
+}
+[data-bs-theme="dark"] .select__multi-value__label,
+[data-bs-theme="dark"] .select__single-value,
+[data-bs-theme="dark"] .select__input-container,
+[data-bs-theme="dark"] .select__placeholder {
+  color: #e6e6e6;
+}
+
+/* Breadcrumb */
+[data-bs-theme="dark"] .breadcrumb-item,
+[data-bs-theme="dark"] .breadcrumb-item.active {
+  color: var(--bs-secondary-color);
+}
+[data-bs-theme="dark"] .breadcrumb-item + .breadcrumb-item::before {
+  color: var(--bs-secondary-color);
+}
+
+/* Synchronize drives cards */
+[data-bs-theme="dark"] .sync .card {
+  background: linear-gradient(to bottom, #2b2b2b, #2f5d3a);
+  border-color: #2f5d3a;
+}
+[data-bs-theme="dark"] .sync .card.drive-disconnected {
+  background: #262626 !important;
+  border-color: #3a3a3a;
+}
+[data-bs-theme="dark"] .sync .card .card-title {
+  color: #e6e6e6;
+}
+[data-bs-theme="dark"] .sync .card .text-muted {
+  color: #b0b0b0 !important;
+}
+
+/* File path (forms.css uses black) */
+[data-bs-theme="dark"] .file-path,
+[data-bs-theme="dark"] .file-path strong {
+  color: #e6e6e6;
+}
+[data-bs-theme="dark"] .file-path small {
+  color: #9aa0a6;
+}
+[data-bs-theme="dark"] .text-muted {
+  color: #b0b0b0 !important;
+}
+
+/* File name cleaner */
+.cleaner-panel {
+  background-color: #f8f9fa;
+  padding: 20px;
+}
+[data-bs-theme="dark"] .cleaner-panel {
+  background-color: #262626;
+}
+[data-bs-theme="dark"] .table-header {
+  background-color: #1f1f1f;
+}
+[data-bs-theme="dark"] .file-status {
+  color: #9db4ff;
+}
+[data-bs-theme="dark"] .fixed-name {
+  color: #9aa0a6;
+}

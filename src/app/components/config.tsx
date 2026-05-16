@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Api from "../helpers/api";
+import { ThemeContext } from "../context/themeContext";
 import {
   Button,
   Col,
@@ -10,12 +11,13 @@ import {
   Form,
 } from "react-bootstrap";
 
-import { AlertModel , FileTypes, Settings, TypeAlert } from "../models/Interfaces";
+import { AlertModel , FileTypes, Settings, ThemeMode, TypeAlert } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import * as Icon from "react-bootstrap-icons";
 import { open } from '@tauri-apps/plugin-dialog';
 
 const Config = () => {
+  const { mode, setMode } = useContext(ThemeContext);
   const [folder, setFolder] = useState("");
   const [fileTypes, setFileTypes] = useState({} as FileTypes);
   const [selectedExtension, setSelectedExtension] = useState({
@@ -355,28 +357,45 @@ const Config = () => {
   return (
     <form onSubmit={handleSubmit}>
       {showAlertMessage}
-      <label>
-        Folder:
-        <input
-          type="text"
-          value={folder}
-          onChange={(e) => setFolder(e.target.value)}
-        />
-        <Button
-          variant="outline-secondary"
-          type="button"
-          onClick={onChangeFolder}
-        >
-          ...
-        </Button>
-        <Button
-          variant="outline-none"
-          type="button"
-          onClick={openFolderHandler}
-        >
-          <Icon.Folder2Open color="green" size={22} className="m-0" />
-        </Button>
-      </label>
+      <Row>
+        <Col xs={12} lg={8}>
+          <label>
+            Folder:
+            <input
+              type="text"
+              value={folder}
+              onChange={(e) => setFolder(e.target.value)}
+            />
+            <Button
+              variant="outline-secondary"
+              type="button"
+              onClick={onChangeFolder}
+            >
+              ...
+            </Button>
+            <Button
+              variant="outline-none"
+              type="button"
+              onClick={openFolderHandler}
+            >
+              <Icon.Folder2Open color="green" size={22} className="m-0" />
+            </Button>
+          </label>
+        </Col>
+        <Col xs={12} lg={4}>
+          <Form.Group controlId="appearanceSelect">
+            <Form.Label>Appearance</Form.Label>
+            <Form.Select
+              value={mode}
+              onChange={(e) => setMode(e.target.value as ThemeMode)}
+            >
+              <option value="system">System</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </Form.Select>
+          </Form.Group>
+        </Col>
+      </Row>
       <Row>
         <Col className="text-center">
           <Button variant="primary" type="submit" className="full-width">

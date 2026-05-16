@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { ThemeContext } from "../context/themeContext";
 import {
   Badge,
   Container,
@@ -24,6 +25,7 @@ import { AddBookmarkBadge } from "../components/AddBookmarkBadge";
 
 
 const Navigator = () => {
+  const { isDark } = useContext(ThemeContext);
   const [currentPath, setCurrentPath] = useState("");
   const [directoryContents, setDirectoryContents] = useState<
     { name: string; type: string }[]
@@ -276,7 +278,7 @@ const Navigator = () => {
                 }
                 style={{
                   fontWeight: drive.connected ? "bold" : "normal",
-                  color: drive.connected ? "green" : "black",
+                  color: drive.connected ? "green" : "inherit",
                 }}
               >
                 <Icon.Hdd className="me-2" />
@@ -298,7 +300,7 @@ const Navigator = () => {
         )}
         {!isChangingDrive && selectedDrive && (
           <>
-            <Breadcrumb className="w-100 bg-light p-0 m-0 mt-2">
+            <Breadcrumb className="w-100 bg-body-tertiary p-0 m-0 mt-2">
               <Breadcrumb.Item
                 onClick={() => navigate("cd ..", "")}
                 className="p-0 m-0"
@@ -366,7 +368,12 @@ const Navigator = () => {
                         <a
                           style={{
                             cursor: "pointer",
-                            color: item.type === "file" ? "blue" : "green",
+                            color:
+                              item.type === "file"
+                                ? isDark
+                                  ? "#6ea8fe"
+                                  : "blue"
+                                : "green",
                             fontSize: "1em",
                             fontWeight: item.type === "directory" ? "bold" : "normal",
                           }}

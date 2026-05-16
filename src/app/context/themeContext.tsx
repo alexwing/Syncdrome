@@ -1,7 +1,16 @@
-import { createContext } from 'react';
+import { createContext } from "react";
+import { ThemeMode } from "../models/Interfaces";
 
-export const ThemeContext = createContext({
-  theme: 'Light',
-  setLightTheme: () => {},
-  setDarkTheme: () => {},
+export interface ThemeContextValue {
+  // The user's choice (may be "system").
+  mode: ThemeMode;
+  // Whether the resolved appearance is currently dark.
+  isDark: boolean;
+  setMode: (mode: ThemeMode) => void;
+}
+
+export const ThemeContext = createContext<ThemeContextValue>({
+  mode: "system",
+  isDark: false,
+  setMode: () => {},
 });

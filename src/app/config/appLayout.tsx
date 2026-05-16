@@ -15,13 +15,8 @@ import Explorer from "../views/Navigator";
 const AppLayout = () => {
   return (
     <AppContainer>
-      {/* Forced light for now; switch this to a stateful value when the
-          light/dark toggle is implemented. */}
-      <AppTheme
-        scheme={"light"}
-        color={"#16ab9c"}
-        colorDarkMode={"#1ee6d1"}
-      />
+      {/* Primary color only; light/dark is owned by ThemeProvider. */}
+      <AppTheme color={"#16ab9c"} colorDarkMode={"#1ee6d1"} />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />

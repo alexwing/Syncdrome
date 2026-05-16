@@ -11,9 +11,6 @@ const Settings = () => {
       </Breadcrumb>
       <h2>Settings</h2>
       <small>Here you can configure the application.</small>
-      <p className="mt-3">
-        Select the folder where you want to save the files.
-      </p>
       <Config />
     </Container>
   );

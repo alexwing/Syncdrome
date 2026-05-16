@@ -58,9 +58,12 @@ export interface Bookmark {
   description: string;
 }
 
+export type ThemeMode = "light" | "dark" | "system";
+
 export interface Settings {
   folder: string;
   node_env: string;
+  theme: ThemeMode;
   extensions: FileTypes;
   defaultSubstitutions: Substitution[];
   pattern: string;

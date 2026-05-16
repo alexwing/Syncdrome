@@ -227,7 +227,7 @@ const FileCleaner = () => {
         <Breadcrumb.Item active>File Name Cleaner</Breadcrumb.Item>
       </Breadcrumb>
       <h2>File Name Cleaner</h2>
-      <Row style={{ backgroundColor: "#f8f9fa", padding: "20px" }}>
+      <Row className="cleaner-panel">
         <Col md={6}>
           <Form></Form>
           <Form.Group controlId="formOriginFolder" className="mt-2">
