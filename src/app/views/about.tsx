@@ -101,6 +101,19 @@ const About = () => {
     return false;
   };
 
+  // Strip git trailers (Co-authored-by, generated-by) so the changelog shows
+  // only the commit message, like a git client does.
+  const cleanCommitMessage = (message: string) =>
+    message
+      .split("\n")
+      .filter(
+        (line) =>
+          !/^\s*co-authored-by:/i.test(line) &&
+          !/generated with \[?claude/i.test(line)
+      )
+      .join("\n")
+      .trim();
+
   const showLastVersion = () => {
     if (latestVersion && isNewerVersion(latestVersion, packageJson.version)) {
       return (
@@ -149,7 +162,9 @@ const About = () => {
               <h6>{date}</h6>
               <ul style={{ listStyleType: "none" }}>
                 {commits.map((commit) => (
-                  <li key={commit.sha}>{commit.commit.message}</li>
+                  <li key={commit.sha}>
+                    {cleanCommitMessage(commit.commit.message)}
+                  </li>
                 ))}
               </ul>
             </div>
