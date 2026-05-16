@@ -1,5 +1,5 @@
 use std::{fs, path::{Path}, str};
-use base64;
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use serde_json::json;
 use chrono::{DateTime, Local};
 use std::ffi::{OsString, OsStr};
@@ -301,7 +301,7 @@ pub fn get_name_from_file(file: &str) -> String {
 }
 
 pub fn open_file(encoded_url: &str) -> Result<(), std::io::Error> {
-    let decoded = base64::decode(encoded_url).unwrap_or_default();
+    let decoded = STANDARD.decode(encoded_url).unwrap_or_default();
     let path_str = String::from_utf8_lossy(&decoded).replace("/", "\\\\");
     println!("DEBUG: Abriendo archivo: {}", path_str);
 
@@ -326,7 +326,7 @@ pub fn open_file(encoded_url: &str) -> Result<(), std::io::Error> {
 }
 
 pub fn open_folder(encoded_url: &str) -> Result<(), std::io::Error> {
-    let decoded = base64::decode(encoded_url).unwrap_or_default();
+    let decoded = STANDARD.decode(encoded_url).unwrap_or_default();
     let path_str = String::from_utf8_lossy(&decoded).replace("/", "\\\\");
     println!("DEBUG: Abriendo carpeta: {}", path_str);
 

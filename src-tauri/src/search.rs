@@ -5,12 +5,6 @@ use crate::sqlite::fetch_bookmarks;
 use crate::config::load_config;
 use tauri::command;
 
-#[derive(Debug, serde::Serialize)]
-pub struct SearchResult {
-    pub connected: String,
-    pub content: serde_json::Value,
-}
-
 #[command]
 pub fn find_files(search_param: String, extensions: String) -> Result<serde_json::Value, String> {
     println!("DEBUG: Iniciando find_files con search_param: {}, extensions: {}", search_param, extensions);
@@ -111,7 +105,7 @@ pub fn find_files(search_param: String, extensions: String) -> Result<serde_json
 
                 if !grouped.is_empty() {
                     // Limpiar datos no deseados de cada JSON
-                    for (key, arr) in grouped.iter_mut() {
+                    for (_key, arr) in grouped.iter_mut() {
                         if let Some(array) = arr.as_array_mut() {
                             for obj in array {
                                 if let Some(o) = obj.as_object_mut() {

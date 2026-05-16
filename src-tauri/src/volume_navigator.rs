@@ -14,6 +14,7 @@ pub struct FileItem {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[allow(non_snake_case)]
 pub struct NavigateResult {
     pub currentPath: String,
     pub directoryContents: Vec<FileItem>,

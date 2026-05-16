@@ -7,6 +7,7 @@ use dirs::home_dir;
 use crate::config_file::get_default_config_json;
 
 #[derive(Serialize, Deserialize, Debug)]
+#[allow(non_snake_case)]
 pub struct Config {
     pub folder: String,
     #[serde(default = "default_node_env")]
