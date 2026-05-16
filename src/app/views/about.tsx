@@ -101,18 +101,9 @@ const About = () => {
     return false;
   };
 
-  // Strip git trailers (Co-authored-by, generated-by) so the changelog shows
-  // only the commit message, like a git client does.
+  // Show only the commit title (first line), not the description body.
   const cleanCommitMessage = (message: string) =>
-    message
-      .split("\n")
-      .filter(
-        (line) =>
-          !/^\s*co-authored-by:/i.test(line) &&
-          !/generated with \[?claude/i.test(line)
-      )
-      .join("\n")
-      .trim();
+    message.split("\n")[0].trim();
 
   const showLastVersion = () => {
     if (latestVersion && isNewerVersion(latestVersion, packageJson.version)) {
