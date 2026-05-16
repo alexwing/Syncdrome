@@ -1,4 +1,3 @@
-import "./app/styles/winui-app-config.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./app/styles/winui-icons.min.css";
 import "./app/styles/main.css";
