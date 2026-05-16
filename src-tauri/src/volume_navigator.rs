@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 use tauri::command;
-use std::sync::Mutex;
-use lazy_static::lazy_static;
+use std::sync::{LazyLock, Mutex};
 use crate::config::load_config;
 use regex::Regex;
 
@@ -28,11 +27,9 @@ struct Node {
     is_file: bool,
 }
 
-lazy_static! {
-    static ref FILE_SYSTEM: Mutex<Node> = Mutex::new(Node::default());
-    static ref DRIVE_LETTER: Mutex<String> = Mutex::new(String::new());
-    static ref RE_DRIVE: Regex = Regex::new(r"^[A-Za-z]:\\").unwrap();
-}
+static FILE_SYSTEM: LazyLock<Mutex<Node>> = LazyLock::new(|| Mutex::new(Node::default()));
+static DRIVE_LETTER: LazyLock<Mutex<String>> = LazyLock::new(|| Mutex::new(String::new()));
+static RE_DRIVE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[A-Za-z]:\\").unwrap());
 
 fn build_file_system(contents: &str) -> Node {
     println!("DEBUG: build_file_system - lines total: {}", contents.lines().count());
