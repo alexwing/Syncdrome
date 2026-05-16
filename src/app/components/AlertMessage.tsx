@@ -13,7 +13,7 @@ function AlertMessage({
   } as AlertModel,
   onHide,
   autoClose = 1000,
-}: AlertMessageProps) : JSX.Element {
+}: AlertMessageProps) : React.JSX.Element {
   const [showIn, setShowIn] = useState(false);
   const [alert, setAlert] = useState(alertMessage);
   // Create a ref that will persist

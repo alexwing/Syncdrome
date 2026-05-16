@@ -62,7 +62,7 @@ export const openFileEye = (
   fileName: string,
   folder: string,
   connected: string
-): JSX.Element => {
+): React.JSX.Element => {
   return (
     <Badge
       bg="none"

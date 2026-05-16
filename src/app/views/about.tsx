@@ -127,7 +127,15 @@ const About = () => {
         <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
         <Breadcrumb.Item active>About</Breadcrumb.Item>
       </Breadcrumb>
-      <ReactMarkdown linkTarget="_blank" children={markdown} />
+      <ReactMarkdown
+        components={{
+          a: ({ node, ...props }) => (
+            <a {...props} target="_blank" rel="noreferrer" />
+          ),
+        }}
+      >
+        {markdown}
+      </ReactMarkdown>
       <h3>Version</h3>
       <p>{packageJson.version}</p>
       {showLastVersion()}

@@ -20,7 +20,7 @@ function ConfirmDialog({
   show,
   handleCancel,
   handleOK,
-}: ConfirmDialogProps): JSX.Element {
+}: ConfirmDialogProps): React.JSX.Element {
   return (
     <React.Fragment>
       <Modal

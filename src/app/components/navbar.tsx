@@ -1,12 +1,12 @@
 import useEffect from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { NavBar, NavBarThemeSwitch, NavBarLink } from "react-windows-ui";
 // import { ThemeContext } from "../context/themeContext";
 import Api from "../helpers/api";
 // import { Settings } from "../models/Interfaces";
 
 const Navbar = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   /*const { theme, setLightTheme, setDarkTheme } = useContext(ThemeContext);
   const [config, setConfig] = useState({
@@ -33,7 +33,7 @@ const Navbar = () => {
 */
   const navigateTo = (path: string) => {
     if (location.pathname !== path) {
-      history.push(path);
+      navigate(path);
     }
   };
 
