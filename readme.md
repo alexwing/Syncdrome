@@ -117,6 +117,17 @@ As someone who tends to accumulate digital files in a disorganized manner, I fel
 
 This intuitive tool streamlines the search and organization of your files on specific hard drives. With a simple yet powerful interface, Syncdrome allows quick keyword searches and presents results organized by folders.
 
+Version bump
+
+For version bumping, you can use the following npm scripts:
+
+```bash
+npm run version:bump            # patch:  2.0.2 -> 2.0.3
+npm run version:bump -- minor   # minor:  2.0.2 -> 2.1.0
+npm run version:bump -- major   # major:  2.0.2 -> 3.0.0
+npm run version:bump -- 4.1.0   # especific: 2.0.2 -> 4.1.0
+```
+
 License
 -------
 

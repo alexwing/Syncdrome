@@ -83,8 +83,24 @@ const About = () => {
     };
   }, []);
 
+  // Returns true only if `published` is strictly newer than `running`.
+  const isNewerVersion = (published: string, running: string) => {
+    const parse = (v: string) =>
+      v
+        .replace(/^v/, "")
+        .split(".")
+        .map((n) => parseInt(n, 10) || 0);
+    const a = parse(published);
+    const b = parse(running);
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+      const diff = (a[i] || 0) - (b[i] || 0);
+      if (diff !== 0) return diff > 0;
+    }
+    return false;
+  };
+
   const showLastVersion = () => {
-    if (latestVersion !== packageJson.version || !latestVersion) {
+    if (latestVersion && isNewerVersion(latestVersion, packageJson.version)) {
       return (
         <div>
           <h3>Latest Version</h3>
