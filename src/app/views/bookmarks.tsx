@@ -17,11 +17,13 @@ import AddBookmarkModal from "../components/AddBookmarkModal";
 import AlertMessage from "../components/AlertMessage";
 import { connectedIcon, getFileIcon } from "../helpers/utils";
 import { open } from '@tauri-apps/plugin-dialog';
+import { useTranslation } from "../context/languageContext";
 
 
 
 
 const bookmarks = () => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [BookmarksByVolume, setBookmarksByVolume] = useState(
     [] as BookmarksByVolume[]
@@ -51,7 +53,7 @@ const bookmarks = () => {
       const file = await open({
         directory: false,
         multiple: false,
-        title: 'Selecciona un archivo',
+        title: t("bookmarks.selectFile"),
         defaultPath: '/ruta/inicial'
       });
       setFile(file as string);
@@ -101,8 +103,8 @@ const bookmarks = () => {
     const drive = drives.find((drive) => drive.letter === letter);
     if (!drive || !drive.connected) {
       setAlert({
-        title: "Error",
-        message: "Drive not connected",
+        title: t("common.error"),
+        message: t("sync.driveNotConnected"),
         type: TypeAlert.danger,
       });
       setShowAlert(true);
@@ -162,8 +164,8 @@ const bookmarks = () => {
       })
       .catch((error) => {
         setAlert({
-          title: "Error",
-          message: "Config file not found or corrupted",
+          title: t("common.error"),
+          message: t("settings.configNotFound"),
           type: TypeAlert.danger,
         });
         setShowAlert(true);
@@ -179,8 +181,8 @@ const bookmarks = () => {
       .catch((err) => {
         console.log(err);
         setAlert({
-          title: "Error",
-          message: "Error getting drives list, verify if config file exists",
+          title: t("common.error"),
+          message: t("explorer.errorGettingDrives"),
           type: TypeAlert.danger,
         });
         setShowAlert(true);
@@ -329,16 +331,16 @@ const bookmarks = () => {
       )}
       {showAlertMessage}
       <Breadcrumb className="mt-3">
-        <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
-        <Breadcrumb.Item active>Bookmarks</Breadcrumb.Item>
+        <Breadcrumb.Item href="/">{t("common.home")}</Breadcrumb.Item>
+        <Breadcrumb.Item active>{t("nav.bookmarks")}</Breadcrumb.Item>
       </Breadcrumb>
-      <h2>Bookmarks</h2>
+      <h2>{t("bookmarks.title")}</h2>
       <Row className="p-3 m-0">
         <Col xs={10} className="p-0">
           <Form.Group controlId="search">
             <Form.Control
               type="text"
-              placeholder="Search"
+              placeholder={t("common.search")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -352,7 +354,7 @@ const bookmarks = () => {
             onClick={onChangeFile}
           >
             <Icon.PlusCircle size={16} className="me-2" />
-            Add bookmark
+            {t("bookmarks.addBookmark")}
           </Button>
         </Col>
       </Row>
@@ -364,7 +366,7 @@ const bookmarks = () => {
               className="me-3"
               color="orange"
             />
-            No bookmarks found
+            {t("bookmarks.noResults")}
           </h3>
         </Alert>
       )}
@@ -438,8 +440,8 @@ const bookmarks = () => {
         </Col>
       </Row>
       <ConfirmDialog
-        title="Delete bookmark"
-        message="Are you sure you want to delete this bookmark?"
+        title={t("bookmarks.deleteBookmarkTitle")}
+        message={t("bookmarks.confirmDeleteBookmark")}
         show={showConfirmDialog}
         handleOK={handleOK}
         handleCancel={handleCancel}

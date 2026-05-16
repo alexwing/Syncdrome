@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { ThemeContext } from "../context/themeContext";
+import { useTranslation } from "../context/languageContext";
 import {
   Badge,
   Container,
@@ -26,6 +27,7 @@ import { AddBookmarkBadge } from "../components/AddBookmarkBadge";
 
 const Navigator = () => {
   const { isDark } = useContext(ThemeContext);
+  const { t } = useTranslation();
   const [currentPath, setCurrentPath] = useState("");
   const [directoryContents, setDirectoryContents] = useState<
     { name: string; type: string }[]
@@ -61,8 +63,8 @@ const Navigator = () => {
       .catch((err) => {
         console.log(err);
         setAlert({
-          title: "Error",
-          message: "Error getting drives list, verify if config file exists",
+          title: t("common.error"),
+          message: t("explorer.errorGettingDrives"),
           type: TypeAlert.danger,
         });
         setShowAlert(true);
@@ -82,8 +84,8 @@ const Navigator = () => {
       if (!response.directoryContents) {
         setIsLoading(false);
         setAlert({
-          title: "Error",
-          message: "Drive is not data synchronized",
+          title: t("common.error"),
+          message: t("sync.driveNotDataSynced"),
           type: TypeAlert.danger,
         });
         setShowAlert(true);
@@ -98,10 +100,10 @@ const Navigator = () => {
       console.log("Error", err);
       const errorMessage =
         (err as any).response?.data?.error === "Already at root"
-          ? "Already at root"
-          : (err as any).response?.data || "An error occurred";
+          ? t("explorer.alreadyAtRoot")
+          : (err as any).response?.data || t("common.anErrorOccurred");
       setAlert({
-        title: "Error",
+        title: t("common.error"),
         message: errorMessage,
         type: TypeAlert.danger,
       });
@@ -147,8 +149,8 @@ const Navigator = () => {
       loadBookmarks(driveName);
     } catch (error) {
       setAlert({
-        title: "Error",
-        message: "Failed to change drive",
+        title: t("common.error"),
+        message: t("explorer.failedToChangeDrive"),
         type: TypeAlert.danger,
       });
       setShowAlert(true);
@@ -194,8 +196,8 @@ const Navigator = () => {
       .catch((error) => {
         console.log(error);
         setAlert({
-          title: "Error",
-          message: "Error getting bookmarks",
+          title: t("common.error"),
+          message: t("bookmarks.errorGetting"),
           type: TypeAlert.danger,
         });
         setShowAlert(true);
@@ -257,16 +259,16 @@ const Navigator = () => {
       className="sync"
     >
       <Breadcrumb className="mt-3">
-        <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
-        <Breadcrumb.Item active>Explorer</Breadcrumb.Item>
+        <Breadcrumb.Item href="/">{t("common.home")}</Breadcrumb.Item>
+        <Breadcrumb.Item active>{t("nav.explorer")}</Breadcrumb.Item>
       </Breadcrumb>
-      <h2>Synchronized Explorer</h2>
-      <small>This is a simple file explorer for synchronized volumes</small>
+      <h2>{t("explorer.title")}</h2>
+      <small>{t("explorer.subtitle")}</small>
       <Container fluid className="mt-3 mb-3">
         {showAlertMessage}
         <Dropdown>
           <Dropdown.Toggle variant="success" id="dropdown-basic">
-            {selectedDrive ? selectedDrive : "Select a drive"}
+            {selectedDrive ? selectedDrive : t("explorer.selectDrive")}
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
@@ -345,8 +347,8 @@ const Navigator = () => {
                         onClick={() => navigate("cd ..", currentPath)}
                       />
                     </th>
-                    <th style={{ width: "90%"}}>Name</th>
-                    <th style={{ width: "7%", textAlign: "center" }}>Actions</th>
+                    <th style={{ width: "90%"}}>{t("explorer.name")}</th>
+                    <th style={{ width: "7%", textAlign: "center" }}>{t("explorer.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>

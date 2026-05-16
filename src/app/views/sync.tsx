@@ -17,8 +17,10 @@ import * as Icon from "react-bootstrap-icons";
 import { AlertModel, DrivesProps, TypeAlert } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import ConfirmDialog from "../components/ConfirmDialog";
+import { useTranslation } from "../context/languageContext";
 
 const Sync = () => {
+  const { t } = useTranslation();
   const [drives, setDrives] = useState<DrivesProps[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingDrives, setLoadingDrives] = useState(false);
@@ -43,8 +45,8 @@ const Sync = () => {
     } catch (err) {
       console.log(err);
       setAlert({
-        title: "Error",
-        message: "Error getting drives list, verify if config file exists",
+        title: t("common.error"),
+        message: t("explorer.errorGettingDrives"),
         type: TypeAlert.danger,
       });
       setShowAlert(true);
@@ -60,8 +62,8 @@ const Sync = () => {
         setLoading(false);
         getDrives();
         setAlert({
-          title: "Success",
-          message: "Drive catalog syncronized",
+          title: t("common.success"),
+          message: t("sync.driveSynced"),
           type: TypeAlert.success,
         });
         setShowAlert(true);
@@ -70,7 +72,7 @@ const Sync = () => {
         console.log(err);
         setLoading(false);
         setAlert({
-          title: "Error",
+          title: t("common.error"),
           message: err.response.data,
           type: TypeAlert.danger,
         });
@@ -99,12 +101,12 @@ const Sync = () => {
     Api.deleteDrive(driveIdentifier)
       .then((res) => {
         if (!res?.success) {
-          throw new Error(res?.error || "Cannot delete drive catalog");
+          throw new Error(res?.error || t("sync.cannotDeleteCatalog"));
         }
         getDrives();
         setAlert({
-          title: "Deleted",
-          message: `Drive catalog deleted: ${drive.name}`,
+          title: t("sync.deleted"),
+          message: t("sync.catalogDeleted", { name: drive.name }),
           type: TypeAlert.success,
         });
         setShowAlert(true);
@@ -112,8 +114,8 @@ const Sync = () => {
       .catch((err) => {
         console.log(err);
         setAlert({
-          title: "Error",
-          message: err?.message || "Cannot delete drive catalog",
+          title: t("common.error"),
+          message: err?.message || t("sync.cannotDeleteCatalog"),
           type: TypeAlert.danger,
         });
         setShowAlert(true);
@@ -127,8 +129,8 @@ const Sync = () => {
       Api.openFolder("", driveLetter);
     } else {
       setAlert({
-        title: "Error",
-        message: "No drive letter found",
+        title: t("common.error"),
+        message: t("explorer.noDriveLetter"),
         type: TypeAlert.danger,
       });
       setShowAlert(true);
@@ -196,7 +198,7 @@ const Sync = () => {
       .catch((err) => {
         console.log(err);
         setAlert({
-          title: "Error",
+          title: t("common.error"),
           message: err.response.data,
           type: TypeAlert.danger,
         });
@@ -220,18 +222,18 @@ const Sync = () => {
     >
       {showAlertMessage}
       <ConfirmDialog
-        title="Delete Catalog"
-        message="Are you sure you want to delete this drive catalog?"
+        title={t("sync.deleteCatalogTitle")}
+        message={t("sync.confirmDeleteCatalog")}
         show={showConfirm}
         handleCancel={handleCloseConfirm}
         handleOK={handleOKConfirm}
       />
       <Breadcrumb className="mt-3">
-        <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
-        <Breadcrumb.Item active>Sync</Breadcrumb.Item>
+        <Breadcrumb.Item href="/">{t("common.home")}</Breadcrumb.Item>
+        <Breadcrumb.Item active>{t("nav.sync")}</Breadcrumb.Item>
       </Breadcrumb>
-      <h2>Syncronize Drives</h2>
-      <small>Here you can see the drives and syncronize them.</small>
+      <h2>{t("sync.title")}</h2>
+      <small>{t("sync.intro")}</small>
       <Container fluid className="mt-3 mb-3">
         <Row>
           <Col md={9}>
@@ -296,7 +298,7 @@ const Sync = () => {
         {loadingDrives && (
           <div className="sync-loading-drives">
             <Spinner animation="border" variant="primary" role="status" />
-            <span className="ms-3">Loading drives...</span>
+            <span className="ms-3">{t("sync.loadingDrives")}</span>
           </div>
         )}
         {!loadingDrives && drives.length === 0 && (
@@ -330,7 +332,7 @@ const Sync = () => {
               </Card.Title>
               <Card.Text>
                 <Badge bg={drive.sync ? "primary" : "secondary"}>
-                  {drive.sync ? "Syncronized" : "Not Syncronized"}
+                  {drive.sync ? t("sync.synced") : t("sync.notSynced")}
                 </Badge>
                 <Badge bg="light" text="dark" className="ms-2">
                   {getSyncDate(drive)}
@@ -395,12 +397,12 @@ const Sync = () => {
                 {drive.onlyMedia ? (
                   <span className="d-none d-md-inline">
                     <Icon.Film color="white" size={16} className="me-2" />
-                    Only Media
+                    {t("sync.onlyMedia")}
                   </span>
                 ) : (
                   <span className="d-none d-md-inline">
                     <Icon.CheckAll color="white" size={16} className="me-2" />
-                    All
+                    {t("sync.all")}
                   </span>
                 )}
               </Button>

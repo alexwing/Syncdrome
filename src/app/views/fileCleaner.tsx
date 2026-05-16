@@ -23,8 +23,10 @@ import {
 } from "../models/Interfaces";
 import { cleanFileNames } from "../helpers/utils";
 import AlertMessage from "../components/AlertMessage";
+import { useTranslation } from "../context/languageContext";
 
 const FileCleaner = () => {
+  const { t } = useTranslation();
   const initialPattenrTerm = localStorage.getItem("patternTerm") || "";
   const [originFolder, setOriginFolder] = useState("");
   const [substitutions, setSubstitutions] = useState<Substitution[]>(
@@ -53,8 +55,8 @@ const FileCleaner = () => {
       }
     } catch (error) {
       setAlert({
-        title: "Error",
-        message: "Config file not found or corrupted",
+        title: t("common.error"),
+        message: t("settings.configNotFound"),
         type: TypeAlert.danger,
       });
       setShowAlert(true);
@@ -70,8 +72,8 @@ const FileCleaner = () => {
       return response;
     } catch (error) {
       setAlert({
-        title: "Error",
-        message: "Error saving config file",
+        title: t("common.error"),
+        message: t("settings.errorSavingConfig"),
         type: TypeAlert.danger,
       });
       setShowAlert(true);
@@ -88,7 +90,7 @@ const FileCleaner = () => {
       const folder = await open({
         directory: true, // Permite seleccionar carpetas
         multiple: false, // Permite seleccionar solo una carpeta
-        title: "Selecciona una carpeta",
+        title: t("settings.selectFolder"),
         defaultPath: "/ruta/inicial", // Opcional: establece una ruta inicial
       });
       setOriginFolder(folder as string);
@@ -203,7 +205,7 @@ const FileCleaner = () => {
     Api.renameFilesInFolder(fileNames)
       .then((response) => {
         setAlert({
-          title: "Files renamed successfully",
+          title: t("fileCleaner.filesRenamed"),
           message: "",
           type: TypeAlert.success,
         });
@@ -212,7 +214,7 @@ const FileCleaner = () => {
       })
       .catch((error) => {
         setAlert({
-          title: "Error renaming files",
+          title: t("fileCleaner.errorRenaming"),
           message: error.message,
           type: TypeAlert.danger,
         });
@@ -223,21 +225,21 @@ const FileCleaner = () => {
   return (
     <Container className="container-scroll">
       <Breadcrumb className="mt-3">
-        <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
-        <Breadcrumb.Item active>File Name Cleaner</Breadcrumb.Item>
+        <Breadcrumb.Item href="/">{t("common.home")}</Breadcrumb.Item>
+        <Breadcrumb.Item active>{t("fileCleaner.title")}</Breadcrumb.Item>
       </Breadcrumb>
-      <h2>File Name Cleaner</h2>
+      <h2>{t("fileCleaner.title")}</h2>
       <Row className="cleaner-panel">
         <Col md={6}>
           <Form></Form>
           <Form.Group controlId="formOriginFolder" className="mt-2">
             <Form.Label>
               <Icon.Folder2Open className="me-2" size={20} color="blue" />
-              Origin Folder
+              {t("fileCleaner.originFolder")}
             </Form.Label>
             <Form.Control
               type="text"
-              placeholder="Enter Origin Folder"
+              placeholder={t("fileCleaner.enterOriginFolder")}
               value={originFolder}
               readOnly
               className="mt-3"
@@ -253,11 +255,11 @@ const FileCleaner = () => {
           <Form.Group controlId="formPattern" className="mt-5">
             <Form.Label>
               <Icon.Scissors className="me-2" size={20} color="blue" />
-              Pattern
+              {t("fileCleaner.pattern")}
             </Form.Label>
             <Form.Control
               type="text"
-              placeholder="Enter Pattern"
+              placeholder={t("fileCleaner.enterPattern")}
               onChange={handlePatternChange}
               value={pattern || ""}
             />
@@ -266,7 +268,7 @@ const FileCleaner = () => {
         <Col md={6}>
           <Form.Label>
             <Icon.CurrencyExchange className="me-2" size={20} color="blue" />
-            Substitution Rules
+            {t("fileCleaner.substitutionRules")}
             <Button
               variant="none"
               onClick={handleAddSubstitution}
@@ -292,8 +294,8 @@ const FileCleaner = () => {
             <Table striped bordered hover>
               <thead className="table-header">
                 <tr>
-                  <th>Find</th>
-                  <th>Replace</th>
+                  <th>{t("common.find")}</th>
+                  <th>{t("fileCleaner.replace")}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -354,7 +356,7 @@ const FileCleaner = () => {
             disabled={!originFolder}
           >
             <Icon.ArrowRepeat className="me-2" size={20} color="white" />
-            Reload
+            {t("fileCleaner.reload")}
           </Button>
           <Button
             variant="primary"
@@ -365,7 +367,7 @@ const FileCleaner = () => {
             disabled={!originFolder}
           >
             <Icon.FileEarmarkText className="me-2" size={20} color="white" />
-            Clean File Names
+            {t("fileCleaner.cleanFileNames")}
           </Button>
           <Button
             variant="success"
@@ -376,7 +378,7 @@ const FileCleaner = () => {
             disabled={!originFolder}
           >
             <Icon.Check2All className="me-2" size={20} color="white" />
-            Apply Changes
+            {t("fileCleaner.applyChanges")}
           </Button>
         </Col>
       </Row>
@@ -387,7 +389,7 @@ const FileCleaner = () => {
               <Alert variant="info">
                 {" "}
                 <Icon.FileEarmarkText className="m-2" size={32} color="black" />
-                No files to clean
+                {t("fileCleaner.noFiles")}
               </Alert>
             </div>
           </Col>
@@ -396,12 +398,12 @@ const FileCleaner = () => {
       {fileNames.length > 0 && (
         <Row>
           <Col md={12}>
-            <h4>File Names</h4>
+            <h4>{t("fileCleaner.fileNames")}</h4>
             <Table striped bordered hover>
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>File Name</th>
+                  <th>{t("fileCleaner.fileName")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -410,10 +412,10 @@ const FileCleaner = () => {
                     <td>{index + 1}</td>
                     <td>
                       <div className="file-name">
-                        <strong>Original:</strong> {file.filename}
+                        <strong>{t("fileCleaner.original")}</strong> {file.filename}
                       </div>
                       <div className="fixed-name">
-                        <strong>Fixed:</strong>
+                        <strong>{t("fileCleaner.fixed")}</strong>
                         <Form.Control
                           type="text"
                           value={file.fixed || ""}
@@ -424,7 +426,7 @@ const FileCleaner = () => {
                       </div>
                       {file.status && (
                         <div className="file-status">
-                          <strong>Status:</strong> {file.status}
+                          <strong>{t("fileCleaner.status")}</strong> {file.status}
                         </div>
                       )}
                     </td>

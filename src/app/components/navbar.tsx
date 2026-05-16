@@ -1,5 +1,6 @@
 import useEffect from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "../context/languageContext";
 import { NavBar, NavBarThemeSwitch, NavBarLink } from "../vendor/winui";
 // import { ThemeContext } from "../context/themeContext";
 import Api from "../helpers/api";
@@ -8,6 +9,7 @@ import Api from "../helpers/api";
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   /*const { theme, setLightTheme, setDarkTheme } = useContext(ThemeContext);
   const [config, setConfig] = useState({
     folder: "",
@@ -39,72 +41,72 @@ const Navbar = () => {
 
   return (
     <NavBar
-      title="Syncdrome"
+      title={t("nav.title")}
       shadowOnScroll={true}
       titleBarMobile={
         <div>
-          <span className="app-navbar-name">Syncdrome</span>
+          <span className="app-navbar-name">{t("nav.title")}</span>
         </div>
       }
     >
       <NavBarLink
-        text="Home"
+        text={t("nav.home")}
         icon={<i className="icons10-home"></i>}
         onClick={() => {
           navigateTo("/");
         }}
       />
       <NavBarLink
-        text="Explorer"
+        text={t("nav.explorer")}
         icon={<i className="icons10-folder"></i>}
         onClick={() => {
           navigateTo("/explorer");
         }}
       />
       <NavBarLink
-        text="Sync"
+        text={t("nav.sync")}
         icon={<i className="icons10-sync"></i>}
         onClick={() => {
           navigateTo("/sync");
         }}
       />
       <NavBarLink
-        text="Bookmarks"
+        text={t("nav.bookmarks")}
         icon={<i className="icons10-bookmark"></i>}
         onClick={() => {
           navigateTo("/bookmarks");
         }}
       />
       <NavBarLink
-        text="Folder Sync"
+        text={t("nav.folderSync")}
         icon={<i className="icons10-columns"></i>}
         onClick={() => {
           navigateTo("/folderSync");
         }}
       />
       <NavBarLink
-        text="File Cleaner"
+        text={t("nav.fileCleaner")}
         icon={<i className="icons10-file"></i>}
         onClick={() => {
           navigateTo("/fileCleaner");
         }}
       />
       <NavBarLink
-        text="Settings"
+        text={t("nav.settings")}
         icon={<i className="icons10-settings"></i>}
         onClick={() => {
           navigateTo("/settings");
         }}
       />
       <NavBarLink
-        text="Help"
+        text={t("nav.help")}
         icon={<i className="icons10-question-mark"></i>}
         onClick={() => {
           navigateTo("/help");
         }}
       />
       <NavBarLink
-        text="About"
+        text={t("nav.about")}
         icon={<i className="icons10-info"></i>}
         onClick={() => {
           navigateTo("/about");

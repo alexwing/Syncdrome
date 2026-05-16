@@ -60,10 +60,14 @@ export interface Bookmark {
 
 export type ThemeMode = "light" | "dark" | "system";
 
+export type Language = "en" | "es" | "fr" | "de";
+export type LanguageSetting = Language | "system";
+
 export interface Settings {
   folder: string;
   node_env: string;
   theme: ThemeMode;
+  language: LanguageSetting;
   extensions: FileTypes;
   defaultSubstitutions: Substitution[];
   pattern: string;

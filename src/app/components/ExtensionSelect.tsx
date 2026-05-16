@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Col, Form } from "react-bootstrap";
 import ReactSelect from "react-select";
 import { FileType, FileTypes } from "../models/Interfaces";
+import { useTranslation } from "../context/languageContext";
 import * as Icon from "react-bootstrap-icons";
 
 interface ExtensionSelectProps {
@@ -19,6 +20,7 @@ const ExtensionSelect: React.FC<ExtensionSelectProps> = ({
   values,
 }) => {
   //FileTypes sorted by key
+  const { t } = useTranslation();
   const [sorted, setSorted] = useState<FileTypes>({});
   const [selected, setSelected] = useState<any>([]);
   const handleSelect = (values: any) => {
@@ -90,7 +92,7 @@ const ExtensionSelect: React.FC<ExtensionSelectProps> = ({
         className="basic-multi-select text-start"
         classNamePrefix="select"
         onChange={handleSelect}
-        placeholder="Filter by file types"
+        placeholder={t("home.filterByTypes")}
       />
     </Form.Group>
   );

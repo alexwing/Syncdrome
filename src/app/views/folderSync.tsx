@@ -5,8 +5,10 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import Api from "../helpers/api";
 import { LogFile } from "../models/Interfaces";
 import { open } from '@tauri-apps/plugin-dialog';
+import { useTranslation } from "../context/languageContext";
 
 const FolderSync = () => {
+  const { t } = useTranslation();
   // Estado para almacenar los logs
   const [logs, setLogs] = useState<string[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -77,7 +79,7 @@ const FolderSync = () => {
       const folder = await open({
         directory: true,
         multiple: false,
-        title: 'Selecciona una carpeta',
+        title: t("settings.selectFolder"),
         defaultPath: '/ruta/inicial'
       });
       setOriginFolder(folder as string);
@@ -97,7 +99,7 @@ const FolderSync = () => {
       const folder = await open({
         directory: true,
         multiple: false,
-        title: 'Selecciona una carpeta',
+        title: t("settings.selectFolder"),
         defaultPath: '/ruta/inicial'
       });
       setDestinationFolder(folder as string);
@@ -137,19 +139,21 @@ const FolderSync = () => {
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       <ConfirmDialog
-        title="Sync Confirmation"
-        message={`Are you sure you want to sync the folders?`}
-        subMessage={`'${destinationFolder}' will be overwritten.`}
+        title={t("folderSync.syncConfirmation")}
+        message={t("folderSync.confirmSync")}
+        subMessage={t("folderSync.willBeOverwritten", {
+          folder: destinationFolder,
+        })}
         show={showConfirm}
         handleCancel={handleCloseConfirm}
         handleOK={handleOKConfirm}
       />
       <Breadcrumb className="mt-3">
-        <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
-        <Breadcrumb.Item active>Folder Sync</Breadcrumb.Item>
+        <Breadcrumb.Item href="/">{t("common.home")}</Breadcrumb.Item>
+        <Breadcrumb.Item active>{t("nav.folderSync")}</Breadcrumb.Item>
       </Breadcrumb>
-      <h2>Folder Sync</h2>
-      <small>Select folders to synchronize. Existing files in the destination that match the source will be preserved; those missing in the destination will be added; and those not present in the source will be deleted.</small>
+      <h2>{t("folderSync.title")}</h2>
+      <small>{t("folderSync.intro")}</small>
       <Row>
         <Col md={6}>
           <Form>
@@ -160,11 +164,11 @@ const FolderSync = () => {
                   size={20}
                   color="red"
                 />
-                Origin Folder
+                {t("folderSync.originFolder")}
               </Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter Origin Folder"
+                placeholder={t("folderSync.enterOriginFolder")}
                 onChange={(e) => changeOriginFolder(e.target.value)}
                 value={originFolder}
               />
@@ -193,11 +197,11 @@ const FolderSync = () => {
             <Form.Group controlId="formBasicEmail">
               <Form.Label>
                 <Icon.InboxFill className="me-2" size={20} color="blue" />
-                Destination Folder
+                {t("folderSync.destinationFolder")}
               </Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter Destination Folder"
+                placeholder={t("folderSync.enterDestinationFolder")}
                 onChange={(e) => changeDestinationFolder(e.target.value)}
                 value={destinationFolder}
               />
@@ -237,7 +241,7 @@ const FolderSync = () => {
             }
           >
             <Icon.ArrowRepeat className="me-3" size={20} />
-            Sync
+            {t("nav.sync")}
           </Button>
         </Col>
       </Row>
@@ -245,7 +249,7 @@ const FolderSync = () => {
         <Row>
           <Col md={12}>
             <div className="mt-3">
-              <h4>Sync Logs</h4>
+              <h4>{t("folderSync.syncLogs")}</h4>
               <code
                 className="p-3 bg-dark text-light rounded"
                 style={{

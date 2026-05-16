@@ -3,6 +3,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import "./ConfirmDialog.css";
 import * as Icon from "react-bootstrap-icons";
+import { useTranslation } from "../context/languageContext";
 
 interface ConfirmDialogProps {
   title: string;
@@ -21,6 +22,7 @@ function ConfirmDialog({
   handleCancel,
   handleOK,
 }: ConfirmDialogProps): React.JSX.Element {
+  const { t } = useTranslation();
   return (
     <React.Fragment>
       <Modal
@@ -51,11 +53,11 @@ function ConfirmDialog({
         <Modal.Footer>
           <Button variant="primary" onClick={handleOK} size="lg">
             <Icon.Check size={32} className="me-2" />
-            Yes
+            {t("common.yes")}
           </Button>
           <Button variant="secondary" onClick={handleCancel} size="lg">
             <Icon.X size={32} className="me-2" />
-            No
+            {t("common.no")}
           </Button>
         </Modal.Footer>
       </Modal>

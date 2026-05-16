@@ -1,16 +1,18 @@
 import React from "react";
 import { Breadcrumb, Container } from "react-bootstrap";
 import Config from "../components/config";
+import { useTranslation } from "../context/languageContext";
 
 const Settings = () => {
+  const { t } = useTranslation();
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       <Breadcrumb className="mt-3">
-        <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
-        <Breadcrumb.Item active>Settings</Breadcrumb.Item>
+        <Breadcrumb.Item href="/">{t("common.home")}</Breadcrumb.Item>
+        <Breadcrumb.Item active>{t("nav.settings")}</Breadcrumb.Item>
       </Breadcrumb>
-      <h2>Settings</h2>
-      <small>Here you can configure the application.</small>
+      <h2>{t("settings.title")}</h2>
+      <small>{t("settings.intro")}</small>
       <Config />
     </Container>
   );

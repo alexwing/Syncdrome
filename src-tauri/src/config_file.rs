@@ -18,6 +18,7 @@ pub fn get_default_config_json() -> String {
       "folder": "{}",
       "node_env": "development",
       "theme": "system",
+      "language": "system",
       "extensions": {{
         "3d": {{
           "color": "blue",

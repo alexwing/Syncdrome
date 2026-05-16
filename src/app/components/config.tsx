@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import Api from "../helpers/api";
 import { ThemeContext } from "../context/themeContext";
+import { useTranslation } from "../context/languageContext";
 import {
   Button,
   Col,
@@ -11,13 +12,14 @@ import {
   Form,
 } from "react-bootstrap";
 
-import { AlertModel , FileTypes, Settings, ThemeMode, TypeAlert } from "../models/Interfaces";
+import { AlertModel , FileTypes, LanguageSetting, Settings, ThemeMode, TypeAlert } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import * as Icon from "react-bootstrap-icons";
 import { open } from '@tauri-apps/plugin-dialog';
 
 const Config = () => {
   const { mode, setMode } = useContext(ThemeContext);
+  const { t, language, setLanguage } = useTranslation();
   const [folder, setFolder] = useState("");
   const [fileTypes, setFileTypes] = useState({} as FileTypes);
   const [selectedExtension, setSelectedExtension] = useState({
@@ -45,23 +47,23 @@ const Config = () => {
       getConfig();
       if (response.result === "error") {
         setAlert({
-          title: "Error",
-          message: "Config file not saved: " + response.message,
+          title: t("common.error"),
+          message: t("settings.configNotSavedReason") + response.message,
           type: TypeAlert.danger
         });
         setShowAlert(true);
         return;
       }
       setAlert({
-        title: "Success",
-        message: "Config file saved successfully",
+        title: t("common.success"),
+        message: t("settings.configSaved"),
         type: TypeAlert.success
       });
       setShowAlert(true);
     } catch (error) {
       setAlert({
-        title: "Error",
-        message: "Config file not saved",
+        title: t("common.error"),
+        message: t("settings.configNotSaved"),
         type: TypeAlert.danger
       });
       setShowAlert(true);
@@ -77,8 +79,8 @@ const Config = () => {
       setLoadedConfig(config);
     } catch (error) {
       setAlert({
-        title: "Error",
-        message: "Config file not found or corrupted",
+        title: t("common.error"),
+        message: t("settings.configNotFound"),
         type: TypeAlert.danger
       });
       setShowAlert(true);
@@ -117,7 +119,7 @@ const Config = () => {
       const folder = await open({
         directory: true,
         multiple: false,
-        title: 'Selecciona una carpeta',
+        title: t("settings.selectFolder"),
         defaultPath: '/ruta/inicial'
       });
       setFolder(folder as string);
@@ -277,8 +279,8 @@ const Config = () => {
         fileTypes[fileType].extensions.includes(newExtension.ext.toLowerCase())
       ) {
         setAlert({
-          title: "Error",
-          message: "Extension already exists in " + fileType,
+          title: t("common.error"),
+          message: t("settings.extensionExistsIn") + fileType,
           type: TypeAlert.danger
         });
         setShowAlert(true);
@@ -296,7 +298,7 @@ const Config = () => {
           name={key}
           id={key}
           type="text"
-          placeholder="Extension"
+          placeholder={t("settings.extensionPlaceholder")}
           value={newExtension.ext}
           onChange={(e) => setNewExtension({ key, ext: e.target.value })}
         />
@@ -360,7 +362,7 @@ const Config = () => {
       <Row>
         <Col xs={12} lg={8}>
           <label>
-            Folder:
+            {t("settings.folder")}
             <input
               type="text"
               value={folder}
@@ -383,15 +385,30 @@ const Config = () => {
           </label>
         </Col>
         <Col xs={12} lg={4}>
-          <Form.Group controlId="appearanceSelect">
-            <Form.Label>Appearance</Form.Label>
+          <Form.Group controlId="appearanceSelect" className="mb-2">
+            <Form.Label>{t("settings.appearance")}</Form.Label>
             <Form.Select
               value={mode}
               onChange={(e) => setMode(e.target.value as ThemeMode)}
             >
-              <option value="system">System</option>
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
+              <option value="system">{t("settings.themeSystem")}</option>
+              <option value="light">{t("settings.themeLight")}</option>
+              <option value="dark">{t("settings.themeDark")}</option>
+            </Form.Select>
+          </Form.Group>
+          <Form.Group controlId="languageSelect">
+            <Form.Label>{t("settings.language")}</Form.Label>
+            <Form.Select
+              value={language}
+              onChange={(e) =>
+                setLanguage(e.target.value as LanguageSetting)
+              }
+            >
+              <option value="system">{t("settings.themeSystem")}</option>
+              <option value="en">English</option>
+              <option value="es">Español</option>
+              <option value="fr">Français</option>
+              <option value="de">Deutsch</option>
             </Form.Select>
           </Form.Group>
         </Col>
@@ -400,14 +417,14 @@ const Config = () => {
         <Col className="text-center">
           <Button variant="primary" type="submit" className="full-width">
             <Icon.Save color="white" size={18} className="me-3" />
-            Save
+            {t("common.save")}
           </Button>
         </Col>
       </Row>
       <Row>
         <Col className="text-center">
           <Alert variant="info" className="mt-2 px-3 py-1 mb-0 opacity-75">
-             Add or remove file extensions to the file types. The checked extensions will be considered as media files in sync.
+            {t("settings.addRemoveInfo")}
           </Alert>
         </Col>
       </Row>

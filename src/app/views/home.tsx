@@ -21,8 +21,10 @@ import AlertMessage from "../components/AlertMessage";
 import ExtensionSelect from "../components/ExtensionSelect";
 import { connectedIcon, getFileIcon, openFileEvent, openFileEye, callOpenFolder, getConfig } from "../helpers/utils";
 import { AddBookmarkBadge } from "../components/AddBookmarkBadge";
+import { useTranslation } from "../context/languageContext";
 
 const Home = () => {
+  const { t } = useTranslation();
   const initialSearchTerm = localStorage.getItem("searchTerm") || "";
   const initialExtSelected = localStorage.getItem("extSelected") || "";
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
@@ -90,8 +92,8 @@ const Home = () => {
       .catch((err) => {
         console.log(err);
         setAlert({
-          title: "Error",
-          message: "Error searching files, verify config file",
+          title: t("common.error"),
+          message: t("home.errorSearching"),
           type: TypeAlert.danger,
         });
         setIsLoading(false);
@@ -191,7 +193,7 @@ const updateFilesWithBookmark = (
       {showAlertMessage}
       <div className="centered pt-3">
       <img src="/assets/icon.png" alt="logo" className="logo" />
-        <h1>Syncdrome</h1>
+        <h1>{t("nav.title")}</h1>
       </div>
       <div className="container text-center pb-3">
         <form className="search" onSubmit={handleSearch}>
@@ -199,7 +201,7 @@ const updateFilesWithBookmark = (
             value={searchTerm}
             onChange={handleInput}
             type="search"
-            placeholder="Enter file or folder to search"
+            placeholder={t("home.searchPlaceholder")}
           />
           <ExtensionSelect
             fileExtension={fileIconMappings}
@@ -209,10 +211,10 @@ const updateFilesWithBookmark = (
           />
           <Button variant="primary" type="submit" size="lg" className="me-2">
             <Icon.Search size={20} className="me-2" />
-            Search
+            {t("common.search")}
           </Button>
           <Button variant="secondary" size="lg" onClick={handleClearSearch}>
-            Clear
+            {t("common.clear")}
           </Button>
         </form>
       </div>
@@ -225,7 +227,7 @@ const updateFilesWithBookmark = (
                 className="me-3"
                 color="orange"
               />
-              Nothing found
+              {t("home.noResults")}
             </h3>
           </Alert>
         )}

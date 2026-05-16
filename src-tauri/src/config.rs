@@ -14,6 +14,8 @@ pub struct Config {
     pub node_env: String,
     #[serde(default = "default_theme")]
     pub theme: String,
+    #[serde(default = "default_language")]
+    pub language: String,
     pub extensions: serde_json::Value,
     pub defaultSubstitutions: Vec<Substitution>,
     pub pattern: String,
@@ -30,6 +32,10 @@ fn default_node_env() -> String {
 }
 
 fn default_theme() -> String {
+    "system".to_string()
+}
+
+fn default_language() -> String {
     "system".to_string()
 }
 

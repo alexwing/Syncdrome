@@ -6,8 +6,10 @@ import packageJson from "../../../package.json";
 import { Commit } from "../models/Interfaces";
 import * as Icon from "react-bootstrap-icons";
 import Api from "../helpers/api";
+import { useTranslation } from "../context/languageContext";
 
 const About = () => {
+  const { t } = useTranslation();
   const [markdown, setMarkdown] = useState("");
   const [commits, setCommits] = useState<{ [key: string]: Commit[] }>({});
   const [latestVersion, setLatestVersion] = useState<string | null>(null);
@@ -103,7 +105,7 @@ const About = () => {
     if (latestVersion && isNewerVersion(latestVersion, packageJson.version)) {
       return (
         <div>
-          <h3>Latest Version</h3>
+          <h3>{t("about.latestVersion")}</h3>
           <p>
             {latestVersion}
             <Button
@@ -113,7 +115,7 @@ const About = () => {
               target="_blank"
               className="mx-4"
             >
-              <Icon.Download className="mr-1" /> Download new version
+              <Icon.Download className="mr-1" /> {t("about.downloadNewVersion")}
             </Button>
           </p>
         </div>
@@ -124,8 +126,8 @@ const About = () => {
   return (
     <Container style={{ overflowY: "scroll", height: "100vh" }}>
       <Breadcrumb className="mt-3">
-        <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
-        <Breadcrumb.Item active>About</Breadcrumb.Item>
+        <Breadcrumb.Item href="/">{t("common.home")}</Breadcrumb.Item>
+        <Breadcrumb.Item active>{t("nav.about")}</Breadcrumb.Item>
       </Breadcrumb>
       <ReactMarkdown
         components={{
@@ -136,12 +138,12 @@ const About = () => {
       >
         {markdown}
       </ReactMarkdown>
-      <h3>Version</h3>
+      <h3>{t("about.version")}</h3>
       <p>{packageJson.version}</p>
       {showLastVersion()}
       {Object.keys(commits).length > 0 && (
         <div>
-          <h5>Change Log</h5>
+          <h5>{t("about.changeLog")}</h5>
           {Object.entries(commits).map(([date, commits]) => (
             <div key={date}>
               <h6>{date}</h6>

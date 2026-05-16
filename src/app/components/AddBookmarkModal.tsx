@@ -5,8 +5,10 @@ import Form from "react-bootstrap/Form";
 import Api from "../helpers/api";
 import { Bookmark } from "../models/Interfaces";
 import { Col, Row } from "react-bootstrap";
+import { useTranslation } from "../context/languageContext";
 
 function AddBookmarkModal({ show = false, onHide, bookmark, onAddBookmark }) {
+  const { t } = useTranslation();
   const [bookmarkLocal, setBookmarkLocal] = useState({} as Bookmark);
 
   useEffect(() => {
@@ -48,7 +50,9 @@ function AddBookmarkModal({ show = false, onHide, bookmark, onAddBookmark }) {
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          {bookmarkLocal.id ? "Edit" : "Add"} Bookmark
+          {bookmarkLocal.id
+            ? t("bookmarks.editBookmark")
+            : t("bookmarks.addBookmark")}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="m-0 p-0">
@@ -57,7 +61,7 @@ function AddBookmarkModal({ show = false, onHide, bookmark, onAddBookmark }) {
             <Col xs={10}>
               <Form.Group controlId="bookmarkName">
                 <Form.Label className="text-white-50 fs-6 fw-bold">
-                  File
+                  {t("bookmarks.file")}
                 </Form.Label>
                 <Form.Text className="text-white">
                   {bookmarkLocal.name}
@@ -67,7 +71,7 @@ function AddBookmarkModal({ show = false, onHide, bookmark, onAddBookmark }) {
             <Col xs={2}>
               <Form.Group controlId="bookmarkVolume">
                 <Form.Label className="text-white-50 fs-6 fw-bold">
-                  Volume
+                  {t("bookmarks.volume")}
                 </Form.Label>
                 <Form.Text className="text-white">
                   {bookmarkLocal.volume}
@@ -78,7 +82,7 @@ function AddBookmarkModal({ show = false, onHide, bookmark, onAddBookmark }) {
           <div className="p-3">
             <Form.Group controlId="bookmarkDescription" className="mb-3">
               <Form.Label className="text-black-50 fs-6 fw-bold">
-                Description
+                {t("bookmarks.description")}
               </Form.Label>
               <Form.Control
                 as="textarea"
@@ -88,10 +92,10 @@ function AddBookmarkModal({ show = false, onHide, bookmark, onAddBookmark }) {
               />
             </Form.Group>
             <Button variant="primary" type="submit" className="me-2">
-              Ok
+              {t("common.ok")}
             </Button>
             <Button variant="secondary" onClick={handleClose}>
-              Cancel
+              {t("common.cancel")}
             </Button>
           </div>
         </Form>
