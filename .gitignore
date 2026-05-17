@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Local release build artifacts and machine-specific code-signing config
+/release-staging/
+src-tauri/tauri.windows.conf.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
