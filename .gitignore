@@ -17,6 +17,7 @@ dist-ssr
 src-tauri/tauri.windows.conf.json
 
 # Editor directories and files
+.claude/
 .vscode/*
 !.vscode/extensions.json
 .idea

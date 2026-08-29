@@ -71,6 +71,7 @@ const fr: Dict = {
     noDriveLetter: "Lettre de lecteur introuvable",
     errorGettingDrives:
       "Erreur lors de l'obtention des lecteurs, vérifiez l'existence du fichier de configuration",
+    free: "libres",
   },
   sync: {
     title: "Synchroniser les lecteurs",

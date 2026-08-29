@@ -55,3 +55,55 @@ pre {
   font-size: 0.95em;
   border-radius: 10px;
 }
+
+/* Explorer: connected-drive quick-access cards */
+.drive-card {
+  min-width: 13rem;
+  max-width: 17rem;
+  cursor: pointer;
+  user-select: none;
+  transition: box-shadow 0.15s ease, transform 0.15s ease,
+    border-color 0.15s ease;
+}
+.drive-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+}
+.drive-card.drive-card-selected {
+  border-color: var(--PrimaryColor);
+  box-shadow: 0 0 0 1px var(--PrimaryColor);
+}
+.drive-card .drive-card-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.drive-card .drive-card-info {
+  min-width: 0;
+}
+.drive-card .progress {
+  height: 6px;
+  margin: 4px 0 2px;
+}
+
+/* Keep-alive views: persistent tabs stay mounted while hidden. Hidden views
+   keep their layout (visibility, not display:none) so scroll positions and
+   in-flight work survive tab switches. */
+.keep-alive-views {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100vh;
+}
+
+.keep-alive-view {
+  position: absolute;
+  inset: 0;
+}
+
+.keep-alive-view-hidden {
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+}

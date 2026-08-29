@@ -3,12 +3,15 @@ import { ThemeContext } from "../context/themeContext";
 import { useTranslation } from "../context/languageContext";
 import {
   Badge,
+  Card,
   Container,
+  ProgressBar,
   Spinner,
   Table,
   Breadcrumb,
   Dropdown,
 } from "react-bootstrap";
+import classNames from "classnames";
 import * as Icon from "react-bootstrap-icons";
 import AlertMessage from "../components/AlertMessage";
 import {
@@ -165,6 +168,56 @@ const Navigator = () => {
     await handleDriveChange(selectedDriveName);
   };
 
+  const byteToGB = (byte: number) =>
+    (byte / 1024 / 1024 / 1024).toFixed(2) + " GB";
+
+  const percentDisk = (drive: DrivesProps) =>
+    drive.size && drive.freeSpace
+      ? (100 * (drive.size - drive.freeSpace)) / drive.size
+      : 0;
+
+  const percentDiskColor = (drive: DrivesProps) => {
+    const percent = percentDisk(drive);
+    if (percent < 50) return "success";
+    if (percent < 80) return "warning";
+    return "danger";
+  };
+
+  const connectedDrives = drives.filter((drive) => drive.connected);
+
+  const driveCard = (drive: DrivesProps) => (
+    <Card
+      key={drive.name}
+      className={classNames("drive-card", {
+        "drive-card-selected": selectedDrive === drive.name,
+      })}
+      onClick={() => {
+        if (isChangingDrive) return;
+        handleDriveSelect({ target: { value: drive.name } });
+      }}
+    >
+      <Card.Body className="d-flex align-items-center py-2 px-3">
+        <Icon.HddFill size={24} color="green" className="me-2 flex-shrink-0" />
+        <div className="drive-card-info flex-grow-1">
+          <div className="drive-card-title">
+            {drive.letter} {drive.name}
+          </div>
+          {drive.size > 0 && (
+            <>
+              <ProgressBar
+                variant={percentDiskColor(drive)}
+                now={percentDisk(drive)}
+              />
+              <small className="text-muted">
+                {byteToGB(drive.freeSpace)} {t("explorer.free")}
+              </small>
+            </>
+          )}
+        </div>
+      </Card.Body>
+    </Card>
+  );
+
   const showAlertMessage = (
     <AlertMessage
       show={showAlert}
@@ -266,6 +319,11 @@ const Navigator = () => {
       <small>{t("explorer.subtitle")}</small>
       <Container fluid className="mt-3 mb-3">
         {showAlertMessage}
+        {connectedDrives.length > 0 && (
+          <div className="d-flex flex-wrap gap-3 mb-3">
+            {connectedDrives.map(driveCard)}
+          </div>
+        )}
         <Dropdown>
           <Dropdown.Toggle variant="success" id="dropdown-basic">
             {selectedDrive ? selectedDrive : t("explorer.selectDrive")}

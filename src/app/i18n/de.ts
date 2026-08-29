@@ -71,6 +71,7 @@ const de: Dict = {
     noDriveLetter: "Kein Laufwerksbuchstabe gefunden",
     errorGettingDrives:
       "Fehler beim Abrufen der Laufwerksliste, prüfen Sie, ob die Konfigurationsdatei existiert",
+    free: "frei",
   },
   sync: {
     title: "Laufwerke synchronisieren",

@@ -68,6 +68,7 @@ const en = {
     failedToChangeDrive: "Failed to change drive",
     noDriveLetter: "No drive letter found",
     errorGettingDrives: "Error getting drives list, verify if config file exists",
+    free: "free",
   },
   sync: {
     title: "Syncronize Drives",

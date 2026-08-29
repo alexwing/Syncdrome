@@ -71,6 +71,15 @@
   color: #b0b0b0 !important;
 }
 
+/* Explorer connected-drive cards */
+[data-bs-theme="dark"] .drive-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+[data-bs-theme="dark"] .drive-card.drive-card-selected {
+  border-color: var(--PrimaryColorLight);
+  box-shadow: 0 0 0 1px var(--PrimaryColorLight);
+}
+
 /* File path (forms.css uses black) */
 [data-bs-theme="dark"] .file-path,
 [data-bs-theme="dark"] .file-path strong {

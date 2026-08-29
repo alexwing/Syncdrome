@@ -11,6 +11,18 @@ import Help from "../views/help";
 import Settings from "../views/settings";
 import Sync from "../views/sync";
 import Explorer from "../views/Navigator";
+import KeepAliveRoutes from "../components/keepAliveRoutes";
+
+// Working views keep their state (results, logs, running jobs) across tab
+// switches. Utility views (bookmarks, settings, help, about) remount on each
+// visit so they always show fresh data.
+const PERSISTENT_VIEWS = [
+  { path: "/", element: <Home /> },
+  { path: "/explorer", element: <Explorer /> },
+  { path: "/sync", element: <Sync /> },
+  { path: "/folderSync", element: <FolderSync /> },
+  { path: "/fileCleaner", element: <FileCleaner /> },
+];
 
 const AppLayout = () => {
   return (
@@ -18,17 +30,14 @@ const AppLayout = () => {
       {/* Primary color only; light/dark is owned by ThemeProvider. */}
       <AppTheme color={"#16ab9c"} colorDarkMode={"#1ee6d1"} />
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/sync" element={<Sync />} />
-        <Route path="/bookmarks" element={<Bookmarks />} />
-        <Route path="/explorer" element={<Explorer />} />
-        <Route path="/folderSync" element={<FolderSync />} />
-        <Route path="/fileCleaner" element={<FileCleaner />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/help" element={<Help />} />
-        <Route path="/about" element={<About />} />
-      </Routes>
+      <KeepAliveRoutes routes={PERSISTENT_VIEWS}>
+        <Routes>
+          <Route path="/bookmarks" element={<Bookmarks />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/help" element={<Help />} />
+          <Route path="/about" element={<About />} />
+        </Routes>
+      </KeepAliveRoutes>
     </AppContainer>
   );
 };

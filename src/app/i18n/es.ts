@@ -69,6 +69,7 @@ const es: Dict = {
     noDriveLetter: "No se encontró la letra de unidad",
     errorGettingDrives:
       "Error al obtener la lista de unidades, verifica que exista el archivo de configuración",
+    free: "libres",
   },
   sync: {
     title: "Sincronizar unidades",
