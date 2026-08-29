@@ -97,6 +97,7 @@ export interface FileCleanerProps {
   filename: string;
   fixed?: string;
   status?: string;
+  message?: string;
 }
 
 export interface Substitution {

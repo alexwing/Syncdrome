@@ -1,55 +1,243 @@
-/* styles.css */
+/* Limpiador de nombres: carril de receta + lista con diff */
 .container-scroll {
-    overflow-y: scroll;
-    height: 100vh;
-  }
-  
-  .table-container {
-    max-height: 22vh;
-    overflow-y: auto;
-  }
-  
-  .table-header {
-    position: sticky;
-    top: 0;
-    background-color: white;
-    z-index: 1;
-  }
-  
-  .cell-no-padding {
-    padding: 0 !important;
-    height: 100%;
-  }
+  overflow-y: scroll;
+  height: 100vh;
+}
 
-  .form-control-flat {
-    border: none;
-    border-bottom: 1px solid #ced4da;
-    border-radius: 0;
-    box-shadow: none;
-    padding: 3px 10px;
-    margin: 0;
-    border: none;    
-  }
-  
-  .form-control-flat:focus {
-    border-color: #80bdff;
-    box-shadow: none;
-  }
-  .file-name {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 13px;
-  }
-  .fixed-name {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 12px;
-    font-style: italic;
-    color: #6c757d;
-  }
-  .file-status {
-    font-size: 12px;
-    color: #130364;
-  }
+/* --- Carril de receta (izquierda) --- */
+.cleaner-rail {
+  width: 320px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Las reglas scrollean dentro de su tarjeta; así los botones de acción del
+   carril quedan siempre visibles aunque haya muchas reglas. */
+.cleaner-rules-list {
+  max-height: 38vh;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.cleaner-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+[data-bs-theme="dark"] .cleaner-card {
+  background: #232323;
+}
+
+.cleaner-card-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+}
+
+.cleaner-mono {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px !important;
+}
+
+.cleaner-rule {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+.cleaner-rule:hover {
+  background: var(--bs-tertiary-bg);
+  border-color: var(--bs-border-color);
+}
+
+.rule-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.rule-count {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--bs-secondary-color);
+  white-space: nowrap;
+}
+.cleaner-icon-btn {
+  cursor: pointer;
+  padding: 0 2px;
+}
+.cleaner-accent {
+  color: var(--PrimaryColor);
+}
+[data-bs-theme="dark"] .cleaner-accent {
+  color: var(--PrimaryColorLight);
+}
+
+/* --- Lista con diff --- */
+.cleaner-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.cleaner-colhead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--bs-border-color);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+}
+
+.cleaner-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 36px;
+  padding: 3px 10px;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+  font-size: 12px;
+}
+.cleaner-row:hover {
+  background: var(--bs-tertiary-bg);
+}
+.cleaner-row-conflict {
+  background: rgba(255, 193, 7, 0.08);
+}
+.cleaner-row-unchanged {
+  opacity: 0.45;
+}
+
+.cleaner-check {
+  width: 24px;
+  flex-shrink: 0;
+}
+/* La regla global de forms.css (input { width: 100%; padding: .75rem }) rompe
+   checkboxes y switches de Bootstrap: se restauran aquí de forma acotada. */
+.cleaner-row .form-check,
+.cleaner-toolbar .form-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  white-space: nowrap;
+}
+.cleaner-row .form-check-input {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+.cleaner-toolbar .form-check-input {
+  width: 2.2em;
+  height: 1.1em;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+.cleaner-card .form-control,
+.cleaner-rule .form-control {
+  margin-bottom: 0;
+}
+.cleaner-original,
+.cleaner-new {
+  flex: 1;
+  min-width: 0;
+  font-family: Consolas, "Courier New", monospace;
+  overflow-wrap: anywhere;
+}
+.cleaner-arrow {
+  width: 18px;
+  flex-shrink: 0;
+  text-align: center;
+}
+.cleaner-arrow-icon {
+  color: var(--PrimaryColor);
+}
+[data-bs-theme="dark"] .cleaner-arrow-icon {
+  color: var(--PrimaryColorLight);
+}
+.cleaner-new-text {
+  cursor: text;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cleaner-col-status {
+  width: 90px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 10px;
+}
+.cleaner-status {
+  white-space: nowrap;
+}
+.cleaner-conflict {
+  color: #ffc107;
+}
+.cleaner-edited {
+  color: var(--PrimaryColor);
+}
+[data-bs-theme="dark"] .cleaner-edited {
+  color: var(--PrimaryColorLight);
+}
+.cleaner-restore {
+  cursor: pointer;
+  color: var(--bs-secondary-color);
+}
+
+/* Segmentos del diff */
+.seg-del {
+  color: #e06666;
+  background: rgba(224, 102, 102, 0.14);
+  text-decoration: line-through;
+}
+.seg-add {
+  color: #2e8b57;
+  background: rgba(90, 209, 138, 0.18);
+}
+[data-bs-theme="dark"] .seg-add {
+  color: #5ad18a;
+  background: rgba(90, 209, 138, 0.14);
+}
+
+.cleaner-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-top: 1px solid var(--bs-border-color);
+  font-size: 12px;
+  color: var(--bs-secondary-color);
+}
+
+.cleaner-spin {
+  animation: cleaner-rotate 1s linear infinite;
+}
+@keyframes cleaner-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
