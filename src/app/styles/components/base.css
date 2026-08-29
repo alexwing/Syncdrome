@@ -103,17 +103,23 @@ pre {
 /* Explorer: dense list + preview panel */
 .explorer-toolbar {
   display: flex;
-  align-items: center;
+  /* stretch: la barra de direcciones mide siempre lo mismo que el filtro */
+  align-items: stretch;
   gap: 14px;
   margin: 10px 0;
 }
 .explorer-toolbar .explorer-breadcrumb {
   min-width: 0;
-  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  padding: 8px 18px;
   border-radius: 6px;
 }
 .explorer-toolbar .breadcrumb {
   margin-bottom: 0;
+}
+.explorer-toolbar .explorer-filter {
+  align-self: center;
 }
 .explorer-filter {
   width: 250px;

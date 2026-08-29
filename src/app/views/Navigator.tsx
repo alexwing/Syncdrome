@@ -514,7 +514,7 @@ const Navigator = () => {
         {!isChangingDrive && selectedDrive && (
           <>
             <div className="explorer-toolbar">
-              <Breadcrumb className="explorer-breadcrumb bg-body-tertiary p-0 m-0 flex-grow-1">
+              <Breadcrumb className="explorer-breadcrumb bg-body-tertiary m-0 flex-grow-1">
                 <Breadcrumb.Item
                   onClick={() => navigate("cd ..", "")}
                   className="p-0 m-0"
