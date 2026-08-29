@@ -8,14 +8,15 @@ import {
   Badge,
   Button,
   Container,
-  ListGroup,
   Spinner,
 } from "react-bootstrap";
+import classNames from "classnames";
 import Api from "../helpers/api";
 import ConfirmDialog from "../components/ConfirmDialog";
 import AddBookmarkModal from "../components/AddBookmarkModal";
 import AlertMessage from "../components/AlertMessage";
-import { connectedIcon, getFileIcon } from "../helpers/utils";
+import FilePreviewPanel from "../components/FilePreviewPanel";
+import { connectedIcon, getFileIcon, getExtension } from "../helpers/utils";
 import { open } from '@tauri-apps/plugin-dialog';
 import { useTranslation } from "../context/languageContext";
 
@@ -47,6 +48,7 @@ const bookmarks = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [file, setFile] = useState("");
   const [draggingOver, setDraggingOver] = useState(false);
+  const [selectedId, setSelectedId] = useState<Number | null>(null);
 
   const onChangeFile = async () => {
     try {
@@ -190,9 +192,19 @@ const bookmarks = () => {
   };
   // set Icon component from url extension
   const getIcon = (file: Bookmark) => {
-    const extension = file.name.split(".").pop();
-    return getFileIcon(extension || '', fileIconMappings).icon;
+    const extension = getExtension(file.name);
+    if (!extension) {
+      return <Icon.FolderFill size={16} className="explorer-folder-icon" />;
+    }
+    return getFileIcon(extension, fileIconMappings).icon;
   };
+
+  // Marcador seleccionado (resuelto por id para sobrevivir a recargas)
+  const selectedBookmark = selectedId
+    ? BookmarksByVolume.flatMap((v) => v.bookmarks).find(
+        (b) => b.id === selectedId
+      )
+    : undefined;
 
   const filterBookmarks = (BookmarksByVolume: BookmarksByVolume[]) => {
     if (search === "" || search === null) {
@@ -254,24 +266,6 @@ const bookmarks = () => {
     }
   };
 
-  //print count of files as  <Badge>
-  const openFileEye = (bookmark: Bookmark) => {
-    if (!isConnect(bookmark.volume)) {
-      return null;
-    }
-    return (
-      <Button
-        className="m-0 p-0 me-2"
-        variant="link"
-        onClick={() => {
-          onConnectedElementHandler(bookmark);
-        }}
-      >
-        <Icon.Eye size={18} color="green" />
-      </Button>
-    );
-  };
-
   const isConnect = (volume: String) => {
     const driveLetter = drives.find(
       (drive: any) => drive.name === volume
@@ -279,24 +273,63 @@ const bookmarks = () => {
     return driveLetter && driveLetter.connected;
   };
 
-  //button to open file in windows explorer
-  const openFile = (bookmark: Bookmark) => {
-    const isConnected = isConnect(bookmark.volume);
+  // Fila de marcador con la estética del explorador
+  const bookmarkRow = (bookmark: Bookmark) => {
+    const connected = isConnect(bookmark.volume);
+    const isSel = selectedId === bookmark.id;
     return (
-      <Button
-        className="m-0 p-0 me-2"
-        variant="link"
-        disabled={!isConnected}
-        onClick={
-          isConnected ? () => onConnectedElementHandler(bookmark) : undefined
-        }
+      <div
+        key={`bookmark-${bookmark.id}`}
+        className={classNames("explorer-row", { selected: isSel })}
+        onClick={() => setSelectedId(bookmark.id)}
+        onDoubleClick={() => connected && onConnectedElementHandler(bookmark)}
       >
-        {bookmark.name.includes(".") ? (
-          getIcon(bookmark)
-        ) : (
-          <Icon.Folder2Open color="DarkOrange" size={20} />
-        )}
-      </Button>
+        <span className="explorer-icon">{getIcon(bookmark)}</span>
+        <span className="explorer-cell-name">
+          <span className="explorer-name explorer-file-link">
+            <small className="text-muted">{bookmark.path}\</small>
+            {bookmark.name}
+          </span>
+        </span>
+        <span className="explorer-col-desc" title={bookmark.description}>
+          {bookmark.description}
+        </span>
+        <span
+          className="explorer-col-actions explorer-actions"
+          onClick={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => e.stopPropagation()}
+        >
+          {connected && (
+            <Badge
+              bg="none"
+              style={{ cursor: "pointer" }}
+              onClick={() => onConnectedElementHandler(bookmark)}
+            >
+              <Icon.BoxArrowUpRight size={13} color="green" />
+            </Badge>
+          )}
+          <Badge
+            bg="none"
+            style={{ cursor: "pointer" }}
+            onClick={() => {
+              setBookmarkSelected(bookmark);
+              setShowAddBookmarkModal(true);
+            }}
+          >
+            <Icon.PencilSquare size={14} color="#6ea8fe" />
+          </Badge>
+          <Badge
+            bg="none"
+            style={{ cursor: "pointer" }}
+            onClick={() => {
+              setShowConfirmDialog(true);
+              setBookmarkToDelete(bookmark.id);
+            }}
+          >
+            <Icon.Trash size={14} color="#dc3545" />
+          </Badge>
+        </span>
+      </div>
     );
   };
   // alert message
@@ -375,10 +408,10 @@ const bookmarks = () => {
           <span className="visually-hidden">Loading...</span>
         </Spinner>
       )}
-      <Row className="p-3 m-0">
-        <Col xs={12} className="p-0">
+      <div className="d-flex gap-3 align-items-start p-3">
+        <div className="flex-grow-1" style={{ minWidth: 0 }}>
           {BookmarksByVolumeFiltered.map((volume, index) => (
-            <Card key={index}>
+            <Card key={index} className="mb-3">
               <Card.Header className="d-flex justify-content-between inline-block">
                 <Icon.DeviceHddFill
                   size={20}
@@ -390,55 +423,31 @@ const bookmarks = () => {
                 </h5>
                 {driveBadge(volume.volume)}
               </Card.Header>
-              <Card.Body>
-                <ListGroup>
-                  {volume.bookmarks.map((bookmark, bookmarkIndex) => (
-                    <ListGroup.Item
-                      key={`bookmark-${bookmarkIndex}`}
-                      className="d-flex justify-content-between inline-block"
-                    >
-                      {openFile(bookmark)}
-                      <span className="file-path">
-                        <small>{bookmark.path}\</small>
-                        <strong>{bookmark.name}</strong>
-                      </span>
-                      <ListGroup.Item className="d-flex justify-content-between p-0 m-0 border-0">
-                        <Badge
-                          bg="warning"
-                          className="me-2 bookmark-desc text-dark"
-                        >
-                          {bookmark.description}
-                        </Badge>
-                        {openFileEye(bookmark)}
-                        <Button
-                          className="m-0 p-0 me-2"
-                          variant="link"
-                          onClick={() => {
-                            setBookmarkSelected(bookmark);
-                            setShowAddBookmarkModal(true);
-                          }}
-                        >
-                          <Icon.PencilSquare color="blue" size={20} />
-                        </Button>
-                        <Button
-                          className="m-0 p-0"
-                          variant="link"
-                          onClick={() => {
-                            setShowConfirmDialog(true);
-                            setBookmarkToDelete(bookmark.id);
-                          }}
-                        >
-                          <Icon.Trash color="red" size={20} />
-                        </Button>
-                      </ListGroup.Item>
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
+              <Card.Body className="py-2">
+                {volume.bookmarks.map((bookmark) => bookmarkRow(bookmark))}
               </Card.Body>
             </Card>
           ))}
-        </Col>
-      </Row>
+        </div>
+        {selectedBookmark && (
+          <FilePreviewPanel
+            item={{ name: selectedBookmark.name, type: "file" }}
+            currentPath={selectedBookmark.path}
+            driveLetter={
+              isConnect(selectedBookmark.volume)
+                ? getDriveLetter(selectedBookmark.volume, drives) || null
+                : null
+            }
+            volume={selectedBookmark.volume}
+            bookmark={selectedBookmark}
+            fileIconMappings={fileIconMappings}
+            onBookmarkChange={() => loadBookmarks()}
+            onClose={() => setSelectedId(null)}
+            setAlert={setAlert}
+            setShowAlert={setShowAlert}
+          />
+        )}
+      </div>
       <ConfirmDialog
         title={t("bookmarks.deleteBookmarkTitle")}
         message={t("bookmarks.confirmDeleteBookmark")}

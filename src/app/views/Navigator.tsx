@@ -93,7 +93,14 @@ const Navigator = () => {
         setDrives(
           res
             .filter((drive) => drive.sync)
-            .sort((a, b) => a.name.localeCompare(b.name))
+            // Conectadas primero por letra; después desconectadas por nombre
+            .sort((a, b) => {
+              if (a.connected && b.connected)
+                return a.letter.localeCompare(b.letter);
+              if (a.connected) return -1;
+              if (b.connected) return 1;
+              return a.name.localeCompare(b.name);
+            })
         );
       })
       .catch((err) => {

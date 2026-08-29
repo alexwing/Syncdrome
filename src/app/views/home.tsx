@@ -150,6 +150,16 @@ const Home = () => {
     localStorage.setItem("extSelected", values.join(","));
   };
 
+  // Volúmenes ordenados: conectados primero por letra, luego el resto por nombre
+  const sortedVolumes = Object.keys(files).sort((a, b) => {
+    const ca = (files[a] as any)?.connected;
+    const cb = (files[b] as any)?.connected;
+    if (ca && cb) return String(ca).localeCompare(String(cb));
+    if (ca) return -1;
+    if (cb) return 1;
+    return a.localeCompare(b);
+  });
+
   // Fila de resultado con la estética del explorador
   const resultRow = (item: IFile, volume: string, folder: string) => {
     const drive = files[volume].connected;
@@ -291,7 +301,7 @@ const updateFilesWithBookmark = (
           <div className="d-flex gap-3 align-items-start">
             <div className="flex-grow-1" style={{ minWidth: 0 }}>
           <Accordion>
-            {Object.keys(files).map((key, index) => (
+            {sortedVolumes.map((key, index) => (
               <Accordion.Item eventKey={index.toString()} key={index}>
                 <Accordion.Header >
                   <div className="d-flex justify-content-between inline-block w-100">
