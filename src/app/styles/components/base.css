@@ -415,8 +415,17 @@ pre {
   background: color-mix(in srgb, var(--PrimaryColor) 8%, transparent);
   font-size: 12px;
 }
+.preview-bookmark {
+  cursor: pointer;
+}
+.preview-bookmark:hover {
+  background: color-mix(in srgb, var(--PrimaryColor) 14%, transparent);
+}
 .preview-bookmark-text {
   min-width: 0;
+}
+.preview-bookmark-edit {
+  color: var(--bs-secondary-color);
 }
 .preview-actions {
   display: flex;

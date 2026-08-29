@@ -6,7 +6,7 @@ import { convertFileSrc } from "@tauri-apps/api/core";
 import Api from "../helpers/api";
 import { Bookmark, ExplorerItem, FileTypes, TextPreview } from "../models/Interfaces";
 import { getFileIcon, getExtension, openFileEvent, callOpenFolder } from "../helpers/utils";
-import { AddBookmarkBadge } from "./AddBookmarkBadge";
+import AddBookmarkModal from "./AddBookmarkModal";
 import { useTranslation } from "../context/languageContext";
 
 const IMAGE_EXTS = ["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "avif", "ico"];
@@ -80,6 +80,7 @@ const FilePreviewPanel: React.FC<FilePreviewPanelProps> = ({
   const { t } = useTranslation();
   const [text, setText] = useState<TextPreview | null>(null);
   const [mediaError, setMediaError] = useState(false);
+  const [showBookmarkModal, setShowBookmarkModal] = useState(false);
   // El asset protocol debe autorizar la carpeta ANTES de que el <img>/<video>
   // pida el archivo; si no, la primera carga falla (carrera).
   const [scopeReady, setScopeReady] = useState(false);
@@ -212,20 +213,43 @@ const FilePreviewPanel: React.FC<FilePreviewPanelProps> = ({
         </div>
       </div>
 
-      <div className="preview-bookmark">
-        <AddBookmarkBadge
-          isBookmarked={!!bookmark}
-          fileName={item.name}
-          path={currentPath}
-          volume={volume}
-          description={bookmark?.description || ""}
-          setFiles={() => {}}
-          onAddBookmark={onBookmarkChange}
+      <div
+        className="preview-bookmark"
+        role="button"
+        title={t("explorer.editBookmark")}
+        onClick={() => setShowBookmarkModal(true)}
+      >
+        <Icon.BookmarkPlusFill
+          size={16}
+          color={bookmark ? "#16ab9c" : "#cdcdcd"}
+          className="flex-shrink-0"
         />
         <span className="preview-bookmark-text">
-          {bookmark?.description || bookmark ? bookmark?.description || t("explorer.bookmarked") : t("explorer.noBookmark")}
+          {bookmark
+            ? bookmark.description || t("explorer.bookmarked")
+            : t("explorer.noBookmark")}
         </span>
+        <Icon.PencilSquare size={13} className="ms-auto flex-shrink-0 preview-bookmark-edit" />
       </div>
+      {showBookmarkModal && (
+        <AddBookmarkModal
+          show={showBookmarkModal}
+          onHide={() => setShowBookmarkModal(false)}
+          bookmark={
+            bookmark || {
+              id: null,
+              name: item.name,
+              path: currentPath,
+              volume: volume,
+              description: "",
+            }
+          }
+          onAddBookmark={(saved: Bookmark) => {
+            setShowBookmarkModal(false);
+            onBookmarkChange(saved);
+          }}
+        />
+      )}
 
       <div className="preview-actions">
         <Button

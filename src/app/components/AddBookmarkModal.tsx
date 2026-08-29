@@ -81,17 +81,22 @@ function AddBookmarkModal({ show = false, onHide, bookmark, onAddBookmark }) {
           </Row>
           <div className="p-3">
             <Form.Group controlId="bookmarkDescription" className="mb-3">
-              <Form.Label className="text-black-50 fs-6 fw-bold">
+              <Form.Label className="fs-6 fw-bold">
                 {t("bookmarks.description")}
               </Form.Label>
               <Form.Control
                 as="textarea"
                 name="description"
-                value={bookmarkLocal.description}
+                value={bookmarkLocal.description || ""}
                 onChange={handleChange}
               />
             </Form.Group>
-            <Button variant="primary" type="submit" className="me-2">
+            <Button
+              variant="primary"
+              type="submit"
+              className="me-2"
+              disabled={!bookmarkLocal.name}
+            >
               {t("common.ok")}
             </Button>
             <Button variant="secondary" onClick={handleClose}>

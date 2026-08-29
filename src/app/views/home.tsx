@@ -201,6 +201,7 @@ const Home = () => {
             path={folder}
             volume={volume}
             description={item.bookmark?.description || ""}
+            bookmark={item.bookmark as any}
             setFiles={setFiles}
             onAddBookmark={(bookmark) => updateFilesWithBookmark(bookmark)}
           />

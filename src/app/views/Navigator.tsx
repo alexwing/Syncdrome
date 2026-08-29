@@ -418,6 +418,7 @@ const Navigator = () => {
               path={currentPath}
               volume={selectedDrive}
               description={bookmark?.description || ""}
+              bookmark={bookmark}
               setFiles={() => {}}
               onAddBookmark={updateFilesWithBookmark}
             />
