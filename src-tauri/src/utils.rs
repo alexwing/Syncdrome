@@ -233,17 +233,19 @@ pub fn get_drives_info(config_folder: &str, connected: &serde_json::Value) -> se
     serde_json::Value::Array(combined)
 }
 
-pub fn get_extensions(config: &serde_json::Value) -> Vec<String> {
+// Recibe el mapa de categorías (config.extensions) y devuelve todas las
+// extensiones marcadas como media. OJO: antes descendía por una clave
+// "extensions" inexistente y devolvía siempre una lista vacía, con lo que una
+// sincronización onlyMedia eliminaba TODOS los archivos del catálogo.
+pub fn get_extensions(extensions: &serde_json::Value) -> Vec<String> {
     let mut all_exts = vec![];
-    if let Some(obj) = config.get("extensions") {
-        if let Some(map) = obj.as_object() {
-            for (_, value) in map.iter() {
-                if let Some(media) = value.get("media") {
-                    if let Some(array) = media.as_array() {
-                        for item in array {
-                            if let Some(ext_str) = item.as_str() {
-                                all_exts.push(ext_str.trim().to_lowercase());
-                            }
+    if let Some(map) = extensions.as_object() {
+        for (_, value) in map.iter() {
+            if let Some(media) = value.get("media") {
+                if let Some(array) = media.as_array() {
+                    for item in array {
+                        if let Some(ext_str) = item.as_str() {
+                            all_exts.push(ext_str.trim().to_lowercase());
                         }
                     }
                 }

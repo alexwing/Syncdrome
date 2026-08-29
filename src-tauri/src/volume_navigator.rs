@@ -239,6 +239,20 @@ pub fn navigate(
     Ok(result)
 }
 
+/// Autoriza una carpeta en el asset protocol para poder previsualizar sus
+/// archivos (imágenes, vídeo, PDF...) desde cualquier vista, p. ej. el buscador.
+#[command]
+pub fn allow_preview_dir(app: tauri::AppHandle, dir: String) -> Result<(), String> {
+    let path = std::path::Path::new(&dir);
+    if !path.is_dir() {
+        return Err(format!("No es una carpeta: {}", dir));
+    }
+    use tauri::Manager;
+    app.asset_protocol_scope()
+        .allow_directory(path, false)
+        .map_err(|e| e.to_string())
+}
+
 #[derive(Debug, Serialize)]
 pub struct TextPreview {
     pub content: String,

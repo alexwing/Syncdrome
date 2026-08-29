@@ -44,7 +44,12 @@ pub fn execute_node(drive_letter: String) -> Value {
         .collect::<Vec<_>>()
         .join("\n");
 
-    let filtered_list = if only_media {
+    // Salvaguarda: con onlyMedia activo pero sin extensiones media configuradas,
+    // no filtrar nada (un filtro vacío eliminaría todos los archivos del catálogo).
+    if only_media && exts.is_empty() {
+        println!("WARN: onlyMedia activo pero sin extensiones media configuradas; no se filtra");
+    }
+    let filtered_list = if only_media && !exts.is_empty() {
         // Filtrar extensiones
         list.lines()
             .filter(|line| {

@@ -80,6 +80,9 @@ const FilePreviewPanel: React.FC<FilePreviewPanelProps> = ({
   const { t } = useTranslation();
   const [text, setText] = useState<TextPreview | null>(null);
   const [mediaError, setMediaError] = useState(false);
+  // El asset protocol debe autorizar la carpeta ANTES de que el <img>/<video>
+  // pida el archivo; si no, la primera carga falla (carrera).
+  const [scopeReady, setScopeReady] = useState(false);
 
   const ext = getExtension(item.name);
   const kind = previewKind(ext);
@@ -95,11 +98,25 @@ const FilePreviewPanel: React.FC<FilePreviewPanelProps> = ({
   useEffect(() => {
     setMediaError(false);
     setText(null);
-    if (connected && (kind === "markdown" || kind === "text")) {
+    setScopeReady(false);
+    if (!connected) return;
+    // Autorizar la carpeta en el asset protocol (necesario fuera del explorador,
+    // p. ej. al previsualizar desde el buscador).
+    const dir = [driveLetter?.replace(/\\+$/, ""), relPath].filter(Boolean).join("\\");
+    let cancelled = false;
+    Api.allowPreviewDir(dir)
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setScopeReady(true);
+      });
+    if (kind === "markdown" || kind === "text") {
       Api.readTextPreview(fullPath)
         .then((res) => setText(res as TextPreview))
         .catch(() => setMediaError(true));
     }
+    return () => {
+      cancelled = true;
+    };
   }, [fullPath, kind, connected]);
 
   const bigIcon = (
@@ -115,6 +132,11 @@ const FilePreviewPanel: React.FC<FilePreviewPanelProps> = ({
 
   const renderPreview = () => {
     if (!connected || mediaError) return bigIcon;
+    const needsScope =
+      kind === "image" || kind === "video" || kind === "audio" || kind === "pdf";
+    if (needsScope && !scopeReady) {
+      return <small className="text-muted p-4">…</small>;
+    }
     switch (kind) {
       case "image":
         return (

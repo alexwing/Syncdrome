@@ -17,7 +17,7 @@ use bookmarks::{get_bookmarks, add_bookmark, delete_bookmark};
 use process::{execute_node, get_drives, delete_drive, update_drive};
 use file_cleaner::{get_files_in_folder, rename_files_in_folder};
 use folder_sync::{sync_folders, get_sync_log};
-use volume_navigator::{change_file_system, navigate, read_text_preview};
+use volume_navigator::{allow_preview_dir, change_file_system, navigate, read_text_preview};
 use tauri::command;
 
 #[command]
@@ -53,7 +53,8 @@ fn main() {
             get_sync_log,
             change_file_system,
             navigate,
-            read_text_preview
+            read_text_preview,
+            allow_preview_dir
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

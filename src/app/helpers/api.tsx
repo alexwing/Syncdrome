@@ -221,6 +221,14 @@ const Api = {
   readTextPreview: async (path: string) => {
     return await invoke("read_text_preview", { path });
   },
+
+  /***
+   * Allow a folder in the asset protocol scope so its files can be previewed
+   * @param {string} dir - absolute folder path on a connected drive
+   */
+  allowPreviewDir: async (dir: string) => {
+    return await invoke("allow_preview_dir", { dir });
+  },
 };
 
 export default Api;

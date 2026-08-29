@@ -6,10 +6,10 @@ import {
   Badge,
   Button,
   Container,
-  ListGroup,
   Spinner,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
+import classNames from "classnames";
 import {
   AlertModel,
   FileTypes,
@@ -19,8 +19,16 @@ import {
 } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import ExtensionSelect from "../components/ExtensionSelect";
-import { connectedIcon, getFileIcon, openFileEvent, openFileEye, callOpenFolder, getConfig } from "../helpers/utils";
+import {
+  connectedIcon,
+  getFileIcon,
+  getExtension,
+  openFileEvent,
+  callOpenFolder,
+  getConfig,
+} from "../helpers/utils";
 import { AddBookmarkBadge } from "../components/AddBookmarkBadge";
+import FilePreviewPanel from "../components/FilePreviewPanel";
 import { useTranslation } from "../context/languageContext";
 
 const Home = () => {
@@ -41,6 +49,11 @@ const Home = () => {
     type: "danger",
   } as AlertModel);
   const [showAlert, setShowAlert] = useState(false);
+  const [selected, setSelected] = useState<{
+    volume: string;
+    folder: string;
+    fileName: string;
+  } | null>(null);
 
 
   // alert message
@@ -82,6 +95,7 @@ const Home = () => {
     Api.getFind(searchTerm, extSelectedUrl)
       .then((res) => {
         setFiles(res);
+        setSelected(null);
         if (Object.keys(res).length > 0) {
           setFound(true);
         } else {
@@ -100,15 +114,6 @@ const Home = () => {
       });
   };
 
-
-  // set Icon component from url extension
-  const getIcon = (extension) => {
-    return (
-      <span className="me-2">
-        {getFileIcon(extension, fileIconMappings).icon}
-      </span>
-    );
-  };
 
   //print count of files as  <Badge>
   const getFilesLength = (files) => {
@@ -145,21 +150,61 @@ const Home = () => {
     localStorage.setItem("extSelected", values.join(","));
   };
 
-  //button to open file in windows explorer
-  const openFileIcon = (file: IFile, connected: any, folder: string) => {
+  // Fila de resultado con la estética del explorador
+  const resultRow = (item: IFile, volume: string, folder: string) => {
+    const drive = files[volume].connected;
+    const isSel =
+      selected?.volume === volume &&
+      selected?.folder === folder &&
+      selected?.fileName === item.fileName;
     return (
-      <Button
-        className="m-0 p-0 me-2"
-        variant="link"
-        disabled={!connected}
-        onClick={
-          connected
-            ? () => openFileEvent(file.fileName, folder, connected)
-            : undefined
+      <div
+        key={item.fileName}
+        className={classNames("explorer-row", { selected: isSel })}
+        onClick={() =>
+          setSelected({ volume, folder, fileName: item.fileName })
+        }
+        onDoubleClick={() =>
+          drive && openFileEvent(item.fileName, folder, drive)
         }
       >
-        {getIcon(file.extension)}
-      </Button>
+        <span className="explorer-icon">
+          {getFileIcon(item.extension || getExtension(item.fileName), fileIconMappings).icon}
+        </span>
+        <span className="explorer-cell-name">
+          <span className="explorer-name explorer-file-link">
+            <small className="text-muted">{item.folder}\</small>
+            {item.fileName}
+          </span>
+          {item.bookmark && (
+            <Icon.BookmarkFill size={11} className="explorer-bookmark-mark" />
+          )}
+        </span>
+        <span
+          className="explorer-col-actions explorer-actions"
+          onClick={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => e.stopPropagation()}
+        >
+          <AddBookmarkBadge
+            isBookmarked={!!item.bookmark}
+            fileName={item.fileName}
+            path={folder}
+            volume={volume}
+            description={item.bookmark?.description || ""}
+            setFiles={setFiles}
+            onAddBookmark={(bookmark) => updateFilesWithBookmark(bookmark)}
+          />
+          {drive && (
+            <Badge
+              bg="none"
+              style={{ cursor: "pointer" }}
+              onClick={() => openFileEvent(item.fileName, folder, drive)}
+            >
+              <Icon.BoxArrowUpRight size={13} color="green" />
+            </Badge>
+          )}
+        </span>
+      </div>
     );
   };
 
@@ -243,6 +288,8 @@ const updateFilesWithBookmark = (
           </div>
         )}
         {!isLoading && (
+          <div className="d-flex gap-3 align-items-start">
+            <div className="flex-grow-1" style={{ minWidth: 0 }}>
           <Accordion>
             {Object.keys(files).map((key, index) => (
               <Accordion.Item eventKey={index.toString()} key={index}>
@@ -282,42 +329,9 @@ const updateFilesWithBookmark = (
                                 openFolderBadge(key2, files[key].connected)}
                             </Accordion.Header>
                             <Accordion.Body>
-                              <ListGroup as="ul">
-                                {files[key].content[key2].map((item: IFile) => (
-                                  <ListGroup.Item
-                                    as="li"
-                                    key={item.fileName}
-                                    className="d-flex justify-content-between"
-                                  >
-                                    {openFileIcon(
-                                      item,
-                                      files[key].connected,
-                                      key2
-                                    )}
-                                    <span className="file-path">
-                                      <small>{item.folder}\</small>
-                                      <strong>{item.fileName}</strong>
-                                    </span>
-                                    <AddBookmarkBadge
-                                      isBookmarked={!!item.bookmark}
-                                      fileName={item.fileName}
-                                      path={key2}
-                                      volume={key}
-                                      description={item.bookmark?.description || ""}
-                                      setFiles={setFiles}
-                                      onAddBookmark={(bookmark) =>
-                                        updateFilesWithBookmark(bookmark)
-                                      }
-                                    />
-                                    {files[key].connected &&
-                                      openFileEye(
-                                        item.fileName,
-                                        key2,
-                                        files[key].connected
-                                      )}
-                                  </ListGroup.Item>
-                                ))}
-                              </ListGroup>
+                              {files[key].content[key2].map((item: IFile) =>
+                                resultRow(item, key, key2)
+                              )}
                             </Accordion.Body>
                           </Accordion.Item>
                         )
@@ -327,6 +341,33 @@ const updateFilesWithBookmark = (
               </Accordion.Item>
             ))}
           </Accordion>
+            </div>
+            {selected &&
+              (() => {
+                const vol = files[selected.volume];
+                const item = vol?.content?.[selected.folder]?.find(
+                  (f: IFile) => f.fileName === selected.fileName
+                );
+                if (!item) return null;
+                const drive = vol.connected;
+                return (
+                  <FilePreviewPanel
+                    item={{ name: item.fileName, type: "file" }}
+                    currentPath={selected.folder}
+                    driveLetter={typeof drive === "string" ? drive : null}
+                    volume={selected.volume}
+                    bookmark={(item.bookmark as any) || undefined}
+                    fileIconMappings={fileIconMappings}
+                    onBookmarkChange={(bookmark) =>
+                      updateFilesWithBookmark(bookmark as any)
+                    }
+                    onClose={() => setSelected(null)}
+                    setAlert={setAlert}
+                    setShowAlert={setShowAlert}
+                  />
+                );
+              })()}
+          </div>
         )}
       </div>
 
