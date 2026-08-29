@@ -112,14 +112,15 @@ pre {
   min-width: 0;
   display: flex;
   align-items: center;
-  padding: 8px 18px;
+  padding: 6px 18px;
   border-radius: 6px;
 }
 .explorer-toolbar .breadcrumb {
   margin-bottom: 0;
 }
+/* El filtro también se estira: ambas cajas miden siempre lo mismo */
 .explorer-toolbar .explorer-filter {
-  align-self: center;
+  height: auto;
 }
 .explorer-filter {
   width: 250px;
