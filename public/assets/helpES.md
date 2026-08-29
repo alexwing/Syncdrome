@@ -1,130 +1,73 @@
 ## Ayuda
 
-**Syncdrome** sirve como una herramienta para crear un catálogo de todos los archivos en discos duros de una biblioteca personal, permitiendo búsquedas rápidas por palabra clave. Los resultados de la búsqueda se devuelven de forma similar a como lo haría un motor de búsqueda web.
-
-Además si detecta que la unidad esta conectada en el equipo, se puede acceder a los archivos directamente desde la aplicación, ejectuando el archivo con el programa predeterminado del sistema.
+**Syncdrome** crea un catálogo de todos los archivos de tus discos duros para que puedas buscar en toda tu biblioteca personal por palabra clave en segundos — incluso en discos que no están conectados. Cuando un disco *sí* está conectado, puedes navegarlo, previsualizar archivos, abrirlos con el programa predeterminado del sistema y saltar a su carpeta en el explorador de Windows.
 
 ### Instalación
 
-Syncdrome es una aplicación standalone, no requiere instalación, solo descarga el archivo zip, descomprímelo y ejecuta el archivo `syncdrome.exe`.
+Descarga la última versión desde la página de [Releases](https://github.com/alexwing/Syncdrome/releases):
 
-Esta desarrollado en Electron, por lo que en un futuro se podrá compilar para otras plataformas, siempre y cuando se pueda acceder a los archivos de forma similar a como se hace en Windows.
+- **Instalador (`.msi`)** — la opción recomendada. Ejecútalo y sigue el asistente; las actualizaciones se instalan sobre la versión anterior.
+- **Portable (`.zip`)** — sin instalación: descomprime y ejecuta `syncdrome.exe`.
 
+Syncdrome está construido con Tauri (backend en Rust, frontend en React) y actualmente funciona en Windows.
 
-### Configuración	
+### Configuración
 
-En la seccion `Settings` del menú de la aplicación, se puede configurar la carpeta de trabajo, donde se almacenará el catálogo de archivos. Como idea interesante, se puede almacenar el catálogo en un servicio de almacenamiento en la nube, como Dropbox, Google Drive, etc. de esta forma se puede acceder a los archivos desde cualquier equipo.
+En **Ajustes** puedes elegir la carpeta de trabajo donde se guardan los catálogos. Un buen truco es apuntarla a una carpeta sincronizada en la nube (Dropbox, Google Drive…) para tener los catálogos disponibles desde cualquier equipo.
 
-El archivo `config.json` se define en `config.rs` y se instala en la carpeta `.\syncdrome` dentro de su directorio de inicio.
+En Ajustes también se gestionan las **categorías de tipos de archivo**: cada categoría tiene un icono, un color, sus extensiones, y cuáles de ellas cuentan como *multimedia* para el modo de sincronización "Solo media".
 
-```json
-{
-  "folder": "C:\\myfolder", // Carpeta de trabajo
-  "extensions": {
-    "document": { // Nombre del tipo de archivo
-      "icon": "File", // Icono de la extensión
-      "color": "black", // Color del icono
-      "extensions": ["doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "odt", "ods", "odp"], // Extensiones de archivo
-      "media": ["doc", "docx"] // Extensiones para guardar en la sincronización de solo multimedia
-    },
-    ...
-    },
-}
-```
-
-
-### Uso
-
-En primer lugar, hay que establecer la carpeta de trabajo, esta es la carpeta donde se almacenará el catálogo de archivos, en formato TXT, divididos por volumen de disco y junto a ellos, un archivo `drives.json` con la configuración e información de los discos duros.
-
-```json
-{
-  "VOLUMENAME": { // Nombre del volumen
-    "size": 1998309031936, // Tamaño total del disco
-    "freeSpace": 483906600960, // Espacio libre
-    "onlyMedia": true  // Si el catálogo solo contiene archivos multimedia
-  },
-    ...  
-}
-```
-
-El fichero que contiene el catálogo de archivos, tiene el siguiente formato:
-
-```text
-E:\projects\hd-contend-finder
-E:\projects\hd-contend-finder\app
-E:\projects\hd-contend-finder\backend
-E:\projects\hd-contend-finder\config.json
-E:\projects\hd-contend-finder\node_modules
-E:\projects\hd-contend-finder\package-lock.json
-E:\projects\hd-contend-finder\package.json
-E:\projects\hd-contend-finder\public
-E:\projects\hd-contend-finder\release-builds
-E:\projects\hd-contend-finder\renovate.json
-...
-```
-
-Se genera a través del comando `dir /s /b` en la carpeta de trabajo y se codifica en UTF-8.
+La configuración vive en `config.json`, dentro de la carpeta `.syncdrome` de tu directorio de usuario.
 
 ### Sincronización
 
-Para comenzar a usar la busqueda, primero debes crear un catálogo, para ello acceda a la opción `Sync` en el menú de la aplicación.
+Antes de buscar hay que crear un catálogo. Abre **Sincronizar** en el menú:
 
-Se muestra una lista de los discos duros conectados al equipo, seleccione el disco que desea sincronizar y haga clic en el botón `Sync`.
+- Los discos conectados aparecen como tarjetas con su letra, nombre, barra de ocupación y espacio libre. Pulsa **Sync** para catalogar un disco.
+- **Todo / Solo media** decide si se cataloga todo o solo las extensiones marcadas como multimedia en Ajustes.
+- También se listan los volúmenes sincronizados anteriormente que ahora no están conectados; el icono de papelera elimina su catálogo.
 
-A continuación, se muestran los catalogos de los volumenes de disco que ya se han sincronizado, pero que ahora no están conectados al equipo, para eliminarlos del catalogo, haga clic en el icono de la papelera.
+Los catálogos son archivos de texto UTF-8 (una ruta por línea, carpetas marcadas con `\` final), guardados en la carpeta de trabajo junto a un `drives.json` con los datos de cada disco.
 
-##### La información que se muestra en cada volumen es la siguiente:
+### Buscador
 
-- Letra de unidad: Si está conectado al equipo, en caso contrario no se muestra.
-- Nombre del volumen: Nombre del disco duro.
-- Sincronizado: Si el catálogo ya se ha creado.
-- Fecha de sincronización: Fecha de la última sincronización.
-- Barra de porcentaje: Porcentaje de espacio ocupado en el disco duro.
-- Tamaño: Tamaño total del disco duro.
-- Espacio libre: Espacio libre en el disco duro.
+Escribe una palabra clave y pulsa `Enter` o el botón **Buscar**. Los resultados se agrupan por volumen (conectados primero, ordenados por letra) y después por carpeta. También puedes restringir la búsqueda a ciertos tipos de archivo con el selector.
 
-##### Operaciones disponibles:
+Cada resultado muestra el archivo con el icono de su categoría. Desde una fila puedes:
 
-- Eliminar: Elimina el catálogo del volumen seleccionado.
-- Sync: Sincroniza el volumen seleccionado, siempre que esté conectado al equipo.
-- ALL/Only Media: Sincroniza todos los archivos o solo los archivos multimedia, las extensiónes de archivo se pueden configurar en el archivo `config.json`.
+- **Clic** para abrir el panel de vista previa (ver más abajo).
+- **Doble clic** para abrir el archivo con el programa predeterminado (solo discos conectados).
+- **Clic derecho** para el menú contextual: vista previa, abrir, mostrar en carpeta, añadir/editar marcador, copiar el nombre o la ruta completa.
+- Los iconos de la fila permiten marcar el archivo o abrirlo.
 
-### Búsqueda
+### Explorador
 
-Para buscar un archivo, simplemente escriba una palabra clave en el campo de búsqueda y presione la tecla `Enter` o haga clic en el botón `Search`.
+El **Explorador** permite navegar los volúmenes sincronizados como un gestor de archivos:
 
-Los resultados de la búsqueda se muestran en una lista desplegable, en primer lugar se muestran los volúmenes de disco, y a continuación las carpetas y archivos que coinciden con la palabra clave.
+- Los discos conectados aparecen como tarjetas de acceso rápido (ordenadas por letra); el desplegable lista también los volúmenes desconectados, cuyos catálogos puedes navegar sin conexión.
+- La lista muestra tipo, tamaño y fecha de modificación (datos en vivo, solo con disco conectado), el número de elementos por carpeta, y un filtro rápido por nombre o extensión.
+- **Clic** en un archivo para previsualizarlo; **doble clic** para abrirlo; **clic derecho** para el menú contextual.
+- El **panel de vista previa** muestra imágenes (JPG, PNG, GIF, WebP, SVG…), Markdown, texto y código, PDF, vídeo y audio — además de los metadatos del archivo, su marcador, y botones de Abrir / Mostrar en carpeta.
+- Con un volumen desconectado sigues teniendo los datos del catálogo (nombres, tipos, elementos por carpeta); las vistas previas y los metadatos en vivo requieren el disco conectado.
 
-Los discos que estan conectados al equipo, se muestran con un icono de `ok` verde. Para las carpetas y archivos de los discos conectados, se muestra un boton `Open` que permite abrir el archivo con el programa predeterminado del sistema, o mostrar la carpeta en el explorador de archivos.
+### Marcadores
 
-Adicionalmente, se puede filtrar por archivos multimedia, para ello, puede seleccionar uno o varios tipos de archivos en el selector y hacer clic en el botón `Search`.
+**Marcadores** lista tus archivos favoritos agrupados por volumen (conectados primero), con su descripción. Puedes buscar por nombre o descripción, añadir un marcador desde el diálogo de archivo o arrastrando un archivo a la ventana, y desde cada fila (o su menú de clic derecho) previsualizar, abrir, editar, eliminar, o copiar el nombre/ruta. El clic en una fila abre el panel de vista previa; la caja del marcador dentro del panel abre el diálogo de edición.
 
-A la derecha de los archivos, se muestra un icono para añadir a favoritos, que permite añadir el archivo a la lista de favoritos, que se muestra en la sección `Bookmarks` del menú de la aplicación. Este favorito además permite un comentario.
+Los marcadores se guardan en una base de datos SQLite (`db.sqlite`) en la carpeta de trabajo.
 
-### Navegador
+### Limpiador de nombres
 
-En la sección `Navigator` del menú de la aplicación, se puede navegar por los volúmenes sincronizados, mostrando la estructura de carpetas y archivos, permitiendo abrir el archivo con el programa predeterminado del sistema o mostrar la carpeta en el explorador de archivos.
+El **Limpiador de nombres** renombra en lote los archivos de una carpeta usando una receta:
 
-### Favoritos
+- **Carpeta** — elígela con el diálogo o pega una ruta directamente.
+- **Patrón de corte** — se elimina todo desde su primera coincidencia hasta el final del nombre. Se intenta como expresión regular y, si no compila, se usa como texto literal.
+- **Reglas de sustitución** — pares ordenados buscar → reemplazar (expresiones regulares, sin distinguir mayúsculas). Cada regla tiene un color y un contador de coincidencias en vivo; pasa el ratón por una regla para resaltar sus coincidencias en la lista.
 
-En la sección `Bookmarks` del menú de la aplicación, se muestra una lista de los archivos favoritos, permite filtrar por nombre del archivo y por comentario. Además se puede eliminar el favorito, pulsando el icono de la papelera.
+La lista muestra un diff real de cada archivo, calculado en vivo mientras editas la receta: lo que se elimina tachado en rojo, lo que se añade en verde. Los archivos que colisionarían en el mismo nombre final se marcan y excluyen automáticamente. Puedes excluir cualquier archivo con su casilla, ocultar los que no cambian con el interruptor *Solo cambios*, y hacer clic en cualquier nombre nuevo para editarlo a mano (`Enter` confirma, `Esc` restaura el calculado).
 
-Los favoritos se almacenan en una base de datos SQLite, en la carpeta de la aplicación, en el fichero `db.sqlite`.
+El limpiador nunca toca la extensión del archivo, colapsa los espacios duplicados y recorta los separadores sueltos. **Aplicar** indica cuántos archivos va a renombrar e informa del resultado (o error) de cada uno.
 
-### Sincronización de carpetas
+### Sincronizar carpetas
 
-En la sección `Folder Sync` del menú de la aplicación, se puede sincronizar carpetas entre dos ubicaciones, seleccionando la carpeta de origen y la carpeta de destino, y haciendo clic en el botón `Sync`.
-
-La carpeta de origen se selecciona se situa en la parte izquierda y la carpeta de destino en la parte derecha. Los archivos existentes en el destino que coincidan con el origen se conservarán; los que falten en el destino se añadirán; y los que no estén en el origen se eliminarán.
-
-En la parte inferior se muestra un log de las operaciones realizadas, con la fecha y hora de la operación, el tipo de operación y los archivos afectados.
-
-### Limpiado de nombres de archivos
-
-En la sección `File Name Cleaner` del menú de la aplicación, se puede limpiar y modificar nombres de archivos en una carpeta específica utilizando patrones y reglas de sustitución definidas por el usuario.
-
-La carpeta de origen se selecciona en el campo `Origin Folder`. Se puede definir un patrón en el campo `Pattern` a partir del cual se borrará el texto,
- también se pueden agregar reglas de sustitución en la tabla de `Substitution Rules`. Los nombres de archivos se cargan haciendo clic en el botón `Reload`, y se limpian haciendo clic en el botón `Clean File Names`. Los cambios se aplican con el botón `Apply Changes`.
-
-En la parte inferior se muestra una tabla con los nombres de archivos originales y los nombres modificados, permitiendo editar manualmente los nombres antes de aplicar los cambios. También se muestran mensajes y alertas relevantes para el usuario.
+**Sincronizar carpetas** replica una carpeta de origen en una de destino: los archivos que coinciden se conservan, los que faltan se copian, y los que no existen en el origen se eliminan del destino. Un registro en la parte inferior muestra cada operación según ocurre.

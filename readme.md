@@ -10,12 +10,22 @@ About
 
 As someone who tends to accumulate digital files in a disorganized manner, I felt the need to develop a tool that would simplify my digital life. Syncdrome was born out of my own experience as a self-proclaimed "digital Diogenes."
 
-Syncdrome is a Tauri application with React in the frontend and Node.js in the backend. This intuitive tool streamlines the search and organization of your files on specific hard drives. With a simple yet powerful interface, Syncdrome allows quick keyword searches and presents results organized by folders.
+Syncdrome is a Tauri application with React in the frontend and Rust in the backend. This intuitive tool streamlines the search and organization of your files on specific hard drives. With a simple yet powerful interface, Syncdrome allows quick keyword searches and presents results organized by folders.
+
+Features
+--------
+
+* **Catalog your drives**: index every file of a drive into a plain-text catalog you can search even when the drive is unplugged (optionally media files only).
+* **Search**: keyword search across all catalogs, with results grouped by volume and folder, file-type filters, previews and a right-click context menu.
+* **Explorer**: browse synchronized volumes like a file manager — connected drives as quick-access cards, live size/date metadata, per-folder item counts, quick filtering, and a preview panel for images, Markdown, text/code, PDF, video and audio.
+* **Bookmarks**: favorite files with comments, stored in SQLite, with search, previews and full context-menu actions.
+* **File Name Cleaner**: batch renaming with a cut pattern and substitution rules, live red/green diff of every name, per-rule match counters and conflict detection.
+* **Folder Sync**: mirror a source folder into a destination with an operation log.
 
 Download
 --------
 
-You can download the latest version of Syncdrome for Windows from the [Releases](https://github.com/alexwing/Syncdrome/releases) section of the GitHub repository.
+You can download the latest version of Syncdrome for Windows from the [Releases](https://github.com/alexwing/Syncdrome/releases) section of the GitHub repository: an `.msi` installer (recommended) or a standalone `.zip` that runs without installation.
 
 Code installation
 -----------------
@@ -87,19 +97,25 @@ To search for a file, simply enter a keyword in the search field and press `Ente
 
 <img src="res/screenshot01.png" style="width: 100%; height: auto;">
 
-Connected drives are shown with a green `ok` icon. For folders and files on connected drives, an `Open` button is displayed, allowing you to open the file with the system's default program or show the folder in the file explorer.
+Connected volumes are listed first (ordered by drive letter). Click a result to open its preview panel, double-click to open the file with the system's default program, or right-click for the context menu (preview, open, show in folder, bookmark, copy name/path).
 
-To the right of the files, an icon is displayed to add to favorites, which allows you to add the file to the favorites list, which is displayed in the `Bookmarks` section of the application menu. This favorite also allows a comment.
+### Explorer
 
-### Navigator
-
-In the `Navigator` section of the application menu, you can navigate through the synchronized volumes, showing the structure of folders and files, allowing you to open the file with the system's default program or show the folder in the file explorer.
+In the `Explorer` section you can browse the synchronized volumes like a file manager. Connected drives appear as quick-access cards; disconnected volumes can still be browsed from their catalog. The list shows type, size and modified date (live data on connected drives) plus per-folder item counts, with a quick filter by name or extension. Selecting a file opens the preview panel, which renders images, Markdown, text/code, PDF, video and audio, along with metadata, the file's bookmark and open/show-in-folder actions.
 
 ### Bookmarks
 
-In the `Bookmarks` section of the application menu, a list of favorite files is displayed, allowing you to filter by file name and comment. You can also delete the favorite by clicking the trash can icon.
+In the `Bookmarks` section, favorite files are grouped by volume with their comments. You can search by name or description, add bookmarks via a file dialog or drag-and-drop, and preview, open, edit, delete or copy from each row or its context menu.
 
-Favorites are stored in an SQLite database, in the application folder, in the `db.sqlite` file.
+Favorites are stored in an SQLite database, in the working folder, in the `db.sqlite` file.
+
+### File Name Cleaner
+
+The `File Name Cleaner` batch-renames the files of a folder using a recipe: a cut pattern (regex, or literal text if it does not compile) that removes everything from its first match to the end, plus ordered find→replace substitution rules with per-rule colors and live match counters. Every file shows a real diff (deletions struck in red, additions in green) computed live, conflicting names are excluded automatically, and any new name can still be edited manually. Extensions are never touched; duplicate spaces collapse and dangling separators are trimmed.
+
+### Folder Sync
+
+`Folder Sync` mirrors a source folder into a destination folder: matching files are kept, missing ones are added, and files not present in the source are removed, with a live log of every operation.
 
 Code Details
 ------------

@@ -9,7 +9,7 @@ import Api from "../helpers/api";
 import { useTranslation } from "../context/languageContext";
 
 const About = () => {
-  const { t } = useTranslation();
+  const { t, resolved } = useTranslation();
   const [markdown, setMarkdown] = useState("");
   const [commits, setCommits] = useState<{ [key: string]: Commit[] }>({});
   const [latestVersion, setLatestVersion] = useState<string | null>(null);
@@ -26,7 +26,8 @@ const About = () => {
   }
 
   useEffect(() => {
-    Api.getResource("/assets/aboutEN.md").then((response) => {
+    const lang = resolved === "es" ? "ES" : "EN";
+    Api.getResource(`/assets/about${lang}.md`).then((response) => {
       setMarkdown(response.data);
     });
     getCommits().then((groupedCommits) => {
@@ -35,7 +36,7 @@ const About = () => {
     fetchLatestVersion().then((latestVersion) => {
       setLatestVersion(latestVersion);
     });
-  }, []);
+  }, [resolved]);
 
   useEffect(() => {
     window.addEventListener("click", handleLinkClick, false);

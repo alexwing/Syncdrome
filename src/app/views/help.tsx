@@ -5,14 +5,15 @@ import Api from "../helpers/api";
 import { useTranslation } from "../context/languageContext";
 
 const Help = () => {
-  const { t } = useTranslation();
+  const { t, resolved } = useTranslation();
   const [markdown, setMarkdown] = useState('');
 
   useEffect(() => {
-    Api.getResource('/assets/helpEN.md').then(response => {
+    const lang = resolved === 'es' ? 'ES' : 'EN';
+    Api.getResource(`/assets/help${lang}.md`).then(response => {
       setMarkdown(response.data);
     });
-  }, []);
+  }, [resolved]);
 
 
   return (

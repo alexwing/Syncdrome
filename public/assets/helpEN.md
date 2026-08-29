@@ -1,127 +1,73 @@
 ## Help
 
-**Syncdrome** serves as a tool to create a catalog of all the files on hard drives in a personal library, allowing quick keyword searches. Search results are returned in a similar way to how a web search engine would.
-
-Additionally, if it detects that the drive is connected to the computer, you can access the files directly from the application, running the file with the system's default program.
+**Syncdrome** creates a catalog of all the files on your hard drives, so you can search your whole personal library by keyword in seconds — even for drives that are not currently connected. When a drive *is* connected, you can browse it, preview files, open them with the system's default program and jump to their folder in the file explorer.
 
 ### Installation
 
-Syncdrome is a standalone application, it does not require installation, just download the zip file, unzip it and run the `syncdrome.exe` file.
+Download the latest version from the [Releases](https://github.com/alexwing/Syncdrome/releases) page:
 
-It is developed in Electron, so in the future it can be compiled for other platforms, as long as file access is similar to how it is done in Windows.
+- **Installer (`.msi`)** — the recommended option. Run it and follow the wizard; updates install over the previous version.
+- **Standalone (`.zip`)** — no installation required: unzip and run `syncdrome.exe`.
+
+Syncdrome is built with Tauri (Rust backend, React frontend) and currently targets Windows.
 
 ### Configuration
 
-In the `Settings` section of the application menu, you can configure the working folder where the file catalog will be stored. An interesting idea is to store the catalog in a cloud storage service like Dropbox, Google Drive, etc., allowing access to files from any computer.
+In **Settings** you can choose the working folder where the catalogs are stored. A nice trick is to point it at a cloud-synced folder (Dropbox, Google Drive…) so your catalogs are available from any computer.
 
-The `config.json` file is now defined in `config.rs` and is installed in the `.\syncdrome` folder within your home directory.
+Settings also manage the **file type categories**: each category has an icon, a color, its file extensions, and which of those extensions count as *media* for the "Only Media" synchronization mode.
 
-```json
-{
-  "folder": "C:\\myfolder", // Working folder
-  "extensions": {
-    "document": { // File type name
-      "icon": "File", // Extension icon
-      "color": "black", // Icon color
-      "extensions": ["doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "odt", "ods", "odp"], // File extensions
-      "media": ["doc", "docx"] // Extensions to save in multimedia-only synchronization
-    },
-    ...
-  },
-}
-```
-
-### Usage
-
-First, you have to set the working folder, this is the folder where the file catalog will be stored, in TXT format, divided by disk volume and next to them, a `drives.json` file with the configuration and information of the hard drives.
-
-```json
-{
-  "VOLUMENAME": { // Volume name
-    "size": 1998309031936, // Total disk size
-    "freeSpace": 483906600960, // Free space
-    "onlyMedia": true  // If the catalog only contains multimedia files
-  },
-    ...  
-}
-```
-
-The file containing the file catalog has the following format:
-
-```text
-E:\projects\hd-contend-finder
-E:\projects\hd-contend-finder\app
-E:\projects\hd-contend-finder\backend
-E:\projects\hd-contend-finder\config.json
-E:\projects\hd-contend-finder\node_modules
-E:\projects\hd-contend-finder\package-lock.json
-E:\projects\hd-contend-finder\package.json
-E:\projects\hd-contend-finder\public
-E:\projects\hd-contend-finder\release-builds
-E:\projects\hd-contend-finder\renovate.json
-...
-```
-
-It is generated through the `dir /s /b` command in the working folder and encoded in UTF-8.
+The configuration lives in `config.json` inside the `.syncdrome` folder of your home directory.
 
 ### Synchronization
 
-To start using the search, you must first create a catalog, for this access the `Sync` option in the application menu.
+Before searching you need to create a catalog. Open **Sync** in the menu:
 
-A list of the hard drives connected to the computer is displayed, select the drive you want to synchronize and click the `Sync` button.
+- Connected drives appear as cards with their letter, name, usage bar and free space. Click **Sync** to catalog a drive.
+- **All / Only Media** toggles whether everything is cataloged or only the extensions marked as media in Settings.
+- Volumes that were synchronized before but are not connected now are listed too; the trash icon removes their catalog.
 
-Next, the catalogs of the disk volumes that have already been synchronized, but that are now not connected to the computer, are shown, to remove them from the catalog, click on the trash can icon.
-
-##### The information shown in each volume is the following:
-
-- Drive letter: If it is connected to the computer, otherwise it is not shown.
-- Volume name: Name of the hard drive.
-- Synchronized: If the catalog has already been created.
-- Synchronization date: Date of the last synchronization.
-- Percentage bar: Percentage of space occupied on the hard drive.
-- Size: Total size of the hard drive.
-- Free space: Free space on the hard drive.
-
-##### Operations available:
-
-- Delete: Deletes the catalog of the selected volume.
-- Sync: Synchronizes the selected volume, as long as it is connected to the computer.
-- ALL/Only Media: Synchronizes all files or only multimedia files, the file extensions can be configured in the `config.json` file.
+Catalogs are plain UTF-8 text files (one path per line, folders marked with a trailing `\`), stored in the working folder next to a `drives.json` file with each drive's details.
 
 ### Search
 
-To search for a file, simply type a keyword in the search field and press the `Enter` key or click the `Search` button.
+Type a keyword and press `Enter` or click **Search**. Results are grouped by volume (connected volumes first, ordered by drive letter) and then by folder. You can also restrict the search to certain file types with the selector.
 
-Search results are displayed in a drop-down list, first the disk volumes are displayed, and then the folders and files that match the keyword.
+Each result row shows the file with its category icon. From a row you can:
 
-Drives that are connected to the computer are displayed with a green `ok` icon. For folders and files on connected drives, an `Open` button is displayed that allows you to open the file with the system's default program, or display the folder in the file explorer.
+- **Click** it to open the preview panel (see below).
+- **Double-click** to open the file with the system's default program (connected drives only).
+- **Right-click** for the context menu: preview, open, show in folder, add/edit bookmark, copy the name or the full path.
+- Use the inline icons to bookmark the file or open it.
 
-Additionally, you can filter by multimedia files, for this, you can select one or several types of files in the selector and click on the `Search` button.
+### Explorer
 
-To the right of the files, an icon is displayed to add to favorites, which allows you to add the file to the favorites list, which is displayed in the `Bookmarks` section of the application menu. This favorite also allows a comment.
+The **Explorer** lets you browse synchronized volumes like a file manager:
 
-### Navigator
-
-In the `Navigator` section of the application menu, you can navigate through the synchronized volumes, showing the structure of folders and files, allowing you to open the file with the system's default program or show the folder in the file explorer.
+- Connected drives appear as quick-access cards (ordered by letter); the dropdown also lists disconnected volumes, whose catalogs you can browse offline.
+- The list shows type, size and modified date (live data, connected drives only), per-folder item counts, and a quick filter by name or extension.
+- **Click** a file to preview it; **double-click** to open it; **right-click** for the context menu.
+- The **preview panel** renders images (JPG, PNG, GIF, WebP, SVG…), Markdown, text and code, PDF, video and audio — plus the file's metadata, its bookmark, and Open / Show in folder buttons.
+- With a disconnected volume you still get the catalog data (names, types, folder counts); previews and live metadata need the drive connected.
 
 ### Bookmarks
 
-In the `Bookmarks` section of the application menu, a list of favorite files is displayed, allowing you to filter by file name and comment. You can also delete the favorite by clicking the trash can icon.
+**Bookmarks** lists your favorite files grouped by volume (connected first), with their description. You can search by name or description, add a bookmark from a file dialog or by dragging a file into the window, and from each row (or its right-click menu) preview, open, edit, delete, or copy the name/path. Clicking a row opens the preview panel; the bookmark box inside the panel opens the edit dialog.
 
-Favorites are stored in an SQLite database, in the application folder, in the `db.sqlite` file.
-
-### Folder Sync
-
-In the `Folder Sync` section of the application menu, you can synchronize folders between two locations by selecting the source folder and the destination folder, and clicking the `Sync` button.
-
-The source folder is selected on the left side and the destination folder on the right side. Existing files in the destination that match the source will be preserved; those missing in the destination will be added; and those not in the source will be deleted.
-
-At the bottom, a log of the operations performed is displayed, with the date and time of the operation, the type of operation, and the affected files.
+Bookmarks are stored in an SQLite database (`db.sqlite`) in the working folder.
 
 ### File Name Cleaner
 
-In the `File Name Cleaner` section of the application menu, you can clean and modify file names in a specific folder using user-defined patterns and substitution rules.
+The **File Name Cleaner** batch-renames the files of a folder using a recipe:
 
-The source folder is selected in the `Origin Folder` field. You can define a pattern in the `Pattern` field from which the text will be deleted, you can also add substitution rules in the `Substitution Rules` table. File names are loaded by clicking the `Reload` button, and cleaned by clicking the `Clean File Names` button. Changes are applied with the `Apply Changes` button.
+- **Folder** — pick it with the dialog or paste a path directly.
+- **Cut pattern** — everything from its first match to the end of the name is removed. It is tried as a regular expression and, if it does not compile, used as literal text.
+- **Substitution rules** — ordered find → replace pairs (regular expressions, case-insensitive). Each rule has a color and a live match counter; hover a rule to highlight its matches in the list.
 
-At the bottom, a table is shown with the original file names and the modified names, allowing you to manually edit the names before applying the changes. Relevant messages and alerts for the user are also shown.
+The list shows a real diff for every file, computed live as you edit the recipe: deleted parts struck through in red, additions in green. Files that would collide on the same final name are flagged and excluded automatically. You can exclude any file with its checkbox, hide unchanged files with the *Only changes* switch, and click any new name to edit it manually (`Enter` confirms, `Esc` restores the computed name).
+
+The cleaner never touches the file extension, collapses duplicate spaces, and trims dangling separators. **Apply** shows how many files it will rename and reports per-file success or errors.
+
+### Folder Sync
+
+**Folder Sync** mirrors a source folder into a destination folder: files that match are kept, missing ones are copied, and files not present in the source are deleted from the destination. A log at the bottom shows each operation as it happens.
