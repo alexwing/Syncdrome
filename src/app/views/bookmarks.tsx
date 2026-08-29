@@ -206,6 +206,17 @@ const bookmarks = () => {
       )
     : undefined;
 
+  // Volúmenes ordenados: conectados primero por letra, luego el resto por nombre
+  const sortedVolumes = [...BookmarksByVolumeFiltered].sort((a, b) => {
+    const da = drives.find((d: any) => d.name === a.volume) as any;
+    const db = drives.find((d: any) => d.name === b.volume) as any;
+    if (da?.connected && db?.connected)
+      return (da.letter || "").localeCompare(db.letter || "");
+    if (da?.connected) return -1;
+    if (db?.connected) return 1;
+    return a.volume.localeCompare(b.volume);
+  });
+
   const filterBookmarks = (BookmarksByVolume: BookmarksByVolume[]) => {
     if (search === "" || search === null) {
       setBookmarksByVolumeFiltered(BookmarksByVolume);
@@ -413,8 +424,8 @@ const bookmarks = () => {
       )}
       <div className="d-flex gap-3 align-items-start p-3">
         <div className="flex-grow-1" style={{ minWidth: 0 }}>
-          {BookmarksByVolumeFiltered.map((volume, index) => (
-            <Card key={index} className="mb-3">
+          {sortedVolumes.map((volume, index) => (
+            <Card key={volume.volume} className="mb-3">
               <Card.Header className="d-flex justify-content-between inline-block">
                 <Icon.DeviceHddFill
                   size={20}

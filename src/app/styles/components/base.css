@@ -109,6 +109,8 @@ pre {
 }
 .explorer-toolbar .explorer-breadcrumb {
   min-width: 0;
+  padding: 6px 14px;
+  border-radius: 6px;
 }
 .explorer-toolbar .breadcrumb {
   margin-bottom: 0;
