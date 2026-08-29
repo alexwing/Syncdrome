@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import Api from "../helpers/api";
 import { Bookmark, ExplorerItem, FileTypes, TextPreview } from "../models/Interfaces";
-import { getFileIcon, openFileEvent, callOpenFolder } from "../helpers/utils";
+import { getFileIcon, getExtension, openFileEvent, callOpenFolder } from "../helpers/utils";
 import { AddBookmarkBadge } from "./AddBookmarkBadge";
 import { useTranslation } from "../context/languageContext";
 
@@ -81,7 +81,7 @@ const FilePreviewPanel: React.FC<FilePreviewPanelProps> = ({
   const [text, setText] = useState<TextPreview | null>(null);
   const [mediaError, setMediaError] = useState(false);
 
-  const ext = (item.name.split(".").pop() || "").toLowerCase();
+  const ext = getExtension(item.name);
   const kind = previewKind(ext);
   const connected = !!driveLetter;
 

@@ -90,6 +90,10 @@ const en = {
     previewTruncated: "Preview truncated (large file)",
     bookmarked: "Bookmarked",
     noBookmark: "No bookmark",
+    preview: "Preview",
+    editBookmark: "Add / edit bookmark",
+    copyName: "Copy name",
+    copyPath: "Copy path",
   },
   sync: {
     title: "Syncronize Drives",

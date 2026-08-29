@@ -48,7 +48,10 @@ pub fn execute_node(drive_letter: String) -> Value {
         // Filtrar extensiones
         list.lines()
             .filter(|line| {
-                if line.contains('.') {
+                if line.ends_with('\\') {
+                    // Es carpeta (marcada explícitamente)
+                    true
+                } else if line.contains('.') {
                     let ext = line.split('.').last().unwrap_or("").to_lowercase();
                     exts.contains(&ext)
                 } else {
@@ -94,9 +97,14 @@ fn list_drive_entries(root: &Path) -> Vec<String> {
         };
         for entry in read.flatten() {
             let path = entry.path();
-            entries.push(path.to_string_lossy().to_string());
-            if entry.file_type().map(|t| t.is_dir()).unwrap_or(false) {
+            let is_dir = entry.file_type().map(|t| t.is_dir()).unwrap_or(false);
+            if is_dir {
+                // Marcar carpetas con "\" final para que el catálogo las
+                // distinga de archivos sin extensión (o carpetas vacías).
+                entries.push(format!("{}\\", path.to_string_lossy()));
                 stack.push(path);
+            } else {
+                entries.push(path.to_string_lossy().to_string());
             }
         }
     }

@@ -93,6 +93,10 @@ const fr: Dict = {
     previewTruncated: "Aperçu tronqué (fichier volumineux)",
     bookmarked: "Marqué",
     noBookmark: "Aucun marque-page",
+    preview: "Aperçu",
+    editBookmark: "Ajouter / modifier le marque-page",
+    copyName: "Copier le nom",
+    copyPath: "Copier le chemin",
   },
   sync: {
     title: "Synchroniser les lecteurs",

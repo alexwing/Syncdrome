@@ -91,6 +91,10 @@ const es: Dict = {
     previewTruncated: "Vista previa truncada (archivo grande)",
     bookmarked: "Marcado",
     noBookmark: "Sin marcador",
+    preview: "Vista previa",
+    editBookmark: "Añadir / editar marcador",
+    copyName: "Copiar nombre",
+    copyPath: "Copiar ruta",
   },
   sync: {
     title: "Sincronizar unidades",

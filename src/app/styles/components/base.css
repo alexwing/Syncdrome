@@ -198,14 +198,6 @@ pre {
 [data-bs-theme="dark"] .explorer-file-link {
   color: #6ea8fe;
 }
-.ext-badge {
-  font-size: 9px;
-  padding: 1px 6px;
-  border-radius: 4px;
-  background: var(--bs-secondary-bg);
-  color: var(--bs-secondary-color);
-  flex-shrink: 0;
-}
 .explorer-bookmark-mark {
   color: var(--PrimaryColor);
   flex-shrink: 0;
@@ -271,6 +263,22 @@ pre {
 }
 .status-dot-off {
   background: var(--bs-secondary-color);
+}
+
+/* Custom context menu (bootstrap dropdown look, fixed position) */
+.explorer-ctx-menu {
+  position: fixed;
+  z-index: 2000;
+  min-width: 210px;
+  font-size: 13px;
+}
+.explorer-ctx-menu .dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  text-align: left;
+  padding: 6px 16px;
 }
 
 /* Preview panel */

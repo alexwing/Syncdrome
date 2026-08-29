@@ -45,6 +45,9 @@ fn build_file_system(contents: &str) -> Node {
     
     for line in contents.lines() {
         let line = line.trim().replace(|c: char| c.is_ascii_control(), "");
+        // Los catálogos nuevos marcan las carpetas con "\" final; así una
+        // carpeta vacía (o filtrada) no se confunde con un archivo.
+        let is_explicit_dir = line.ends_with('\\');
         let without_drive = RE_DRIVE.replace(&line, "");
         let parts: Vec<_> = without_drive.split('\\')
             .filter(|p| !p.is_empty())
@@ -59,9 +62,10 @@ fn build_file_system(contents: &str) -> Node {
                     children: HashMap::new(),
                     is_file: true, // Por defecto asumimos archivo
                 });
-            
-            if !is_last {
-                // Si no es el último elemento, debe ser un directorio
+
+            if !is_last || is_explicit_dir {
+                // Si no es el último elemento, o la línea está marcada como
+                // carpeta, es un directorio
                 node.is_file = false;
             }
             current = node;
@@ -177,17 +181,9 @@ pub fn navigate(
         })
         .collect();
 
-    // Ordenar: directorios primero
-    items.sort_by(|a, b| {
-        if a.kind == b.kind {
-            a.name.to_lowercase().cmp(&b.name.to_lowercase())
-        } else {
-            if a.kind == "directory" { std::cmp::Ordering::Less } else { std::cmp::Ordering::Greater }
-        }
-    });
-
     // Con la unidad conectada, completar con metadatos reales del sistema de
-    // archivos y autorizar la carpeta en el asset protocol para previsualizar.
+    // archivos (corrigiendo el tipo: los catálogos antiguos marcan como archivo
+    // las carpetas vacías) y autorizar la carpeta en el asset protocol.
     if !drive.is_empty() {
         let base = if path_parts.is_empty() {
             format!("{}\\", drive.trim_end_matches('\\'))
@@ -197,6 +193,10 @@ pub fn navigate(
         for item in items.iter_mut() {
             let full = format!("{}\\{}", base.trim_end_matches('\\'), item.name);
             if let Ok(md) = std::fs::metadata(&full) {
+                if md.is_dir() && item.kind == "file" {
+                    item.kind = "directory".to_string();
+                    item.items = None;
+                }
                 if md.is_file() {
                     item.size = Some(md.len());
                 }
@@ -212,6 +212,15 @@ pub fn navigate(
             .asset_protocol_scope()
             .allow_directory(std::path::Path::new(&base), false);
     }
+
+    // Ordenar: directorios primero
+    items.sort_by(|a, b| {
+        if a.kind == b.kind {
+            a.name.to_lowercase().cmp(&b.name.to_lowercase())
+        } else {
+            if a.kind == "directory" { std::cmp::Ordering::Less } else { std::cmp::Ordering::Greater }
+        }
+    });
 
     let new_path = if path_parts.is_empty() {
         "\\".to_string()

@@ -11,6 +11,59 @@ import {
 } from "../models/Interfaces";
 
 /***
+ * get file extension from a name; dotfiles and extensionless names return ""
+ * @param name
+ * @returns {string}
+ */
+export const getExtension = (name: string): string => {
+  const i = name.lastIndexOf(".");
+  return i > 0 ? name.slice(i + 1).toLowerCase() : "";
+};
+
+// Canvas context reused to normalize any CSS color (names, hex, rgb…) to hex.
+let colorCtx: CanvasRenderingContext2D | null = null;
+
+/***
+ * Config colors are chosen for light backgrounds; on the dark theme, dark
+ * colors (black, darkblue…) become invisible. Lighten them, keeping the hue.
+ */
+const themeAwareColor = (color: string): string => {
+  if (document.documentElement.getAttribute("data-bs-theme") !== "dark") {
+    return color;
+  }
+  try {
+    if (!colorCtx) {
+      colorCtx = document.createElement("canvas").getContext("2d");
+    }
+    if (!colorCtx) return color;
+    colorCtx.fillStyle = color;
+    const hex = colorCtx.fillStyle as string;
+    if (!/^#[0-9a-f]{6}$/i.test(hex)) return color;
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const l = (max + min) / 2;
+    if (l >= 0.35) return color;
+    // Convertir a HSL y subir la luminosidad manteniendo el tono
+    const d = max - min;
+    let h = 0;
+    const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+    if (d !== 0) {
+      if (max === r) h = ((g - b) / d) % 6;
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h *= 60;
+      if (h < 0) h += 360;
+    }
+    return `hsl(${Math.round(h)}, ${Math.round(s * 100)}%, 65%)`;
+  } catch {
+    return color;
+  }
+};
+
+/***
  * get Icon component from extension
  * @param extension
  * @param fileIconMappings
@@ -25,16 +78,22 @@ export const getFileIcon = (extension: string, fileIconMappings: FileTypes) => {
       const IconComponent = Icon[icon];
       return {
         category,
-        icon: <IconComponent size={20} color={color} />,
+        icon: <IconComponent size={20} color={themeAwareColor(color)} />,
       };
     }
   }
   // Si no encuentra una categoría, usa la categoría predeterminada
-  const { icon, color } = fileIconMappings["default"];
-  const IconComponent = Icon[icon];
+  const fallback = fileIconMappings["default"];
+  if (!fallback || !Icon[fallback.icon]) {
+    return {
+      category: "default",
+      icon: <Icon.FileEarmark size={20} color={themeAwareColor("gray")} />,
+    };
+  }
+  const IconComponent = Icon[fallback.icon];
   return {
     category: "default",
-    icon: <IconComponent size={20} color={color} />,
+    icon: <IconComponent size={20} color={themeAwareColor(fallback.color)} />,
   };
 };
 
