@@ -53,7 +53,7 @@ const FileCleaner = () => {
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [editingFile, setEditingFile] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [onlyChanges, setOnlyChanges] = useState(false);
+  const [onlyChanges, setOnlyChanges] = useState(true);
   const [hoveredSource, setHoveredSource] = useState<SegmentSource | null>(null);
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);

@@ -168,6 +168,8 @@
   min-width: 0;
   font-family: Consolas, "Courier New", monospace;
   overflow-wrap: anywhere;
+  /* Los segmentos del diff pueden ser solo un espacio: hay que conservarlos */
+  white-space: pre-wrap;
 }
 .cleaner-arrow {
   width: 18px;
@@ -182,9 +184,8 @@
 }
 .cleaner-new-text {
   cursor: text;
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
+  /* Nada de flex aquí: los spans de espacio colapsarían a ancho cero */
+  display: inline;
 }
 .cleaner-col-status {
   width: 90px;
