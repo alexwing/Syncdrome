@@ -157,6 +157,13 @@
   padding: 0;
   margin: 0;
   flex-shrink: 0;
+  /* forms.css/dark.css usan el shorthand background y dejan el repeat en
+     "repeat": el pomo del switch se duplicaba. */
+  background-repeat: no-repeat;
+  border-radius: 2em;
+}
+.cleaner-row .form-check-input {
+  background-repeat: no-repeat;
 }
 .cleaner-card .form-control,
 .cleaner-rule .form-control {
