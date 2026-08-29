@@ -16,7 +16,16 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import AddBookmarkModal from "../components/AddBookmarkModal";
 import AlertMessage from "../components/AlertMessage";
 import FilePreviewPanel from "../components/FilePreviewPanel";
-import { connectedIcon, getFileIcon, getExtension } from "../helpers/utils";
+import FileContextMenu, {
+  ContextMenuItem,
+  clampMenuPosition,
+} from "../components/FileContextMenu";
+import {
+  connectedIcon,
+  getFileIcon,
+  getExtension,
+  copyToClipboard,
+} from "../helpers/utils";
 import { open } from '@tauri-apps/plugin-dialog';
 import { useTranslation } from "../context/languageContext";
 
@@ -49,6 +58,11 @@ const bookmarks = () => {
   const [file, setFile] = useState("");
   const [draggingOver, setDraggingOver] = useState(false);
   const [selectedId, setSelectedId] = useState<Number | null>(null);
+  const [ctxMenu, setCtxMenu] = useState<{
+    x: number;
+    y: number;
+    bookmark: Bookmark;
+  } | null>(null);
 
   const onChangeFile = async () => {
     try {
@@ -284,6 +298,66 @@ const bookmarks = () => {
     return driveLetter && driveLetter.connected;
   };
 
+  // Entradas del menú contextual de un marcador
+  const bookmarkCtxEntries = (bookmark: Bookmark): ContextMenuItem[] => {
+    const connected = isConnect(bookmark.volume);
+    const letter = getDriveLetter(bookmark.volume, drives);
+    const cleanPath = bookmark.path
+      .replace(/\//g, "\\")
+      .replace(/^\\+/, "")
+      .replace(/\\+$/, "");
+    const fullPath = connected && letter
+      ? `${letter}\\${cleanPath}\\${bookmark.name}`
+      : `\\${cleanPath}\\${bookmark.name}`;
+    return [
+      {
+        label: t("explorer.preview"),
+        icon: <Icon.Eye size={13} className="me-2" />,
+        onClick: () => setSelectedId(bookmark.id),
+      },
+      {
+        label: t("explorer.open"),
+        icon: <Icon.BoxArrowUpRight size={13} className="me-2" />,
+        disabled: !connected,
+        onClick: () => onConnectedElementHandler(bookmark),
+      },
+      {
+        label: t("explorer.showInFolder"),
+        icon: <Icon.Folder2Open size={13} className="me-2" />,
+        disabled: !connected,
+        onClick: () => letter && Api.openFolder(bookmark.path, letter),
+      },
+      "divider",
+      {
+        label: t("bookmarks.editBookmark"),
+        icon: <Icon.PencilSquare size={13} className="me-2" />,
+        onClick: () => {
+          setBookmarkSelected(bookmark);
+          setShowAddBookmarkModal(true);
+        },
+      },
+      {
+        label: t("common.delete"),
+        icon: <Icon.Trash size={13} className="me-2" />,
+        onClick: () => {
+          setBookmarkToDelete(bookmark.id);
+          setShowConfirmDialog(true);
+        },
+      },
+      "divider",
+      {
+        label: t("explorer.copyName"),
+        icon: <Icon.Files size={13} className="me-2" />,
+        onClick: () => copyToClipboard(bookmark.name),
+      },
+      {
+        label: t("explorer.copyPath"),
+        icon: <Icon.Signpost size={13} className="me-2" />,
+        onClick: () => copyToClipboard(fullPath),
+      },
+    ];
+  };
+
   // Fila de marcador con la estética del explorador
   const bookmarkRow = (bookmark: Bookmark) => {
     const connected = isConnect(bookmark.volume);
@@ -294,6 +368,12 @@ const bookmarks = () => {
         className={classNames("explorer-row", { selected: isSel })}
         onClick={() => setSelectedId(bookmark.id)}
         onDoubleClick={() => connected && onConnectedElementHandler(bookmark)}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setSelectedId(bookmark.id);
+          setCtxMenu({ ...clampMenuPosition(e), bookmark });
+        }}
       >
         <span className="explorer-icon">{getIcon(bookmark)}</span>
         <span className="explorer-cell-name">
@@ -462,6 +542,14 @@ const bookmarks = () => {
           />
         )}
       </div>
+      {ctxMenu && (
+        <FileContextMenu
+          x={ctxMenu.x}
+          y={ctxMenu.y}
+          entries={bookmarkCtxEntries(ctxMenu.bookmark)}
+          onClose={() => setCtxMenu(null)}
+        />
+      )}
       <ConfirmDialog
         title={t("bookmarks.deleteBookmarkTitle")}
         message={t("bookmarks.confirmDeleteBookmark")}

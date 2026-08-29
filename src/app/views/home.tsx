@@ -26,8 +26,14 @@ import {
   openFileEvent,
   callOpenFolder,
   getConfig,
+  copyToClipboard,
 } from "../helpers/utils";
 import { AddBookmarkBadge } from "../components/AddBookmarkBadge";
+import AddBookmarkModal from "../components/AddBookmarkModal";
+import FileContextMenu, {
+  ContextMenuItem,
+  clampMenuPosition,
+} from "../components/FileContextMenu";
 import FilePreviewPanel from "../components/FilePreviewPanel";
 import { useTranslation } from "../context/languageContext";
 
@@ -53,6 +59,18 @@ const Home = () => {
     volume: string;
     folder: string;
     fileName: string;
+  } | null>(null);
+  const [ctxMenu, setCtxMenu] = useState<{
+    x: number;
+    y: number;
+    volume: string;
+    folder: string;
+    item: IFile;
+  } | null>(null);
+  const [bookmarkTarget, setBookmarkTarget] = useState<{
+    volume: string;
+    folder: string;
+    item: IFile;
   } | null>(null);
 
 
@@ -160,6 +178,63 @@ const Home = () => {
     return a.localeCompare(b);
   });
 
+  // Entradas del menú contextual para un resultado de búsqueda
+  const searchCtxEntries = (m: {
+    volume: string;
+    folder: string;
+    item: IFile;
+  }): ContextMenuItem[] => {
+    const drive = files[m.volume]?.connected as string | false;
+    const cleanFolder = m.folder
+      .replace(/\//g, "\\")
+      .replace(/^\\+/, "")
+      .replace(/\\+$/, "");
+    const fullPath = drive
+      ? `${drive}\\${cleanFolder}\\${m.item.fileName}`
+      : `\\${cleanFolder}\\${m.item.fileName}`;
+    return [
+      {
+        label: t("explorer.preview"),
+        icon: <Icon.Eye size={13} className="me-2" />,
+        onClick: () =>
+          setSelected({
+            volume: m.volume,
+            folder: m.folder,
+            fileName: m.item.fileName,
+          }),
+      },
+      {
+        label: t("explorer.open"),
+        icon: <Icon.BoxArrowUpRight size={13} className="me-2" />,
+        disabled: !drive,
+        onClick: () => drive && openFileEvent(m.item.fileName, m.folder, drive),
+      },
+      {
+        label: t("explorer.showInFolder"),
+        icon: <Icon.Folder2Open size={13} className="me-2" />,
+        disabled: !drive,
+        onClick: () => drive && Api.openFolder(m.folder, drive),
+      },
+      "divider",
+      {
+        label: t("explorer.editBookmark"),
+        icon: <Icon.BookmarkPlus size={13} className="me-2" />,
+        onClick: () => setBookmarkTarget(m),
+      },
+      "divider",
+      {
+        label: t("explorer.copyName"),
+        icon: <Icon.Files size={13} className="me-2" />,
+        onClick: () => copyToClipboard(m.item.fileName),
+      },
+      {
+        label: t("explorer.copyPath"),
+        icon: <Icon.Signpost size={13} className="me-2" />,
+        onClick: () => copyToClipboard(fullPath),
+      },
+    ];
+  };
+
   // Fila de resultado con la estética del explorador
   const resultRow = (item: IFile, volume: string, folder: string) => {
     const drive = files[volume].connected;
@@ -177,6 +252,12 @@ const Home = () => {
         onDoubleClick={() =>
           drive && openFileEvent(item.fileName, folder, drive)
         }
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setSelected({ volume, folder, fileName: item.fileName });
+          setCtxMenu({ ...clampMenuPosition(e), volume, folder, item });
+        }}
       >
         <span className="explorer-icon">
           {getFileIcon(item.extension || getExtension(item.fileName), fileIconMappings).icon}
@@ -384,6 +465,33 @@ const updateFilesWithBookmark = (
           </div>
         )}
       </div>
+      {ctxMenu && (
+        <FileContextMenu
+          x={ctxMenu.x}
+          y={ctxMenu.y}
+          entries={searchCtxEntries(ctxMenu)}
+          onClose={() => setCtxMenu(null)}
+        />
+      )}
+      {bookmarkTarget && (
+        <AddBookmarkModal
+          show={true}
+          onHide={() => setBookmarkTarget(null)}
+          bookmark={
+            (bookmarkTarget.item.bookmark as any) || {
+              id: null,
+              name: bookmarkTarget.item.fileName,
+              path: bookmarkTarget.folder,
+              volume: bookmarkTarget.volume,
+              description: "",
+            }
+          }
+          onAddBookmark={(bookmark) => {
+            updateFilesWithBookmark(bookmark as any);
+            setBookmarkTarget(null);
+          }}
+        />
+      )}
 
     </Container>
   );

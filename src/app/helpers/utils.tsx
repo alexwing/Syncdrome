@@ -20,6 +20,18 @@ export const getExtension = (name: string): string => {
   return i > 0 ? name.slice(i + 1).toLowerCase() : "";
 };
 
+/***
+ * copy text to the clipboard (best effort)
+ * @param text
+ */
+export const copyToClipboard = (text: string) => {
+  try {
+    navigator.clipboard?.writeText(text);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // Canvas context reused to normalize any CSS color (names, hex, rgb…) to hex.
 let colorCtx: CanvasRenderingContext2D | null = null;
 

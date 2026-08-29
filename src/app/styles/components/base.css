@@ -103,24 +103,27 @@ pre {
 /* Explorer: dense list + preview panel */
 .explorer-toolbar {
   display: flex;
-  /* stretch: la barra de direcciones mide siempre lo mismo que el filtro */
-  align-items: stretch;
+  align-items: center;
   gap: 14px;
   margin: 10px 0;
 }
+/* Altura fija e idéntica para la barra de direcciones y el filtro, en vez de
+   depender de los estilos globales de input (padding/margin heredados). */
 .explorer-toolbar .explorer-breadcrumb {
   min-width: 0;
   display: flex;
   align-items: center;
-  padding: 6px 18px;
+  height: 38px;
+  padding: 0 18px;
   border-radius: 6px;
 }
 .explorer-toolbar .breadcrumb {
   margin-bottom: 0;
 }
-/* El filtro también se estira: ambas cajas miden siempre lo mismo */
 .explorer-toolbar .explorer-filter {
-  height: auto;
+  height: 38px;
+  margin: 0;
+  padding: 6px 12px;
 }
 .explorer-filter {
   width: 250px;

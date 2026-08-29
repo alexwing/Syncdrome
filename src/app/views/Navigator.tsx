@@ -29,9 +29,14 @@ import {
   callOpenFolder,
   getConfig,
   openFileEvent,
+  copyToClipboard,
 } from "../helpers/utils";
 import { AddBookmarkBadge } from "../components/AddBookmarkBadge";
 import AddBookmarkModal from "../components/AddBookmarkModal";
+import FileContextMenu, {
+  ContextMenuItem,
+  clampMenuPosition,
+} from "../components/FileContextMenu";
 import FilePreviewPanel, { formatBytes, formatDate } from "../components/FilePreviewPanel";
 
 
@@ -68,24 +73,6 @@ const Navigator = () => {
     getDrives();
   }, []);
 
-  // Cerrar el menú contextual con clic, Escape, scroll o clic derecho fuera.
-  useEffect(() => {
-    if (!ctxMenu) return;
-    const close = () => setCtxMenu(null);
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-    };
-    window.addEventListener("click", close);
-    window.addEventListener("contextmenu", close);
-    window.addEventListener("scroll", close, true);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("click", close);
-      window.removeEventListener("contextmenu", close);
-      window.removeEventListener("scroll", close, true);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [ctxMenu]);
 
   const getDrives = () => {
     Api.getDrives()
@@ -329,12 +316,67 @@ const Navigator = () => {
     return driveLetter ? `${driveLetter}\\${parts}` : `\\${parts}`;
   };
 
-  const copyText = (text: string) => {
-    try {
-      navigator.clipboard?.writeText(text);
-    } catch (e) {
-      console.log(e);
+  // Entradas del menú contextual según el tipo de elemento
+  const ctxEntries = (item: ExplorerItem): ContextMenuItem[] => {
+    const isDir = item.type === "directory";
+    const rel = cleanRelPath(currentPath);
+    const common: ContextMenuItem[] = [
+      "divider",
+      {
+        label: t("explorer.copyName"),
+        icon: <Icon.Files size={13} className="me-2" />,
+        onClick: () => copyToClipboard(item.name),
+      },
+      {
+        label: t("explorer.copyPath"),
+        icon: <Icon.Signpost size={13} className="me-2" />,
+        onClick: () => copyToClipboard(itemFullPath(item)),
+      },
+    ];
+    if (isDir) {
+      return [
+        {
+          label: t("explorer.open"),
+          icon: <Icon.FolderFill size={13} className="me-2" />,
+          onClick: () => handleItemClick(item),
+        },
+        {
+          label: t("explorer.showInFolder"),
+          icon: <Icon.Folder2Open size={13} className="me-2" />,
+          disabled: !isConnected,
+          onClick: () =>
+            driveLetter &&
+            Api.openFolder(rel ? `${rel}\\${item.name}` : item.name, driveLetter),
+        },
+        ...common,
+      ];
     }
+    return [
+      {
+        label: t("explorer.preview"),
+        icon: <Icon.Eye size={13} className="me-2" />,
+        onClick: () => setSelectedItem(item),
+      },
+      {
+        label: t("explorer.open"),
+        icon: <Icon.BoxArrowUpRight size={13} className="me-2" />,
+        disabled: !isConnected,
+        onClick: () => openFileEvent(item.name, rel, driveLetter),
+      },
+      {
+        label: t("explorer.showInFolder"),
+        icon: <Icon.Folder2Open size={13} className="me-2" />,
+        disabled: !isConnected,
+        onClick: () => driveLetter && Api.openFolder(rel, driveLetter),
+      },
+      "divider",
+      {
+        label: t("explorer.editBookmark"),
+        icon: <Icon.BookmarkPlus size={13} className="me-2" />,
+        onClick: () => setBookmarkModalItem(item),
+      },
+      ...common,
+    ];
   };
 
   const visibleItems = useMemo(() => {
@@ -368,11 +410,7 @@ const Navigator = () => {
           e.preventDefault();
           e.stopPropagation();
           if (!isDir) setSelectedItem(item);
-          setCtxMenu({
-            x: Math.min(e.clientX, window.innerWidth - 230),
-            y: Math.min(e.clientY, window.innerHeight - 260),
-            item,
-          });
+          setCtxMenu({ ...clampMenuPosition(e), item });
         }}
       >
         <span className="explorer-icon">
@@ -628,120 +666,12 @@ const Navigator = () => {
           </>
         )}
         {ctxMenu && (
-          <div
-            className="dropdown-menu show explorer-ctx-menu"
-            style={{ left: ctxMenu.x, top: ctxMenu.y }}
-          >
-            {ctxMenu.item.type === "file" ? (
-              <>
-                <button
-                  className="dropdown-item"
-                  onClick={() => {
-                    setSelectedItem(ctxMenu.item);
-                    setCtxMenu(null);
-                  }}
-                >
-                  <Icon.Eye size={13} className="me-2" />
-                  {t("explorer.preview")}
-                </button>
-                <button
-                  className="dropdown-item"
-                  disabled={!isConnected}
-                  onClick={() => {
-                    openFileEvent(
-                      ctxMenu.item.name,
-                      cleanRelPath(currentPath),
-                      driveLetter
-                    );
-                    setCtxMenu(null);
-                  }}
-                >
-                  <Icon.BoxArrowUpRight size={13} className="me-2" />
-                  {t("explorer.open")}
-                </button>
-                <button
-                  className="dropdown-item"
-                  disabled={!isConnected}
-                  onClick={(e) => {
-                    callOpenFolder(
-                      cleanRelPath(currentPath),
-                      driveLetter || "",
-                      e,
-                      setAlert,
-                      setShowAlert
-                    );
-                    setCtxMenu(null);
-                  }}
-                >
-                  <Icon.Folder2Open size={13} className="me-2" />
-                  {t("explorer.showInFolder")}
-                </button>
-                <div className="dropdown-divider"></div>
-                <button
-                  className="dropdown-item"
-                  onClick={() => {
-                    setBookmarkModalItem(ctxMenu.item);
-                    setCtxMenu(null);
-                  }}
-                >
-                  <Icon.BookmarkPlus size={13} className="me-2" />
-                  {t("explorer.editBookmark")}
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  className="dropdown-item"
-                  onClick={() => {
-                    handleItemClick(ctxMenu.item);
-                    setCtxMenu(null);
-                  }}
-                >
-                  <Icon.FolderFill size={13} className="me-2" />
-                  {t("explorer.open")}
-                </button>
-                <button
-                  className="dropdown-item"
-                  disabled={!isConnected}
-                  onClick={(e) => {
-                    const rel = cleanRelPath(currentPath);
-                    callOpenFolder(
-                      rel ? `${rel}\\${ctxMenu.item.name}` : ctxMenu.item.name,
-                      driveLetter || "",
-                      e,
-                      setAlert,
-                      setShowAlert
-                    );
-                    setCtxMenu(null);
-                  }}
-                >
-                  <Icon.Folder2Open size={13} className="me-2" />
-                  {t("explorer.showInFolder")}
-                </button>
-              </>
-            )}
-            <div className="dropdown-divider"></div>
-            <button
-              className="dropdown-item"
-              onClick={() => {
-                copyText(ctxMenu.item.name);
-                setCtxMenu(null);
-              }}
-            >
-              <Icon.Files size={13} className="me-2" />
-              {t("explorer.copyName")}
-            </button>
-            <button
-              className="dropdown-item"
-              onClick={() => {
-                copyText(itemFullPath(ctxMenu.item));
-                setCtxMenu(null);
-              }}
-            >
-              <Icon.Signpost size={13} className="me-2" />
-              {t("explorer.copyPath")}
-            </button>
-          </div>
+          <FileContextMenu
+            x={ctxMenu.x}
+            y={ctxMenu.y}
+            entries={ctxEntries(ctxMenu.item)}
+            onClose={() => setCtxMenu(null)}
+          />
         )}
         {bookmarkModalItem && (
           <AddBookmarkModal
