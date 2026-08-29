@@ -286,7 +286,10 @@ const bookmarks = () => {
       >
         <span className="explorer-icon">{getIcon(bookmark)}</span>
         <span className="explorer-cell-name">
-          <span className="explorer-name explorer-file-link">
+          <span
+            className="explorer-name explorer-file-link"
+            title={`${bookmark.path}\\${bookmark.name}`}
+          >
             <small className="text-muted">{bookmark.path}\</small>
             {bookmark.name}
           </span>

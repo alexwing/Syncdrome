@@ -118,6 +118,12 @@ pre {
   flex-shrink: 0;
 }
 
+/* La lista es un flex item: sin min-width 0, un nombre largo la ensancha
+   entera y aparece scroll horizontal en vez de recortarse con elipsis. */
+.explorer-list {
+  min-width: 0;
+}
+
 .explorer-colhead {
   display: flex;
   align-items: center;

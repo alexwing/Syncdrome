@@ -388,6 +388,7 @@ const Navigator = () => {
               "explorer-name",
               isDir ? "explorer-folder-link" : "explorer-file-link"
             )}
+            title={item.name}
           >
             {item.name}
           </span>

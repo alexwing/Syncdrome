@@ -182,7 +182,10 @@ const Home = () => {
           {getFileIcon(item.extension || getExtension(item.fileName), fileIconMappings).icon}
         </span>
         <span className="explorer-cell-name">
-          <span className="explorer-name explorer-file-link">
+          <span
+            className="explorer-name explorer-file-link"
+            title={`${item.folder}\\${item.fileName}`}
+          >
             <small className="text-muted">{item.folder}\</small>
             {item.fileName}
           </span>
