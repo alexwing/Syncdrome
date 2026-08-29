@@ -136,7 +136,7 @@ const fr: Dict = {
     noFiles: "Aucun fichier à nettoyer",
     filesRenamed: "Fichiers renommés avec succès",
     errorRenaming: "Erreur lors du renommage des fichiers",
-    patternDeletes: "Motif (supprimé)",
+    patternDeletes: "Motif de coupe (supprime à partir de là)",
     filesChange: "{{changed}} fichiers sur {{total}} changent",
     filesChangeShort: "changent",
     conflictsCount: "{{count}} en conflit",

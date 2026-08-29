@@ -133,7 +133,7 @@ const en = {
     noFiles: "No files to clean",
     filesRenamed: "Files renamed successfully",
     errorRenaming: "Error renaming files",
-    patternDeletes: "Pattern (removed)",
+    patternDeletes: "Cut pattern (removes from there on)",
     filesChange: "{{changed}} of {{total}} files change",
     filesChangeShort: "change",
     conflictsCount: "{{count}} in conflict",

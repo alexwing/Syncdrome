@@ -134,7 +134,7 @@ const es: Dict = {
     noFiles: "No hay archivos que limpiar",
     filesRenamed: "Archivos renombrados correctamente",
     errorRenaming: "Error al renombrar archivos",
-    patternDeletes: "Patrón (se elimina)",
+    patternDeletes: "Patrón de corte (elimina desde ahí)",
     filesChange: "{{changed}} de {{total}} archivos cambian",
     filesChangeShort: "cambian",
     conflictsCount: "{{count}} en conflicto",

@@ -137,7 +137,7 @@ const de: Dict = {
     noFiles: "Keine Dateien zu bereinigen",
     filesRenamed: "Dateien erfolgreich umbenannt",
     errorRenaming: "Fehler beim Umbenennen der Dateien",
-    patternDeletes: "Muster (wird entfernt)",
+    patternDeletes: "Trennmuster (entfernt ab da)",
     filesChange: "{{changed}} von {{total}} Dateien ändern sich",
     filesChangeShort: "ändern sich",
     conflictsCount: "{{count}} im Konflikt",

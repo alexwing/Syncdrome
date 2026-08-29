@@ -72,7 +72,21 @@ const FileCleaner = () => {
         setPattern(response.pattern);
       }
       if (response.defaultSubstitutions) {
-        setSubstitutions(response.defaultSubstitutions);
+        let subs: Substitution[] = response.defaultSubstitutions;
+        // Migración: la app antigua convertía puntos en espacios de forma
+        // oculta; ahora es una regla visible. Se añade una vez si no existe.
+        const hasDotRule = subs.some(
+          (s) => s.find === "\\." || s.find === "."
+        );
+        if (!hasDotRule) {
+          subs = [...subs, { find: "\\.", replace: " " }];
+          Promise.resolve(
+            Api.saveSettings({ ...response, defaultSubstitutions: subs })
+          ).catch((e) =>
+            console.log("No se pudo migrar la regla de puntos", e)
+          );
+        }
+        setSubstitutions(subs);
       }
     } catch (error) {
       setAlert({

@@ -10,7 +10,9 @@ import { Substitution } from "../models/Interfaces";
  *
  * Comportamiento:
  *  - La extensión queda exenta: patrón y reglas solo tocan el nombre base.
- *  - El patrón (regex, case-insensitive) tiene prioridad sobre las reglas.
+ *  - El patrón es un CORTE (semántica histórica de la app): desde su primera
+ *    coincidencia hasta el final del nombre base se elimina todo. Se intenta
+ *    como regex y, si no compila (p. ej. "(Spa"), como texto literal.
  *  - Las reglas se aplican en orden sobre los tramos aún no marcados.
  *  - Los espacios duplicados se colapsan y los separadores sueltos al
  *    principio/final del nombre base se recortan (origen "cleanup").
@@ -93,10 +95,23 @@ export const computeRenamePlan = (
   const occupied: boolean[] = new Array(base.length).fill(false);
   const spans: Span[] = [];
 
-  // 1. Patrón (se elimina)
+  // 1. Patrón de corte: desde la primera coincidencia hasta el final.
+  //    Regex si compila; si no (p. ej. "(Spa"), como texto literal.
   if (pattern && pattern.trim() !== "") {
-    const re = safeRegex(pattern, "gi");
-    if (re) collectSpans(base, re, occupied, "pattern", "", spans);
+    const re =
+      safeRegex(pattern, "i") || safeRegex(escapeRegex(pattern), "i");
+    if (re) {
+      const match = re.exec(base);
+      if (match && match[0] !== "" && match.index < base.length) {
+        for (let i = match.index; i < base.length; i++) occupied[i] = true;
+        spans.push({
+          start: match.index,
+          end: base.length,
+          source: "pattern",
+          replace: "",
+        });
+      }
+    }
   }
 
   // 2. Reglas de sustitución, en orden (regex; si no compila, literal)
