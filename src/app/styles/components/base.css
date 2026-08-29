@@ -22,10 +22,12 @@ body {
 }
 
 .container {
-  max-width: 78.125em;
+  /* Fluid width: use the whole window (ultrawide friendly). Views that need
+     narrow, readable content cap themselves (.search, .prose-readable). */
+  max-width: 100%;
   margin: 0 auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 
   &.container-md {
     max-width: 43.75em;
@@ -38,6 +40,17 @@ body {
 
 img {
   max-width: 100%;
+}
+
+/* Keep the home search form a comfortable width on wide monitors. */
+.search {
+  max-width: 50em;
+  margin: 0 auto;
+}
+
+/* Long-form text (help, about) stays readable on wide monitors. */
+.prose-readable {
+  max-width: 75em;
 }
 .logo {
   width: 133px;
@@ -85,6 +98,315 @@ pre {
 .drive-card .progress {
   height: 6px;
   margin: 4px 0 2px;
+}
+
+/* Explorer: dense list + preview panel */
+.explorer-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 10px 0;
+}
+.explorer-toolbar .explorer-breadcrumb {
+  min-width: 0;
+}
+.explorer-toolbar .breadcrumb {
+  margin-bottom: 0;
+}
+.explorer-filter {
+  width: 250px;
+  flex-shrink: 0;
+}
+
+.explorer-colhead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--bs-border-color);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+}
+
+.explorer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 34px;
+  padding: 2px 10px;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+  cursor: pointer;
+  user-select: none;
+}
+.explorer-row:hover {
+  background: var(--bs-tertiary-bg);
+}
+.explorer-row .explorer-actions {
+  visibility: hidden;
+}
+.explorer-row:hover .explorer-actions,
+.explorer-row.selected .explorer-actions {
+  visibility: visible;
+}
+.explorer-row.selected {
+  background: color-mix(in srgb, var(--PrimaryColor) 12%, transparent);
+  box-shadow: inset 3px 0 0 var(--PrimaryColor);
+}
+[data-bs-theme="dark"] .explorer-row.selected {
+  background: color-mix(in srgb, var(--PrimaryColorLight) 10%, transparent);
+  box-shadow: inset 3px 0 0 var(--PrimaryColorLight);
+}
+
+.explorer-icon {
+  width: 22px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
+.explorer-folder-icon {
+  color: seagreen;
+}
+[data-bs-theme="dark"] .explorer-folder-icon {
+  color: #5ad18a;
+}
+.explorer-cell-name {
+  flex-grow: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+.explorer-name {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.explorer-folder-link {
+  color: seagreen;
+  font-weight: 700;
+}
+[data-bs-theme="dark"] .explorer-folder-link {
+  color: #5ad18a;
+}
+.explorer-file-link {
+  color: #0d6efd;
+}
+[data-bs-theme="dark"] .explorer-file-link {
+  color: #6ea8fe;
+}
+.ext-badge {
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--bs-secondary-bg);
+  color: var(--bs-secondary-color);
+  flex-shrink: 0;
+}
+.explorer-bookmark-mark {
+  color: var(--PrimaryColor);
+  flex-shrink: 0;
+}
+[data-bs-theme="dark"] .explorer-bookmark-mark {
+  color: var(--PrimaryColorLight);
+}
+
+.explorer-col-type {
+  width: 110px;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--bs-secondary-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.explorer-col-size {
+  width: 90px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.explorer-col-mod {
+  width: 140px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 12px;
+  color: var(--bs-secondary-color);
+  white-space: nowrap;
+}
+.explorer-col-actions {
+  width: 92px;
+  flex-shrink: 0;
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2px;
+}
+.explorer-row-up {
+  color: var(--bs-secondary-color);
+}
+
+.explorer-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-top: 1px solid var(--bs-border-color);
+  font-size: 12px;
+  color: var(--bs-secondary-color);
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+.status-dot-on {
+  background: #2fb344;
+}
+.status-dot-off {
+  background: var(--bs-secondary-color);
+}
+
+/* Preview panel */
+.preview-panel {
+  width: clamp(360px, 26vw, 560px);
+  flex-shrink: 0;
+  position: sticky;
+  top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 8px;
+  padding: 16px;
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+}
+[data-bs-theme="dark"] .preview-panel {
+  background: #232323;
+}
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.preview-title {
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.preview-media {
+  border-radius: 6px;
+  background: var(--bs-tertiary-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 120px;
+}
+.preview-media img {
+  max-width: 100%;
+  max-height: 38vh;
+  object-fit: contain;
+}
+.preview-media video {
+  width: 100%;
+  max-height: 38vh;
+}
+.preview-media iframe {
+  width: 100%;
+  height: 55vh;
+  border: 0;
+}
+.preview-audio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  width: 100%;
+}
+.preview-audio audio {
+  width: 100%;
+}
+.preview-text {
+  width: 100%;
+  max-height: 300px;
+  overflow: auto;
+  font-size: 12px;
+  margin: 0;
+}
+.preview-markdown {
+  padding: 12px;
+  text-align: left;
+}
+.preview-markdown img {
+  max-width: 100%;
+}
+.preview-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px;
+  color: var(--bs-secondary-color);
+}
+.preview-placeholder-icon svg {
+  width: 42px;
+  height: 42px;
+}
+.preview-placeholder-text {
+  font-size: 12px;
+  text-align: center;
+}
+.preview-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+.preview-meta .meta-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.preview-meta .meta-label {
+  color: var(--bs-secondary-color);
+  flex-shrink: 0;
+}
+.preview-meta .meta-value {
+  text-align: right;
+  word-break: break-all;
+}
+.preview-bookmark {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--PrimaryColor) 40%, transparent);
+  background: color-mix(in srgb, var(--PrimaryColor) 8%, transparent);
+  font-size: 12px;
+}
+.preview-bookmark-text {
+  min-width: 0;
+}
+.preview-actions {
+  display: flex;
+  gap: 10px;
+}
+.preview-actions .btn {
+  flex-grow: 1;
 }
 
 /* Keep-alive views: persistent tabs stay mounted while hidden. Hidden views

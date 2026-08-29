@@ -212,6 +212,15 @@ const Api = {
   navigate: async (currentPath: string, command: string) => {
     return await invoke("navigate", { currentPath, command });
   },
+
+  /***
+   * Read the beginning of a text file for the explorer preview panel
+   * @param {string} path - absolute path on a connected drive
+   * @returns {object} - { content, truncated }
+   */
+  readTextPreview: async (path: string) => {
+    return await invoke("read_text_preview", { path });
+  },
 };
 
 export default Api;

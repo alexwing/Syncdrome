@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useContext } from "react";
-import { ThemeContext } from "../context/themeContext";
+import React, { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "../context/languageContext";
 import {
   Badge,
   Card,
   Container,
+  Form,
   ProgressBar,
   Spinner,
-  Table,
   Breadcrumb,
   Dropdown,
 } from "react-bootstrap";
@@ -17,24 +16,22 @@ import AlertMessage from "../components/AlertMessage";
 import {
   AlertModel,
   Bookmark,
-  BookmarksByVolume,
   DrivesProps,
+  ExplorerItem,
   FileTypes,
   NavigateResponse,
   TypeAlert,
 } from "../models/Interfaces";
 import Api from "../helpers/api";
-import { getFileIcon, callOpenFolder, getConfig } from "../helpers/utils";
+import { getFileIcon, callOpenFolder, getConfig, openFileEvent } from "../helpers/utils";
 import { AddBookmarkBadge } from "../components/AddBookmarkBadge";
+import FilePreviewPanel, { formatBytes, formatDate } from "../components/FilePreviewPanel";
 
 
 const Navigator = () => {
-  const { isDark } = useContext(ThemeContext);
   const { t } = useTranslation();
   const [currentPath, setCurrentPath] = useState("");
-  const [directoryContents, setDirectoryContents] = useState<
-    { name: string; type: string }[]
-  >([]);
+  const [directoryContents, setDirectoryContents] = useState<ExplorerItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fileIconMappings, setFileIconMappings] = useState({} as FileTypes);
   const [alert, setAlert] = useState<AlertModel>({
@@ -45,9 +42,13 @@ const Navigator = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [drives, setDrives] = useState<DrivesProps[]>([]);
   const [selectedDrive, setSelectedDrive] = useState("");
-  const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false);
   const [bookmarksByVolume, setBookmarksByVolume] = useState([] as Bookmark[]);
   const [isChangingDrive, setIsChangingDrive] = useState(false);
+  const [driveLetter, setDriveLetter] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ExplorerItem | null>(null);
+  const [filter, setFilter] = useState("");
+
+  const isConnected = !!driveLetter;
 
   useEffect(() => {
     getConfig(setFileIconMappings, setAlert, setShowAlert);
@@ -72,100 +73,6 @@ const Navigator = () => {
         });
         setShowAlert(true);
       });
-  };
-
-  const getIcon = (extension) => {
-    return <span>{getFileIcon(extension, fileIconMappings).icon}</span>;
-  };
-
-  const navigate = async (command, path = "") => {
-    setIsLoading(true);
-    try {
-      const response = await Api.navigate(path, command) as NavigateResponse;
-
-      // Verificar si la respuesta es {"isConnected":false,"driveLetter":null}
-      if (!response.directoryContents) {
-        setIsLoading(false);
-        setAlert({
-          title: t("common.error"),
-          message: t("sync.driveNotDataSynced"),
-          type: TypeAlert.danger,
-        });
-        setShowAlert(true);
-        return null;
-      }
-
-      setCurrentPath(response.currentPath);
-      setDirectoryContents(response.directoryContents);
-      setAlert({ title: "", message: "", type: TypeAlert.success });
-      setShowAlert(false);
-    } catch (err) {
-      console.log("Error", err);
-      const errorMessage =
-        (err as any).response?.data?.error === "Already at root"
-          ? t("explorer.alreadyAtRoot")
-          : (err as any).response?.data || t("common.anErrorOccurred");
-      setAlert({
-        title: t("common.error"),
-        message: errorMessage,
-        type: TypeAlert.danger,
-      });
-      setShowAlert(true);
-      setIsLoading(false);
-      return;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleItemClick = (item) => {
-    if (item.type === "file") {
-      const driveLetter = drives.find(
-        (drive) => drive.name === selectedDrive
-      )?.letter;
-      if (driveLetter) {
-        let path = currentPath;
-        //  replace / with \
-        path = path.replace(/\//g, "\\");
-        //remove last backslash
-        path = path.replace(/\\$/, "");
-        //remove first backslash
-        path = path.replace(/^\\/, "");
-        Api.openFile(item.name, path, driveLetter);
-      }
-    } else {
-      if (currentPath.match(/\\$/)) {
-        navigate("cd", `${currentPath}${item.name}`);
-      } else {
-        navigate("cd", `${currentPath}\\${item.name}`);
-      }
-    }
-  };
-
-  const handleDriveChange = async (driveName) => {
-    try {
-      setIsChangingDrive(true);
-      setCurrentPath("");
-      setDirectoryContents([]);
-      await Api.changeFileSystem(driveName);
-      navigate("cd", "");
-      loadBookmarks(driveName);
-    } catch (error) {
-      setAlert({
-        title: t("common.error"),
-        message: t("explorer.failedToChangeDrive"),
-        type: TypeAlert.danger,
-      });
-      setShowAlert(true);
-    } finally {
-      setIsChangingDrive(false);
-    }
-  };
-
-  const handleDriveSelect = async (e) => {
-    const selectedDriveName = e.target.value;
-    setSelectedDrive(selectedDriveName);
-    await handleDriveChange(selectedDriveName);
   };
 
   const byteToGB = (byte: number) =>
@@ -218,6 +125,97 @@ const Navigator = () => {
     </Card>
   );
 
+  const navigate = async (command, path = "") => {
+    setIsLoading(true);
+    try {
+      const response = await Api.navigate(path, command) as NavigateResponse;
+
+      if (!response.directoryContents) {
+        setIsLoading(false);
+        setAlert({
+          title: t("common.error"),
+          message: t("sync.driveNotDataSynced"),
+          type: TypeAlert.danger,
+        });
+        setShowAlert(true);
+        return null;
+      }
+
+      setCurrentPath(response.currentPath);
+      setDirectoryContents(response.directoryContents);
+      setDriveLetter(response.driveLetter || null);
+      setSelectedItem(null);
+      setFilter("");
+      setAlert({ title: "", message: "", type: TypeAlert.success });
+      setShowAlert(false);
+    } catch (err) {
+      console.log("Error", err);
+      const errorMessage =
+        (err as any).response?.data?.error === "Already at root"
+          ? t("explorer.alreadyAtRoot")
+          : (err as any).response?.data || t("common.anErrorOccurred");
+      setAlert({
+        title: t("common.error"),
+        message: errorMessage,
+        type: TypeAlert.danger,
+      });
+      setShowAlert(true);
+      setIsLoading(false);
+      return;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const cleanRelPath = (path: string) =>
+    path.replace(/\//g, "\\").replace(/^\\+/, "").replace(/\\+$/, "");
+
+  const handleItemClick = (item: ExplorerItem) => {
+    if (item.type === "file") {
+      setSelectedItem(item);
+      return;
+    }
+    if (currentPath.match(/\\$/)) {
+      navigate("cd", `${currentPath}${item.name}`);
+    } else {
+      navigate("cd", `${currentPath}\\${item.name}`);
+    }
+  };
+
+  const handleItemDoubleClick = (item: ExplorerItem) => {
+    if (item.type === "file" && isConnected) {
+      openFileEvent(item.name, cleanRelPath(currentPath), driveLetter);
+    }
+  };
+
+  const handleDriveChange = async (driveName) => {
+    try {
+      setIsChangingDrive(true);
+      setCurrentPath("");
+      setDirectoryContents([]);
+      setSelectedItem(null);
+      setFilter("");
+      await Api.changeFileSystem(driveName);
+      navigate("cd", "");
+      loadBookmarks(driveName);
+    } catch (error) {
+      setAlert({
+        title: t("common.error"),
+        message: t("explorer.failedToChangeDrive"),
+        type: TypeAlert.danger,
+      });
+      setShowAlert(true);
+    } finally {
+      setIsChangingDrive(false);
+    }
+  };
+
+  const handleDriveSelect = async (e) => {
+    const selectedDriveName = e.target.value;
+    setSelectedDrive(selectedDriveName);
+    await handleDriveChange(selectedDriveName);
+  };
+
   const showAlertMessage = (
     <AlertMessage
       show={showAlert}
@@ -229,11 +227,9 @@ const Navigator = () => {
   );
 
   const cleanPath = (path) => {
-    //if first character is a backslash remove it
     if (path.charAt(0) === "\\") {
       path = path.substr(1);
     }
-    //replace all backslashes with forward slashes
     path = path.replace(/\\/g, "/");
     return path;
   };
@@ -257,31 +253,7 @@ const Navigator = () => {
       });
   };
 
-  const openFolder = (folder: string) => {
-    const driveObj = drives.find((drive) => drive.name === selectedDrive);
-    if (!driveObj || !driveObj.connected) {
-      return null;
-    }
-    let fullPath = currentPath.replace(/\//g, "\\").replace(/\\$/, "").replace(/^\\/, "");
-    if (fullPath.match(/\\$/)) {
-      fullPath = `${fullPath}${folder}`;
-    } else {
-      fullPath = `${fullPath}\\${folder}`;
-    }
-    fullPath = fullPath.replace(/\\+/g, "\\").replace(/\/+/g, "/");
-    return (
-      <Badge
-        bg="none"
-        style={{ cursor: "pointer", height: "28px" }}
-        onClick={(e) => callOpenFolder(fullPath, driveObj.letter, e, setAlert, setShowAlert)}
-      >
-        <Icon.FolderSymlinkFill size={18} color="darkorange" />
-      </Badge>
-    );
-  };
-
   const getFileBookmark = (fileName) => {
-    //find in bookmarksByVolume the bookmark with the same name and path
     const bookmark = bookmarksByVolume.find(
       (bookmark) => bookmark.name === fileName && bookmark.path === currentPath
     );
@@ -293,7 +265,6 @@ const Navigator = () => {
   }
 
   const updateFilesWithBookmark = (bookmark: Bookmark) => {
-    // Actualizar la lista de bookmarks
     const newBookmarks = [...bookmarksByVolume];
     const bookmarkIndex = newBookmarks.findIndex(
       (b) => b.name === bookmark.name && b.path === bookmark.path
@@ -304,6 +275,125 @@ const Navigator = () => {
       newBookmarks.push(bookmark);
     }
     setBookmarksByVolume(newBookmarks);
+  };
+
+  const getItemCategory = (item: ExplorerItem) => {
+    if (item.type === "directory") return t("explorer.folder");
+    const ext = (item.name.split(".").pop() || "").toLowerCase();
+    const category = getFileIcon(ext, fileIconMappings).category;
+    if (!category || category === "default") return t("explorer.file");
+    return category.charAt(0).toUpperCase() + category.slice(1);
+  };
+
+  const visibleItems = useMemo(() => {
+    if (!filter.trim()) return directoryContents;
+    const term = filter.trim().toLowerCase();
+    return directoryContents.filter((item) => {
+      const ext = (item.name.split(".").pop() || "").toLowerCase();
+      return item.name.toLowerCase().includes(term) || ext === term.replace(/^\./, "");
+    });
+  }, [directoryContents, filter]);
+
+  const totals = useMemo(() => {
+    const folders = visibleItems.filter((i) => i.type === "directory").length;
+    const files = visibleItems.length - folders;
+    const bytes = visibleItems.reduce((acc, i) => acc + (i.size || 0), 0);
+    return { folders, files, bytes };
+  }, [visibleItems]);
+
+  const explorerRow = (item: ExplorerItem) => {
+    const isDir = item.type === "directory";
+    const ext = isDir ? "" : (item.name.split(".").pop() || "").toLowerCase();
+    const bookmark = isDir ? undefined : getFileBookmark(item.name);
+    const isSelected = selectedItem?.name === item.name && !isDir;
+    return (
+      <div
+        key={item.name}
+        className={classNames("explorer-row", { selected: isSelected })}
+        onClick={() => handleItemClick(item)}
+        onDoubleClick={() => handleItemDoubleClick(item)}
+      >
+        <span className="explorer-icon">
+          {isDir ? (
+            <Icon.FolderFill size={16} className="explorer-folder-icon" />
+          ) : (
+            getFileIcon(ext, fileIconMappings).icon
+          )}
+        </span>
+        <span className="explorer-cell-name">
+          <span
+            className={classNames(
+              "explorer-name",
+              isDir ? "explorer-folder-link" : "explorer-file-link"
+            )}
+          >
+            {item.name}
+          </span>
+          {!isDir && ext && <span className="ext-badge">{ext.toUpperCase()}</span>}
+          {!isDir && bookmark && (
+            <Icon.BookmarkFill size={11} className="explorer-bookmark-mark" />
+          )}
+        </span>
+        <span className="explorer-col-type">{getItemCategory(item)}</span>
+        <span className="explorer-col-size">
+          {isDir
+            ? item.items !== undefined
+              ? `${item.items} ${t("explorer.elementsShort")}`
+              : "—"
+            : formatBytes(item.size)}
+        </span>
+        {isConnected && (
+          <span className="explorer-col-mod">{formatDate(item.modified)}</span>
+        )}
+        <span
+          className="explorer-col-actions explorer-actions"
+          onClick={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => e.stopPropagation()}
+        >
+          {!isDir && (
+            <AddBookmarkBadge
+              isBookmarked={!!bookmark}
+              fileName={item.name}
+              path={currentPath}
+              volume={selectedDrive}
+              description={bookmark?.description || ""}
+              setFiles={() => {}}
+              onAddBookmark={updateFilesWithBookmark}
+            />
+          )}
+          {!isDir && isConnected && (
+            <Badge
+              bg="none"
+              style={{ cursor: "pointer" }}
+              onClick={() =>
+                openFileEvent(item.name, cleanRelPath(currentPath), driveLetter)
+              }
+            >
+              <Icon.BoxArrowUpRight size={13} color="green" />
+            </Badge>
+          )}
+          {isDir && isConnected && (
+            <Badge
+              bg="none"
+              style={{ cursor: "pointer" }}
+              onClick={(e) =>
+                callOpenFolder(
+                  cleanRelPath(currentPath)
+                    ? `${cleanRelPath(currentPath)}\\${item.name}`
+                    : item.name,
+                  driveLetter || "",
+                  e,
+                  setAlert,
+                  setShowAlert
+                )
+              }
+            >
+              <Icon.FolderSymlinkFill size={14} color="darkorange" />
+            </Badge>
+          )}
+        </span>
+      </div>
+    );
   };
 
   return (
@@ -360,29 +450,39 @@ const Navigator = () => {
         )}
         {!isChangingDrive && selectedDrive && (
           <>
-            <Breadcrumb className="w-100 bg-body-tertiary p-0 m-0 mt-2">
-              <Breadcrumb.Item
-                onClick={() => navigate("cd ..", "")}
-                className="p-0 m-0"
-              >
-                <Icon.HouseDoorFill className="me-2" />
-              </Breadcrumb.Item>
-              {pathParts.map((part, index) => (
+            <div className="explorer-toolbar">
+              <Breadcrumb className="explorer-breadcrumb bg-body-tertiary p-0 m-0 flex-grow-1">
                 <Breadcrumb.Item
-                  key={index}
-                  onClick={() =>
-                    navigate(
-                      `cd`,
-                      toBackslashPath(pathParts.slice(0, index + 1))
-                    )
-                  }
-                  className={index === pathParts.length - 1 ? "fw-bold" : ""}
-                  active={index === pathParts.length - 1}
+                  onClick={() => navigate("cd ..", "")}
+                  className="p-0 m-0"
                 >
-                  {part}
+                  <Icon.HouseDoorFill className="me-2" />
                 </Breadcrumb.Item>
-              ))}
-            </Breadcrumb>
+                {pathParts.map((part, index) => (
+                  <Breadcrumb.Item
+                    key={index}
+                    onClick={() =>
+                      navigate(
+                        `cd`,
+                        toBackslashPath(pathParts.slice(0, index + 1))
+                      )
+                    }
+                    className={index === pathParts.length - 1 ? "fw-bold" : ""}
+                    active={index === pathParts.length - 1}
+                  >
+                    {part}
+                  </Breadcrumb.Item>
+                ))}
+              </Breadcrumb>
+              <Form.Control
+                size="sm"
+                type="search"
+                className="explorer-filter"
+                placeholder={t("explorer.filterPlaceholder")}
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              />
+            </div>
             {isLoading && (
               <div className="loading-icon">
                 <Spinner
@@ -395,69 +495,72 @@ const Navigator = () => {
               </div>
             )}
             {!isLoading && (
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th style={{ width: "3%" }}>
-                      <Icon.ThreeDots
-                        color="green"
-                        style={{ cursor: "pointer", height: "28px" }}
-                        onClick={() => navigate("cd ..", currentPath)}
-                      />
-                    </th>
-                    <th style={{ width: "90%"}}>{t("explorer.name")}</th>
-                    <th style={{ width: "7%", textAlign: "center" }}>{t("explorer.actions")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {directoryContents.map((item, index) => (
-                    <tr key={index}>
-                      <td>
-                        {item.type === "directory" ? (
-                          <Icon.Folder
-                            color="green"
-                            style={{ cursor: "pointer", height: "28px" }}
-                            onClick={() => handleItemClick(item)}
-                            size={20}
-                          />
-                        ) : (
-                          getIcon(item.name.split(".").pop())
+              <div className="d-flex gap-3 align-items-start">
+                <div className="explorer-list flex-grow-1">
+                  <div className="explorer-colhead">
+                    <span className="explorer-icon"></span>
+                    <span className="explorer-cell-name">{t("explorer.name")}</span>
+                    <span className="explorer-col-type">{t("explorer.colType")}</span>
+                    <span className="explorer-col-size">{t("explorer.colSize")}</span>
+                    {isConnected && (
+                      <span className="explorer-col-mod">{t("explorer.colModified")}</span>
+                    )}
+                    <span className="explorer-col-actions">{t("explorer.actions")}</span>
+                  </div>
+                  {pathParts.length > 0 && (
+                    <div
+                      className="explorer-row explorer-row-up"
+                      onClick={() => navigate("cd ..", currentPath)}
+                    >
+                      <span className="explorer-icon">
+                        <Icon.ArrowUp size={14} />
+                      </span>
+                      <span className="explorer-cell-name text-muted">..</span>
+                      <span className="explorer-col-type text-muted">
+                        {t("explorer.upOneLevel")}
+                      </span>
+                      <span className="explorer-col-size"></span>
+                      {isConnected && <span className="explorer-col-mod"></span>}
+                      <span className="explorer-col-actions"></span>
+                    </div>
+                  )}
+                  {visibleItems.map(explorerRow)}
+                  <div className="explorer-statusbar">
+                    <span>
+                      {totals.folders} {t("explorer.folders")} · {totals.files}{" "}
+                      {t("explorer.files")}
+                      {isConnected && totals.bytes > 0
+                        ? ` · ${formatBytes(totals.bytes)} ${t("explorer.inThisView")}`
+                        : ""}
+                    </span>
+                    <span>
+                      <span
+                        className={classNames(
+                          "status-dot",
+                          isConnected ? "status-dot-on" : "status-dot-off"
                         )}
-                      </td>
-                      <td>
-                        <a
-                          style={{
-                            cursor: "pointer",
-                            color:
-                              item.type === "file"
-                                ? isDark
-                                  ? "#6ea8fe"
-                                  : "blue"
-                                : "green",
-                            fontSize: "1em",
-                            fontWeight: item.type === "directory" ? "bold" : "normal",
-                          }}
-                          onClick={() => handleItemClick(item)}
-                        >
-                          {item.name}
-                        </a>
-                      </td>
-                      <td style={{ textAlign: "center" }}>
-                        <AddBookmarkBadge
-                          isBookmarked={!!getFileBookmark(item.name)}
-                          fileName={item.name}
-                          path={currentPath}
-                          volume={selectedDrive}
-                          description={getFileBookmark(item.name)?.description || ""}
-                          setFiles={() => {}}
-                          onAddBookmark={updateFilesWithBookmark}
-                          />
-                          {item.type === "directory" && openFolder(item.name)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
+                      ></span>
+                      {isConnected
+                        ? `${driveLetter} ${selectedDrive} ${t("explorer.connectedDrive")}`
+                        : `${selectedDrive} ${t("explorer.disconnectedDrive")}`}
+                    </span>
+                  </div>
+                </div>
+                {selectedItem && (
+                  <FilePreviewPanel
+                    item={selectedItem}
+                    currentPath={currentPath}
+                    driveLetter={driveLetter}
+                    volume={selectedDrive}
+                    bookmark={getFileBookmark(selectedItem.name)}
+                    fileIconMappings={fileIconMappings}
+                    onBookmarkChange={updateFilesWithBookmark}
+                    onClose={() => setSelectedItem(null)}
+                    setAlert={setAlert}
+                    setShowAlert={setShowAlert}
+                  />
+                )}
+              </div>
             )}
           </>
         )}

@@ -133,35 +133,37 @@ const About = () => {
         <Breadcrumb.Item href="/">{t("common.home")}</Breadcrumb.Item>
         <Breadcrumb.Item active>{t("nav.about")}</Breadcrumb.Item>
       </Breadcrumb>
-      <ReactMarkdown
-        components={{
-          a: ({ node, ...props }) => (
-            <a {...props} target="_blank" rel="noreferrer" />
-          ),
-        }}
-      >
-        {markdown}
-      </ReactMarkdown>
-      <h3>{t("about.version")}</h3>
-      <p>{packageJson.version}</p>
-      {showLastVersion()}
-      {Object.keys(commits).length > 0 && (
-        <div>
-          <h5>{t("about.changeLog")}</h5>
-          {Object.entries(commits).map(([date, commits]) => (
-            <div key={date}>
-              <h6>{date}</h6>
-              <ul style={{ listStyleType: "none" }}>
-                {commits.map((commit) => (
-                  <li key={commit.sha}>
-                    {cleanCommitMessage(commit.commit.message)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="prose-readable">
+        <ReactMarkdown
+          components={{
+            a: ({ node, ...props }) => (
+              <a {...props} target="_blank" rel="noreferrer" />
+            ),
+          }}
+        >
+          {markdown}
+        </ReactMarkdown>
+        <h3>{t("about.version")}</h3>
+        <p>{packageJson.version}</p>
+        {showLastVersion()}
+        {Object.keys(commits).length > 0 && (
+          <div>
+            <h5>{t("about.changeLog")}</h5>
+            {Object.entries(commits).map(([date, commits]) => (
+              <div key={date}>
+                <h6>{date}</h6>
+                <ul style={{ listStyleType: "none" }}>
+                  {commits.map((commit) => (
+                    <li key={commit.sha}>
+                      {cleanCommitMessage(commit.commit.message)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </Container>
   );
 };

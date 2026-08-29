@@ -109,8 +109,26 @@ export interface BookmarksByVolume {
   bookmarks: Bookmark[];
 }
 
+export interface ExplorerItem {
+  name: string;
+  type: string;
+  /** Bytes; solo con la unidad conectada. */
+  size?: number;
+  /** Epoch ms; solo con la unidad conectada. */
+  modified?: number;
+  /** Nº de elementos directos (carpetas); disponible también sin conexión. */
+  items?: number;
+}
+
 export interface NavigateResponse {
-  directoryContents?: { name: string; type: string }[];
+  directoryContents?: ExplorerItem[];
   currentPath: string;
+  isConnected?: boolean;
+  driveLetter?: string | null;
+}
+
+export interface TextPreview {
+  content: string;
+  truncated: boolean;
 }
 

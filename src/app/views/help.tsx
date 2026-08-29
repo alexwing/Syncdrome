@@ -21,8 +21,9 @@ const Help = () => {
         <Breadcrumb.Item href="/">{t("common.home")}</Breadcrumb.Item>
         <Breadcrumb.Item active>{t("nav.help")}</Breadcrumb.Item>
       </Breadcrumb>
-      <ReactMarkdown 
-      children={markdown} />
+      <div className="prose-readable">
+        <ReactMarkdown children={markdown} />
+      </div>
     </Container>
   );
 };

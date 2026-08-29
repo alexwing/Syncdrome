@@ -10,6 +10,14 @@ pub struct FileItem {
     pub name: String,
     #[serde(rename = "type")]
     pub kind: String,
+    // Live filesystem metadata: only present when the drive is connected.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub modified: Option<u64>,
+    // Direct children count from the catalog tree: works offline too.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub items: Option<usize>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -85,11 +93,34 @@ pub fn change_file_system(filename: String) -> Result<(), String> {
 
     let mut fs_data = FILE_SYSTEM.lock().unwrap();
     *fs_data = new_fs;
+
+    // Resolver la letra de unidad si el volumen está conectado ahora mismo,
+    // para poder devolver metadatos en vivo (tamaño/fecha) y previsualizar.
+    let volume = if filename.to_lowercase().ends_with(".txt") {
+        filename[..filename.len() - 4].to_string()
+    } else {
+        filename.clone()
+    };
+    let mut letter = String::new();
+    for l in 'A'..='Z' {
+        let dl = format!("{}:", l);
+        let name = crate::utils::get_volume_name(&dl);
+        if !name.is_empty() && name.eq_ignore_ascii_case(&volume) {
+            letter = dl;
+            break;
+        }
+    }
+    println!("DEBUG: change_file_system - drive letter: '{}'", letter);
+    *DRIVE_LETTER.lock().unwrap() = letter;
     Ok(())
 }
 
 #[command]
-pub fn navigate(current_path: String, command: String) -> Result<NavigateResult, String> {
+pub fn navigate(
+    app: tauri::AppHandle,
+    current_path: String,
+    command: String,
+) -> Result<NavigateResult, String> {
     println!("DEBUG: navigate - current_path: {}, command: {}", current_path, command);
     let drive = DRIVE_LETTER.lock().unwrap();
 
@@ -140,6 +171,9 @@ pub fn navigate(current_path: String, command: String) -> Result<NavigateResult,
         .map(|(k, v)| FileItem {
             name: k.clone(),
             kind: if v.is_file { "file".to_string() } else { "directory".to_string() },
+            size: None,
+            modified: None,
+            items: if v.is_file { None } else { Some(v.children.len()) },
         })
         .collect();
 
@@ -151,6 +185,33 @@ pub fn navigate(current_path: String, command: String) -> Result<NavigateResult,
             if a.kind == "directory" { std::cmp::Ordering::Less } else { std::cmp::Ordering::Greater }
         }
     });
+
+    // Con la unidad conectada, completar con metadatos reales del sistema de
+    // archivos y autorizar la carpeta en el asset protocol para previsualizar.
+    if !drive.is_empty() {
+        let base = if path_parts.is_empty() {
+            format!("{}\\", drive.trim_end_matches('\\'))
+        } else {
+            format!("{}\\{}", drive.trim_end_matches('\\'), path_parts.join("\\"))
+        };
+        for item in items.iter_mut() {
+            let full = format!("{}\\{}", base.trim_end_matches('\\'), item.name);
+            if let Ok(md) = std::fs::metadata(&full) {
+                if md.is_file() {
+                    item.size = Some(md.len());
+                }
+                if let Ok(t) = md.modified() {
+                    if let Ok(d) = t.duration_since(std::time::UNIX_EPOCH) {
+                        item.modified = Some(d.as_millis() as u64);
+                    }
+                }
+            }
+        }
+        use tauri::Manager;
+        let _ = app
+            .asset_protocol_scope()
+            .allow_directory(std::path::Path::new(&base), false);
+    }
 
     let new_path = if path_parts.is_empty() {
         "\\".to_string()
@@ -167,4 +228,31 @@ pub fn navigate(current_path: String, command: String) -> Result<NavigateResult,
         driveLetter: if drive.is_empty() { None } else { Some(drive.clone()) },
     };
     Ok(result)
+}
+
+#[derive(Debug, Serialize)]
+pub struct TextPreview {
+    pub content: String,
+    pub truncated: bool,
+}
+
+/// Lee el comienzo de un archivo de texto (markdown, código, txt...) para la
+/// vista previa del explorador. Limitado a 256 KB para no cargar archivos enormes.
+#[command]
+pub fn read_text_preview(path: String) -> Result<TextPreview, String> {
+    const MAX_BYTES: u64 = 256 * 1024;
+    let md = std::fs::metadata(&path).map_err(|e| e.to_string())?;
+    if !md.is_file() {
+        return Err("No es un archivo".to_string());
+    }
+    use std::io::Read;
+    let file = std::fs::File::open(&path).map_err(|e| e.to_string())?;
+    let mut buf = Vec::new();
+    file.take(MAX_BYTES)
+        .read_to_end(&mut buf)
+        .map_err(|e| e.to_string())?;
+    Ok(TextPreview {
+        content: String::from_utf8_lossy(&buf).to_string(),
+        truncated: md.len() > MAX_BYTES,
+    })
 }
