@@ -25,6 +25,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Release notes are built from the log since the previous tag, which
+          # needs the full history rather than the default shallow clone.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v7
         with:
@@ -109,16 +113,29 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          tag="${{ github.ref_name }}"
           if [ "${{ steps.package.outputs.signed }}" = "yes" ]; then
-            notes="Signed with the SignPath Foundation certificate."
+            status="Signed with the SignPath Foundation certificate."
           else
-            notes="This build is not code signed yet."
+            status="This build is not code signed yet."
           fi
-          # --generate-notes builds the changelog from the commits since the
-          # previous tag and appends it below the line above.
-          gh release create "${{ github.ref_name }}" \
-            --title "${{ github.ref_name }}" \
-            --notes "$notes" \
-            --generate-notes \
+          # GitHub's own note generator lists merged pull requests, and this
+          # repository commits straight to main, so build the changelog from
+          # the log since the previous tag instead.
+          prev=$(git describe --tags --abbrev=0 "$tag^" 2>/dev/null || true)
+          {
+            echo "$status"
+            if [ -n "$prev" ]; then
+              echo
+              echo "## Changes since $prev"
+              echo
+              git log --no-merges --pretty='- %s' "$prev..$tag"
+              echo
+              echo "**Full changelog**: https://github.com/${{ github.repository }}/compare/$prev...$tag"
+            fi
+          } > release-notes.md
+          gh release create "$tag" \
+            --title "$tag" \
+            --notes-file release-notes.md \
             --draft \
             dist-release/*
