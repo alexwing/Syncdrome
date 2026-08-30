@@ -19,7 +19,7 @@
       ]
     }
   },
-  "app": {    
+  "app": {
     "windows": [
       {
         "title": "Syncdrome",
@@ -43,13 +43,21 @@
       }
     },
     "active": true,
-    "targets": ["msi"],
+    "targets": [
+      "msi"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "publisher": "Alejandro Aranda",
+    "copyright": "Copyright (c) 2025 Alejandro Aranda",
+    "shortDescription": "Content Drives Finder App",
+    "longDescription": "Catalog, search and browse the contents of your hard drives, even when they are unplugged.",
+    "homepage": "https://github.com/alexwing/Syncdrome",
+    "license": "MIT"
   }
 }
