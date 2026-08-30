@@ -109,12 +109,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          notes="Signed with the SignPath Foundation certificate."
-          if [ "${{ steps.package.outputs.signed }}" != "yes" ]; then
-            notes="Unsigned build: SignPath credentials are not configured yet."
+          if [ "${{ steps.package.outputs.signed }}" = "yes" ]; then
+            notes="Signed with the SignPath Foundation certificate."
+          else
+            notes="This build is not code signed yet."
           fi
+          # --generate-notes builds the changelog from the commits since the
+          # previous tag and appends it below the line above.
           gh release create "${{ github.ref_name }}" \
             --title "${{ github.ref_name }}" \
             --notes "$notes" \
+            --generate-notes \
             --draft \
             dist-release/*

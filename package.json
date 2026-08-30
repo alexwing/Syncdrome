@@ -1,6 +1,6 @@
 {
     "name": "syncdrome",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "description": "Create a catalog of all files on specified hard drives",
     "type": "commonjs",
     "repository": "https://github.com/alexwing/Syncdrome",
@@ -22,8 +22,7 @@
         "tauri:build": "tauri build",
         "tauri:dev": "tauri dev",
         "build": "npm run front:build",
-        "version:bump": "node scripts/bump-version.js",
-        "package:release": "node scripts/package-release.js"
+        "version:bump": "node scripts/bump-version.js"
     },
     "dependencies": {
         "@tauri-apps/api": "^2.1.1",
