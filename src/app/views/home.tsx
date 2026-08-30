@@ -201,10 +201,12 @@ const Home = () => {
         onClick: () => drive && Api.openFolder(m.folder, drive),
       },
       {
+        // Sin separador el padre es "", que Api.openFolder resuelve a la raíz
+        // de la unidad; por eso la entrada sigue activa en el primer nivel.
         label: t("explorer.openParentFolder"),
         icon: <Icon.Folder2Open size={13} className="me-2" />,
-        disabled: !drive || !parent,
-        onClick: () => drive && parent && Api.openFolder(parent, drive),
+        disabled: !drive,
+        onClick: () => drive && Api.openFolder(parent, drive),
       },
       "divider",
       {
