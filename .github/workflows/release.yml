@@ -1,0 +1,120 @@
+name: Release
+
+# SignPath only signs artifacts that it can prove were built here, so the
+# installer has to be produced by this workflow on a GitHub-hosted runner and
+# stored as a workflow artifact before it is submitted. Local builds keep
+# working, they just do not get the SignPath certificate.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    env:
+      # Secrets cannot be read from an `if:` expression, so the gate below
+      # checks this variable instead. Until SIGNPATH_API_TOKEN exists the
+      # workflow still builds and publishes, only unsigned.
+      SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Read version
+        id: meta
+        shell: bash
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Build installer
+        run: npm run tauri:build
+
+      # The unsigned build goes into one folder so the SignPath artifact
+      # configuration has a stable layout to match against.
+      - name: Stage artifacts
+        shell: bash
+        run: |
+          mkdir -p staging
+          cp "src-tauri/target/release/bundle/msi/syncdrome_${{ steps.meta.outputs.version }}_x64_en-US.msi" staging/
+          cp "src-tauri/target/release/syncdrome.exe" staging/
+          ls -l staging
+
+      - name: Upload unsigned artifact
+        id: unsigned
+        uses: actions/upload-artifact@v7
+        with:
+          name: syncdrome-unsigned
+          path: staging/
+          if-no-files-found: error
+
+      - name: Submit signing request to SignPath
+        if: env.SIGNPATH_API_TOKEN != ''
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: ${{ vars.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG }}
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          # Every release needs manual approval in SignPath, so the job waits
+          # here until it is approved. 30 min covers a distracted approver.
+          wait-for-completion-timeout-in-seconds: 1800
+          output-artifact-directory: signed
+
+      - name: Package release files
+        id: package
+        shell: bash
+        run: |
+          if [ -d signed ]; then src=signed; else src=staging; fi
+          echo "Using $src"
+          mkdir -p dist-release
+          version="${{ steps.meta.outputs.version }}"
+          cp "$src/syncdrome_${version}_x64_en-US.msi" dist-release/
+          # Portable build: the same executable the installer carries, zipped.
+          # Zipped from inside $src so the exe sits at the root of the archive.
+          (cd "$src" && 7z a "../dist-release/syncdrome_${version//./_}_win_standalone.zip" syncdrome.exe)
+          echo "signed=$([ -d signed ] && echo yes || echo no)" >> "$GITHUB_OUTPUT"
+          ls -l dist-release
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: syncdrome-release
+          path: dist-release/
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="Signed with the SignPath Foundation certificate."
+          if [ "${{ steps.package.outputs.signed }}" != "yes" ]; then
+            notes="Unsigned build: SignPath credentials are not configured yet."
+          fi
+          gh release create "${{ github.ref_name }}" \
+            --title "${{ github.ref_name }}" \
+            --notes "$notes" \
+            --draft \
+            dist-release/*
