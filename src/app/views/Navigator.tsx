@@ -355,11 +355,6 @@ const Navigator = () => {
     }
     return [
       {
-        label: t("explorer.preview"),
-        icon: <Icon.Eye size={13} className="me-2" />,
-        onClick: () => setSelectedItem(item),
-      },
-      {
         label: t("explorer.open"),
         icon: <Icon.BoxArrowUpRight size={13} className="me-2" />,
         disabled: !isConnected,

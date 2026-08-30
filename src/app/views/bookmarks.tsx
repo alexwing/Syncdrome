@@ -25,6 +25,7 @@ import {
   getFileIcon,
   getExtension,
   copyToClipboard,
+  buildWindowsPath,
 } from "../helpers/utils";
 import { open } from '@tauri-apps/plugin-dialog';
 import { useTranslation } from "../context/languageContext";
@@ -302,19 +303,11 @@ const bookmarks = () => {
   const bookmarkCtxEntries = (bookmark: Bookmark): ContextMenuItem[] => {
     const connected = isConnect(bookmark.volume);
     const letter = getDriveLetter(bookmark.volume, drives);
-    const cleanPath = bookmark.path
-      .replace(/\//g, "\\")
-      .replace(/^\\+/, "")
-      .replace(/\\+$/, "");
-    const fullPath = connected && letter
-      ? `${letter}\\${cleanPath}\\${bookmark.name}`
-      : `\\${cleanPath}\\${bookmark.name}`;
+    const fullPath =
+      connected && letter
+        ? buildWindowsPath(letter, bookmark.path, bookmark.name)
+        : `\\${buildWindowsPath(bookmark.path, bookmark.name)}`;
     return [
-      {
-        label: t("explorer.preview"),
-        icon: <Icon.Eye size={13} className="me-2" />,
-        onClick: () => setSelectedId(bookmark.id),
-      },
       {
         label: t("explorer.open"),
         icon: <Icon.BoxArrowUpRight size={13} className="me-2" />,

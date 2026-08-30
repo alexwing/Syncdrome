@@ -98,7 +98,6 @@ const de: Dict = {
     previewTruncated: "Vorschau gekürzt (große Datei)",
     bookmarked: "Markiert",
     noBookmark: "Kein Lesezeichen",
-    preview: "Vorschau",
     editBookmark: "Lesezeichen hinzufügen/bearbeiten",
     openFolder: "Ordner öffnen",
     openParentFolder: "Übergeordneten Ordner öffnen",

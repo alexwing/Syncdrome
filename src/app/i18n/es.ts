@@ -96,7 +96,6 @@ const es: Dict = {
     previewTruncated: "Vista previa truncada (archivo grande)",
     bookmarked: "Marcado",
     noBookmark: "Sin marcador",
-    preview: "Vista previa",
     editBookmark: "Añadir / editar marcador",
     openFolder: "Abrir carpeta",
     openParentFolder: "Abrir carpeta contenedora",

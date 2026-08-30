@@ -565,6 +565,11 @@ pre {
 
 .keep-alive-view-hidden {
   visibility: hidden;
+  /* visibility is inherited, so a descendant that sets visibility: visible
+     (a selected row's actions, an open dropdown) would keep painting over the
+     view that is now on screen. opacity is not inherited and cannot be undone
+     from inside, so it hides the whole subtree for good. */
+  opacity: 0;
   pointer-events: none;
   overflow: hidden;
 }

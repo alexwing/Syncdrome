@@ -98,7 +98,6 @@ const fr: Dict = {
     previewTruncated: "Aperçu tronqué (fichier volumineux)",
     bookmarked: "Marqué",
     noBookmark: "Aucun marque-page",
-    preview: "Aperçu",
     editBookmark: "Ajouter / modifier le marque-page",
     openFolder: "Ouvrir le dossier",
     openParentFolder: "Ouvrir le dossier parent",
