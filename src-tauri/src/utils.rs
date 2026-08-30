@@ -1,5 +1,4 @@
 use std::{fs, path::{Path}, str};
-use base64::{engine::general_purpose::STANDARD, Engine as _};
 use serde_json::json;
 use chrono::{DateTime, Local};
 use std::ffi::{OsString, OsStr};
@@ -302,9 +301,34 @@ pub fn get_name_from_file(file: &str) -> String {
     file.trim_end_matches(".txt").to_string()
 }
 
-pub fn open_file(encoded_url: &str) -> Result<(), std::io::Error> {
-    let decoded = STANDARD.decode(encoded_url).unwrap_or_default();
-    let path_str = String::from_utf8_lossy(&decoded).replace("/", "\\\\");
+/// Normalize a path coming from the UI: forward slashes to backslashes and
+/// repeated separators collapsed, since drive letters arrive as "D:\" and
+/// catalog folders may already start with one. A leading UNC "\\" is kept.
+pub fn normalize_windows_path(path: &str) -> String {
+    let unc = path.starts_with("\\\\");
+    let mut out = String::with_capacity(path.len());
+    let mut last_was_sep = false;
+    for c in path.chars() {
+        let c = if c == '/' { '\\' } else { c };
+        if c == '\\' {
+            if last_was_sep {
+                continue;
+            }
+            last_was_sep = true;
+        } else {
+            last_was_sep = false;
+        }
+        out.push(c);
+    }
+    if unc {
+        format!("\\{}", out)
+    } else {
+        out
+    }
+}
+
+pub fn open_file(path: &str) -> Result<(), std::io::Error> {
+    let path_str = normalize_windows_path(path);
     println!("DEBUG: Abriendo archivo: {}", path_str);
 
     let wide_path: Vec<u16> = OsStr::new(&path_str).encode_wide().chain(Some(0)).collect();
@@ -321,15 +345,17 @@ pub fn open_file(encoded_url: &str) -> Result<(), std::io::Error> {
 
     if result as i32 <= 32 {
         println!("ERROR: Fallo al abrir el archivo con ShellExecuteW, código de error: {}", result as i32);
-        return Err(std::io::Error::new(std::io::ErrorKind::Other, "Fallo al abrir el archivo"));
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("No se pudo abrir '{}' (código {})", path_str, result as i32),
+        ));
     }
 
     Ok(())
 }
 
-pub fn open_folder(encoded_url: &str) -> Result<(), std::io::Error> {
-    let decoded = STANDARD.decode(encoded_url).unwrap_or_default();
-    let path_str = String::from_utf8_lossy(&decoded).replace("/", "\\\\");
+pub fn open_folder(path: &str) -> Result<(), std::io::Error> {
+    let path_str = normalize_windows_path(path);
     println!("DEBUG: Abriendo carpeta: {}", path_str);
 
     let wide_path: Vec<u16> = OsStr::new(&path_str).encode_wide().chain(Some(0)).collect();
@@ -346,7 +372,10 @@ pub fn open_folder(encoded_url: &str) -> Result<(), std::io::Error> {
 
     if result as i32 <= 32 {
         println!("ERROR: Fallo al abrir la carpeta con ShellExecuteW, código de error: {}", result as i32);
-        return Err(std::io::Error::new(std::io::ErrorKind::Other, "Fallo al abrir la carpeta"));
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("No se pudo abrir '{}' (código {})", path_str, result as i32),
+        ));
     }
 
     Ok(())
@@ -378,3 +407,37 @@ pub fn get_extensions_by_type(extensions: &[&str], config: &serde_json::Value) -
     final_ext
 }
 
+
+#[cfg(test)]
+mod tests {
+    use super::normalize_windows_path;
+
+    #[test]
+    fn collapses_the_separator_after_a_drive_letter() {
+        assert_eq!(
+            normalize_windows_path(r"D:\\Backup\CDs"),
+            r"D:\Backup\CDs"
+        );
+    }
+
+    #[test]
+    fn turns_forward_slashes_into_single_backslashes() {
+        assert_eq!(normalize_windows_path("D:/Backup/CDs"), r"D:\Backup\CDs");
+    }
+
+    #[test]
+    fn keeps_accented_names_intact() {
+        assert_eq!(
+            normalize_windows_path(r"D:\\Fotos\Mis Imágenes\1º parada.jpg"),
+            r"D:\Fotos\Mis Imágenes\1º parada.jpg"
+        );
+    }
+
+    #[test]
+    fn preserves_a_unc_prefix() {
+        assert_eq!(
+            normalize_windows_path(r"\\server\share\file.txt"),
+            r"\\server\share\file.txt"
+        );
+    }
+}

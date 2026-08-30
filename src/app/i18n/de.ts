@@ -100,6 +100,8 @@ const de: Dict = {
     noBookmark: "Kein Lesezeichen",
     preview: "Vorschau",
     editBookmark: "Lesezeichen hinzufügen/bearbeiten",
+    openFolder: "Ordner öffnen",
+    openParentFolder: "Übergeordneten Ordner öffnen",
     copyName: "Namen kopieren",
     copyPath: "Pfad kopieren",
   },

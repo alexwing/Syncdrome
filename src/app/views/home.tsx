@@ -27,6 +27,9 @@ import {
   callOpenFolder,
   getConfig,
   copyToClipboard,
+  buildWindowsPath,
+  parentFolder,
+  folderName,
 } from "../helpers/utils";
 import { AddBookmarkBadge } from "../components/AddBookmarkBadge";
 import AddBookmarkModal from "../components/AddBookmarkModal";
@@ -60,13 +63,18 @@ const Home = () => {
     folder: string;
     fileName: string;
   } | null>(null);
-  const [ctxMenu, setCtxMenu] = useState<{
-    x: number;
-    y: number;
-    volume: string;
-    folder: string;
-    item: IFile;
-  } | null>(null);
+  const [ctxMenu, setCtxMenu] = useState<
+    | {
+        x: number;
+        y: number;
+        kind: "file";
+        volume: string;
+        folder: string;
+        item: IFile;
+      }
+    | { x: number; y: number; kind: "folder"; volume: string; folder: string }
+    | null
+  >(null);
   const [bookmarkTarget, setBookmarkTarget] = useState<{
     volume: string;
     folder: string;
@@ -179,30 +187,52 @@ const Home = () => {
   });
 
   // Entradas del menú contextual para un resultado de búsqueda
+  const folderCtxEntries = (m: {
+    volume: string;
+    folder: string;
+  }): ContextMenuItem[] => {
+    const drive = files[m.volume]?.connected as string | false;
+    const parent = parentFolder(m.folder);
+    return [
+      {
+        label: t("explorer.openFolder"),
+        icon: <Icon.FolderFill size={13} className="me-2" />,
+        disabled: !drive,
+        onClick: () => drive && Api.openFolder(m.folder, drive),
+      },
+      {
+        label: t("explorer.openParentFolder"),
+        icon: <Icon.Folder2Open size={13} className="me-2" />,
+        disabled: !drive || !parent,
+        onClick: () => drive && parent && Api.openFolder(parent, drive),
+      },
+      "divider",
+      {
+        label: t("explorer.copyName"),
+        icon: <Icon.Files size={13} className="me-2" />,
+        onClick: () => copyToClipboard(folderName(m.folder)),
+      },
+      {
+        label: t("explorer.copyPath"),
+        icon: <Icon.Signpost size={13} className="me-2" />,
+        onClick: () =>
+          copyToClipboard(buildWindowsPath(drive || m.volume, m.folder)),
+      },
+    ];
+  };
+
   const searchCtxEntries = (m: {
     volume: string;
     folder: string;
     item: IFile;
   }): ContextMenuItem[] => {
     const drive = files[m.volume]?.connected as string | false;
-    const cleanFolder = m.folder
-      .replace(/\//g, "\\")
-      .replace(/^\\+/, "")
-      .replace(/\\+$/, "");
-    const fullPath = drive
-      ? `${drive}\\${cleanFolder}\\${m.item.fileName}`
-      : `\\${cleanFolder}\\${m.item.fileName}`;
+    const fullPath = buildWindowsPath(
+      drive || m.volume,
+      m.folder,
+      m.item.fileName
+    );
     return [
-      {
-        label: t("explorer.preview"),
-        icon: <Icon.Eye size={13} className="me-2" />,
-        onClick: () =>
-          setSelected({
-            volume: m.volume,
-            folder: m.folder,
-            fileName: m.item.fileName,
-          }),
-      },
       {
         label: t("explorer.open"),
         icon: <Icon.BoxArrowUpRight size={13} className="me-2" />,
@@ -256,7 +286,13 @@ const Home = () => {
           e.preventDefault();
           e.stopPropagation();
           setSelected({ volume, folder, fileName: item.fileName });
-          setCtxMenu({ ...clampMenuPosition(e), volume, folder, item });
+          setCtxMenu({
+            ...clampMenuPosition(e),
+            kind: "file",
+            volume,
+            folder,
+            item,
+          });
         }}
       >
         <span className="explorer-icon">
@@ -412,7 +448,19 @@ const updateFilesWithBookmark = (
                             eventKey={index2.toString()}
                             key={index2}
                           >
-                            <Accordion.Header className="d-flex justify-content-between folder-header">
+                            <Accordion.Header
+                              className="d-flex justify-content-between folder-header"
+                              onContextMenu={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setCtxMenu({
+                                  ...clampMenuPosition(e),
+                                  kind: "folder",
+                                  volume: key,
+                                  folder: key2,
+                                });
+                              }}
+                            >
                               <Icon.FolderFill
                                 size={20}
                                 className="me-2"
@@ -469,7 +517,11 @@ const updateFilesWithBookmark = (
         <FileContextMenu
           x={ctxMenu.x}
           y={ctxMenu.y}
-          entries={searchCtxEntries(ctxMenu)}
+          entries={
+            ctxMenu.kind === "folder"
+              ? folderCtxEntries(ctxMenu)
+              : searchCtxEntries(ctxMenu)
+          }
           onClose={() => setCtxMenu(null)}
         />
       )}

@@ -98,6 +98,8 @@ const es: Dict = {
     noBookmark: "Sin marcador",
     preview: "Vista previa",
     editBookmark: "Añadir / editar marcador",
+    openFolder: "Abrir carpeta",
+    openParentFolder: "Abrir carpeta contenedora",
     copyName: "Copiar nombre",
     copyPath: "Copiar ruta",
   },

@@ -138,11 +138,11 @@ pub fn find_files(search_param: String, extensions: String) -> Result<serde_json
 }
 
 #[command]
-pub fn open_file_rust(encoded_url: String) -> Result<(), String> {
-    open_file(&encoded_url).map_err(|e| e.to_string())
+pub fn open_file_rust(path: String) -> Result<(), String> {
+    open_file(&path).map_err(|e| e.to_string())
 }
 
 #[command]
-pub fn open_folder_rust(encoded_url: String) -> Result<(), String> {
-    open_folder(&encoded_url).map_err(|e| e.to_string())
+pub fn open_folder_rust(path: String) -> Result<(), String> {
+    open_folder(&path).map_err(|e| e.to_string())
 }

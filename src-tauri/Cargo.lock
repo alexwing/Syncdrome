@@ -3694,7 +3694,6 @@ dependencies = [
 name = "syncdrome"
 version = "2.2.0"
 dependencies = [
- "base64 0.22.1",
  "chrono",
  "dirs 5.0.1",
  "encoding_rs",

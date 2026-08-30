@@ -32,6 +32,8 @@ export const copyToClipboard = (text: string) => {
   }
 };
 
+export { buildWindowsPath, parentFolder, folderName } from "./paths";
+
 // Canvas context reused to normalize any CSS color (names, hex, rgb…) to hex.
 let colorCtx: CanvasRenderingContext2D | null = null;
 

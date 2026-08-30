@@ -1,6 +1,7 @@
 import Axios from "axios";
 import { FileCleanerProps, LogFile, Settings } from "../models/Interfaces";
 import { invoke } from "@tauri-apps/api/core";
+import { buildWindowsPath } from "./paths";
 const repoOwner = "alexwing";
 const repoName = "Syncdrome";
 
@@ -59,9 +60,8 @@ const Api = {
    * @returns {object} - response from server
    */
   openFile(fileName: string, folder: string, driveLetter: string): Promise<any> {
-    const url = btoa(`${driveLetter}\\${folder}\\${fileName}`);
     return invoke("open_file_rust", {
-      encodedUrl: url,
+      path: buildWindowsPath(driveLetter, folder, fileName),
     });
   },
 
@@ -72,9 +72,8 @@ const Api = {
    * @returns {object} - response from server
    */
   openFolder(folder: string, driveLetter: string): Promise<any> {
-    const url = btoa(`${driveLetter}\\${folder}`);
     return invoke("open_folder_rust", {
-      encodedUrl: url,
+      path: buildWindowsPath(driveLetter, folder),
     });
   },
 

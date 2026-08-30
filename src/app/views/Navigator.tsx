@@ -29,6 +29,7 @@ import {
   callOpenFolder,
   getConfig,
   openFileEvent,
+  buildWindowsPath,
   copyToClipboard,
 } from "../helpers/utils";
 import { AddBookmarkBadge } from "../components/AddBookmarkBadge";
@@ -312,8 +313,9 @@ const Navigator = () => {
 
   const itemFullPath = (item: ExplorerItem) => {
     const rel = cleanRelPath(currentPath);
-    const parts = [rel, item.name].filter(Boolean).join("\\");
-    return driveLetter ? `${driveLetter}\\${parts}` : `\\${parts}`;
+    return driveLetter
+      ? buildWindowsPath(driveLetter, rel, item.name)
+      : `\\${buildWindowsPath(rel, item.name)}`;
   };
 
   // Entradas del menú contextual según el tipo de elemento

@@ -97,6 +97,8 @@ const en = {
     noBookmark: "No bookmark",
     preview: "Preview",
     editBookmark: "Add / edit bookmark",
+    openFolder: "Open folder",
+    openParentFolder: "Open containing folder",
     copyName: "Copy name",
     copyPath: "Copy path",
   },

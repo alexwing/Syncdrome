@@ -5,7 +5,13 @@ import ReactMarkdown from "react-markdown";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import Api from "../helpers/api";
 import { Bookmark, ExplorerItem, FileTypes, TextPreview } from "../models/Interfaces";
-import { getFileIcon, getExtension, openFileEvent, callOpenFolder } from "../helpers/utils";
+import {
+  getFileIcon,
+  getExtension,
+  openFileEvent,
+  callOpenFolder,
+  buildWindowsPath,
+} from "../helpers/utils";
 import AddBookmarkModal from "./AddBookmarkModal";
 import { useTranslation } from "../context/languageContext";
 
@@ -91,9 +97,7 @@ const FilePreviewPanel: React.FC<FilePreviewPanelProps> = ({
 
   // Ruta relativa limpia (sin barra inicial/final) y ruta absoluta en Windows.
   const relPath = currentPath.replace(/\//g, "\\").replace(/^\\+/, "").replace(/\\+$/, "");
-  const fullPath = [driveLetter?.replace(/\\+$/, ""), relPath, item.name]
-    .filter(Boolean)
-    .join("\\");
+  const fullPath = buildWindowsPath(driveLetter, relPath, item.name);
   const assetUrl = connected ? convertFileSrc(fullPath) : "";
 
   useEffect(() => {
