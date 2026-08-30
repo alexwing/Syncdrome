@@ -127,7 +127,7 @@ Code Details
 About
 -----
 
-Syncdrome simplifies the organization and search of your digital files on specific hard drives. Developed by Alejandro Aranda, it is a Tauri application with React on the frontend and Node.js on the backend.
+Syncdrome simplifies the organization and search of your digital files on specific hard drives. Developed by Alejandro Aranda, it is a Tauri application with React on the frontend and Rust on the backend.
 
 As someone who tends to accumulate digital files in a disorganized manner, I felt the need to develop a tool that would simplify my digital life. Syncdrome was born out of my own experience as a self-proclaimed "digital Diogenes."
 
@@ -158,8 +158,8 @@ Free code signing provided by [SignPath.io](https://about.signpath.io), certific
 
 Releases are built on GitHub-hosted runners and signed through SignPath, which
 verifies that the installer was built from this repository. See
-[CODE_SIGNING.md](CODE_SIGNING.md) for the team roles, the privacy policy and
-how releases are produced.
+[CODE_SIGNING.md](CODE_SIGNING.md) for the team roles and how releases are
+produced, and [PRIVACY.md](PRIVACY.md) for the privacy policy.
 
 ### Contribute and Support
 

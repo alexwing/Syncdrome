@@ -12,6 +12,8 @@ Syncdrome is maintained by a single developer, who holds every role:
 
 ## Privacy policy
 
+Full policy: [PRIVACY.md](PRIVACY.md).
+
 This program will not transfer any information to other networked systems unless
 specifically requested by the user or the person installing or operating it.
 
