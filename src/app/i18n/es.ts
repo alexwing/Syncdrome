@@ -50,6 +50,11 @@ const es: Dict = {
     extensionExistsIn: "La extensión ya existe en ",
     errorSavingConfig: "Error al guardar la configuración",
     selectFolder: "Selecciona una carpeta",
+    fileTypes: "Tipos de archivo",
+    folderHint: "Carpeta donde se guardan los catálogos. Una carpeta sincronizada en la nube funciona muy bien.",
+    appearanceHint: "Se aplican al momento, sin necesidad de guardar.",
+    saveHint: "Guarda la carpeta y los tipos de archivo.",
+    chipHint: "Clic: multimedia sí/no · ✕: eliminar extensión",
   },
   home: {
     searchPlaceholder: "Introduce un archivo o carpeta a buscar",

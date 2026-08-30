@@ -50,6 +50,11 @@ const en = {
     extensionExistsIn: "Extension already exists in ",
     errorSavingConfig: "Error saving config file",
     selectFolder: "Select a folder",
+    fileTypes: "File types",
+    folderHint: "Folder where the catalogs are stored. A cloud-synced folder works nicely.",
+    appearanceHint: "Applied instantly, no need to save.",
+    saveHint: "Saves the folder and the file types.",
+    chipHint: "Click: toggle media · ✕: remove extension",
   },
   home: {
     searchPlaceholder: "Enter file or folder to search",

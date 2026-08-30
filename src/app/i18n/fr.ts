@@ -50,6 +50,11 @@ const fr: Dict = {
     extensionExistsIn: "L'extension existe déjà dans ",
     errorSavingConfig: "Erreur lors de l'enregistrement de la configuration",
     selectFolder: "Sélectionnez un dossier",
+    fileTypes: "Types de fichiers",
+    folderHint: "Dossier où sont stockés les catalogues. Un dossier synchronisé dans le cloud convient bien.",
+    appearanceHint: "Appliqué immédiatement, pas besoin d'enregistrer.",
+    saveHint: "Enregistre le dossier et les types de fichiers.",
+    chipHint: "Clic : média oui/non · ✕ : supprimer l'extension",
   },
   home: {
     searchPlaceholder: "Saisissez un fichier ou un dossier à rechercher",

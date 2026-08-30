@@ -453,6 +453,101 @@ pre {
   flex-grow: 1;
 }
 
+/* Settings: section cards, category grid and extension chips */
+.settings-form {
+  margin-top: 16px;
+  padding-bottom: 24px;
+}
+.settings-general {
+  display: grid;
+  grid-template-columns: minmax(320px, 2fr) minmax(280px, 1.4fr) minmax(170px, 0.8fr);
+  gap: 14px;
+  align-items: stretch;
+}
+.settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+[data-bs-theme="dark"] .settings-card {
+  background: #232323;
+}
+.settings-card .form-control,
+.settings-card .form-select {
+  margin-bottom: 0;
+}
+.settings-card-label {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+}
+.settings-card-count {
+  margin-left: auto;
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.settings-card-save {
+  align-items: stretch;
+  justify-content: center;
+  text-align: center;
+}
+.settings-section-title {
+  margin: 22px 0 8px 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+.ext-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 190px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.ext-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--bs-border-color);
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+  line-height: 1.4;
+}
+.ext-chip:hover {
+  border-color: var(--bs-secondary-color);
+}
+.ext-chip.media {
+  background: color-mix(in srgb, var(--PrimaryColor) 16%, transparent);
+  border-color: var(--PrimaryColor);
+}
+[data-bs-theme="dark"] .ext-chip.media {
+  background: color-mix(in srgb, var(--PrimaryColorLight) 14%, transparent);
+  border-color: var(--PrimaryColorLight);
+}
+.ext-chip .chip-x {
+  color: var(--bs-secondary-color);
+}
+.ext-chip .chip-x:hover {
+  color: #dc3545;
+}
+
 /* Keep-alive views: persistent tabs stay mounted while hidden. Hidden views
    keep their layout (visibility, not display:none) so scroll positions and
    in-flight work survive tab switches. */

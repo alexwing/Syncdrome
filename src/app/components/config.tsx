@@ -2,30 +2,25 @@ import React, { useState, useEffect, useContext } from "react";
 import Api from "../helpers/api";
 import { ThemeContext } from "../context/themeContext";
 import { useTranslation } from "../context/languageContext";
-import {
-  Button,
-  Col,
-  Container,
-  Row,
-  Alert,
-  Card,
-  Form,
-} from "react-bootstrap";
+import { Alert, Button, Form } from "react-bootstrap";
 
-import { AlertModel , FileTypes, LanguageSetting, Settings, ThemeMode, TypeAlert } from "../models/Interfaces";
+import {
+  AlertModel,
+  FileTypes,
+  LanguageSetting,
+  Settings,
+  ThemeMode,
+  TypeAlert,
+} from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
 import * as Icon from "react-bootstrap-icons";
-import { open } from '@tauri-apps/plugin-dialog';
+import { open } from "@tauri-apps/plugin-dialog";
 
 const Config = () => {
   const { mode, setMode } = useContext(ThemeContext);
   const { t, language, setLanguage } = useTranslation();
   const [folder, setFolder] = useState("");
   const [fileTypes, setFileTypes] = useState({} as FileTypes);
-  const [selectedExtension, setSelectedExtension] = useState({
-    key: "",
-    ext: "",
-  });
   const [newExtension, setNewExtension] = useState({ key: "", ext: "" });
   const [alert, setAlert] = useState({
     title: "",
@@ -38,7 +33,7 @@ const Config = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const newConfig = {
-      ... loadedConfig,
+      ...loadedConfig,
       folder,
       extensions: fileTypes,
     } as Settings;
@@ -49,7 +44,7 @@ const Config = () => {
         setAlert({
           title: t("common.error"),
           message: t("settings.configNotSavedReason") + response.message,
-          type: TypeAlert.danger
+          type: TypeAlert.danger,
         });
         setShowAlert(true);
         return;
@@ -57,14 +52,14 @@ const Config = () => {
       setAlert({
         title: t("common.success"),
         message: t("settings.configSaved"),
-        type: TypeAlert.success
+        type: TypeAlert.success,
       });
       setShowAlert(true);
     } catch (error) {
       setAlert({
         title: t("common.error"),
         message: t("settings.configNotSaved"),
-        type: TypeAlert.danger
+        type: TypeAlert.danger,
       });
       setShowAlert(true);
     }
@@ -81,7 +76,7 @@ const Config = () => {
       setAlert({
         title: t("common.error"),
         message: t("settings.configNotFound"),
-        type: TypeAlert.danger
+        type: TypeAlert.danger,
       });
       setShowAlert(true);
       return;
@@ -92,7 +87,6 @@ const Config = () => {
     getConfig();
   }, []);
 
-  // alert message
   const showAlertMessage = (
     <AlertMessage
       show={showAlert}
@@ -103,11 +97,8 @@ const Config = () => {
     />
   );
 
-  // open folder on click
   const openFolderHandler = (event) => {
-    //extract leter from folder
     const driveLetter = folder.slice(0, 2);
-    //extract path from folder
     const folderPath = folder.slice(3);
     event.preventDefault();
     event.stopPropagation();
@@ -116,278 +107,174 @@ const Config = () => {
 
   const onChangeFolder = async () => {
     try {
-      const folder = await open({
+      const selected = await open({
         directory: true,
         multiple: false,
         title: t("settings.selectFolder"),
-        defaultPath: '/ruta/inicial'
       });
-      setFolder(folder as string);
-      if (folder) {
-        console.log('Carpeta seleccionada:', folder);
-      } else {
-        console.log('No se seleccionó ninguna carpeta.');
+      if (selected) {
+        setFolder(selected as string);
       }
     } catch (error) {
-      console.error('Error al abrir el diálogo:', error);
+      console.error("Error al abrir el diálogo:", error);
     }
   };
-
-  /* settings json 
-
-  {
-    "folder": "C:\\Users\\Windows\\Mi unidad\\Software\\DiscosDuros",
-    "NODE_ENV": "production",
-    "extensions": {
-        "document": {
-            "icon": "File",
-            "color": "black",
-            "extensions": [
-                "doc",
-                "docx",
-                "xls",
-                "xlsx",
-                "ppt",
-                "pptx",
-                "txt",
-                "odt",
-                "ods",
-                "odp"
-            ],
-            "media": [
-                "doc",
-                "docx",
-                "xls",
-                "xlsx",
-                "ppt",
-                "pptx",
-                "txt",
-                "odt",
-                "ods",
-                "odp"
-            ]
-        },
-        "image": {
-            "icon": "FileImageFill",
-            "color": "pink",
-            "extensions": [
-                "jpg",
-                "jpeg",
-                "bmp",
-                "ico",
-                "tif",
-                "tiff",
-                "arw",
-                "raw",
-                "psd",
-                "png",
-                "gif",
-                "ps",
-                "xcf"
-            ],
-            "media": [
-                "jpg",
-                "jpeg",
-                "bmp",
-                "tif",
-                "tiff",
-                "png",
-                "gif",
-                "psd"
-            ]
-        },
-        "video": {
-            "icon": "FileEarmarkPlayFill",
-            "color": "red",
-            "extensions": [
-                "flv",
-                "mov",
-                "mkv",
-                "mp4",
-                "avi",
-                "wmv",
-                "webm",
-                "mpg",
-                "mpeg",
-                "3gp"
-            ],
-            "media": [
-                "mov",
-                "mkv",
-                "mp4",
-                "avi",
-                "wmv",
-                "webm",
-                "mpg",
-                "mpeg"
-            ]
-        },
-        "audio": {
-            "icon": "FileEarmarkMusicFill",
-            "color": "green",
-            "extensions": [
-                "mp3",
-                "wav",
-                "wma",
-                "mpa",
-                "aif",
-                "iff",
-                "m3u",
-                "m4a"
-            ],
-            "media": [
-                "mp3",
-                "wav",
-                "wma"
-            ]
-        },    
-        "default": {
-            "icon": "File",
-            "color": "black",
-            "extensions": [],
-            "media": []
-        }
-    }
-}
-  
-    */
 
   const getFileIcon = (icon: string, color: string) => {
-    const IconComponent = Icon[icon];
-    return <IconComponent size={20} className="me-2" color={color} />;
+    const IconComponent = Icon[icon] || Icon.FileEarmark;
+    return <IconComponent size={18} className="me-2" color={color} />;
   };
 
-  const isSelectected = (key, ext) => {
-    return fileTypes[key].media.includes(ext);
+  const isMedia = (key: string, ext: string) =>
+    fileTypes[key].media.includes(ext);
+
+  const toggleMedia = (key: string, ext: string) => {
+    const media = [...fileTypes[key].media];
+    const index = media.indexOf(ext);
+    if (index > -1) media.splice(index, 1);
+    else media.push(ext);
+    setFileTypes({ ...fileTypes, [key]: { ...fileTypes[key], media } });
   };
 
-  const onSelected = (key, ext) => {
-    const index = fileTypes[key].media.indexOf(ext);
-    if (index > -1) {
-      fileTypes[key].media.splice(index, 1);
-    } else {
-      fileTypes[key].media.push(ext);
-    }
-    setFileTypes({ ...fileTypes });
+  const removeExtension = (key: string, ext: string) => {
+    setFileTypes({
+      ...fileTypes,
+      [key]: {
+        ...fileTypes[key],
+        extensions: fileTypes[key].extensions.filter((e) => e !== ext),
+        media: fileTypes[key].media.filter((e) => e !== ext),
+      },
+    });
   };
 
-  const onAddExtension = (key) => {
-    if (newExtension.ext === "") return;
-    //check if extension already exists in all file types
+  const onAddExtension = (key: string) => {
+    const ext = newExtension.ext.trim().toLowerCase().replace(/^\./, "");
+    if (newExtension.key !== key || ext === "") return;
     for (const fileType in fileTypes) {
-      if (
-        fileTypes[fileType].extensions.includes(newExtension.ext.toLowerCase())
-      ) {
+      if (fileTypes[fileType].extensions.includes(ext)) {
         setAlert({
           title: t("common.error"),
           message: t("settings.extensionExistsIn") + fileType,
-          type: TypeAlert.danger
+          type: TypeAlert.danger,
         });
         setShowAlert(true);
         return;
       }
     }
-    fileTypes[key].extensions.push(newExtension.ext.toLowerCase());
-    setFileTypes({ ...fileTypes });
+    setFileTypes({
+      ...fileTypes,
+      [key]: {
+        ...fileTypes[key],
+        extensions: [...fileTypes[key].extensions, ext],
+      },
+    });
+    setNewExtension({ key, ext: "" });
   };
 
-  const filestypes = (key) => (
-    <div className="form-group">
-      <div className="d-flex justify-content-between align-items-center my-auto">
-        <Form.Control
-          name={key}
-          id={key}
-          type="text"
-          placeholder={t("settings.extensionPlaceholder")}
-          value={newExtension.ext}
-          onChange={(e) => setNewExtension({ key, ext: e.target.value })}
-        />
-        <Button
-          className="m-auto pt-0 pb-3 px-1"
-          variant="link"
-          onClick={() => onAddExtension(key)}
-        >
-          <Icon.PlusCircle color="RGB(0,123,255)" size={18} />
-        </Button>
-        <Button
-          className="m-auto pt-0 pb-3 px-1"
-          variant="link"
-          onClick={() => {
-            const index = fileTypes[key].extensions.indexOf(
-              selectedExtension.ext
-            );
-            if (index > -1) {
-              fileTypes[key].extensions.splice(index, 1);
-              setFileTypes({ ...fileTypes });
-            }
-          }}
-        >
-          <Icon.DashCircle color="RGB(220,53,69)" size={18} />
-        </Button>
-      </div>
-      <div
-        id="fileTypes"
-        className="border mt-2 p-2"
-        style={{ height: "200px", overflow: "auto" }}
-      >
-        {fileTypes[key].extensions.map((ext) => (
-          <div
-            key={ext}
-            className={`extension-check ${
-              selectedExtension.ext === ext && selectedExtension.key === key
-                ? "selected"
-                : ""
-            }`}
-            onClick={() => setSelectedExtension({ key, ext })}
+  const categoryCard = (key: string) => {
+    const type = fileTypes[key];
+    return (
+      <div key={key} className="settings-card">
+        <div className="settings-card-label">
+          {getFileIcon(type.icon, type.color)}
+          <span className="text-capitalize">{key}</span>
+          <span className="settings-card-count">
+            {type.extensions.length} ext · {type.media.length} media
+          </span>
+        </div>
+        <div className="d-flex gap-2">
+          <Form.Control
+            size="sm"
+            type="text"
+            placeholder={t("settings.extensionPlaceholder")}
+            value={newExtension.key === key ? newExtension.ext : ""}
+            onChange={(e) => setNewExtension({ key, ext: e.target.value })}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                onAddExtension(key);
+              }
+            }}
+          />
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            type="button"
+            onClick={() => onAddExtension(key)}
           >
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={ext}
-              id={ext}
-              checked={isSelectected(key, ext)}
-              onChange={() => onSelected(key, ext)}
-            />
-            <label className="form-check-label" htmlFor={ext}>
+            <Icon.PlusLg size={14} />
+          </Button>
+        </div>
+        <div className="ext-chips">
+          {type.extensions.map((ext) => (
+            <span
+              key={ext}
+              className={`ext-chip ${isMedia(key, ext) ? "media" : ""}`}
+              title={t("settings.chipHint")}
+              onClick={() => toggleMedia(key, ext)}
+            >
               {ext}
-            </label>
-          </div>
-        ))}
+              <Icon.X
+                size={13}
+                className="chip-x"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeExtension(key, ext);
+                }}
+              />
+            </span>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
+
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="settings-form">
       {showAlertMessage}
-      <Row>
-        <Col xs={12} lg={8}>
-          <label>
+
+      <div className="settings-general">
+        <div className="settings-card">
+          <div className="settings-card-label">
+            <Icon.Folder2Open size={16} className="me-2" />
             {t("settings.folder")}
-            <input
+          </div>
+          <div className="d-flex gap-2">
+            <Form.Control
+              size="sm"
               type="text"
               value={folder}
               onChange={(e) => setFolder(e.target.value)}
             />
             <Button
               variant="outline-secondary"
+              size="sm"
               type="button"
               onClick={onChangeFolder}
             >
-              ...
+              …
             </Button>
             <Button
-              variant="outline-none"
+              variant="outline-secondary"
+              size="sm"
               type="button"
+              title={t("explorer.showInFolder")}
               onClick={openFolderHandler}
             >
-              <Icon.Folder2Open color="green" size={22} className="m-0" />
+              <Icon.Folder2Open size={14} />
             </Button>
-          </label>
-        </Col>
-        <Col xs={12} lg={4}>
-          <Form.Group controlId="appearanceSelect" className="mb-2">
-            <Form.Label>{t("settings.appearance")}</Form.Label>
+          </div>
+          <small className="text-muted">{t("settings.folderHint")}</small>
+        </div>
+
+        <div className="settings-card">
+          <div className="settings-card-label">
+            <Icon.Palette size={16} className="me-2" />
+            {t("settings.appearance")} · {t("settings.language")}
+          </div>
+          <div className="d-flex gap-2">
             <Form.Select
+              size="sm"
               value={mode}
               onChange={(e) => setMode(e.target.value as ThemeMode)}
             >
@@ -395,14 +282,10 @@ const Config = () => {
               <option value="light">{t("settings.themeLight")}</option>
               <option value="dark">{t("settings.themeDark")}</option>
             </Form.Select>
-          </Form.Group>
-          <Form.Group controlId="languageSelect">
-            <Form.Label>{t("settings.language")}</Form.Label>
             <Form.Select
+              size="sm"
               value={language}
-              onChange={(e) =>
-                setLanguage(e.target.value as LanguageSetting)
-              }
+              onChange={(e) => setLanguage(e.target.value as LanguageSetting)}
             >
               <option value="system">{t("settings.themeSystem")}</option>
               <option value="en">English</option>
@@ -410,45 +293,28 @@ const Config = () => {
               <option value="fr">Français</option>
               <option value="de">Deutsch</option>
             </Form.Select>
-          </Form.Group>
-        </Col>
-      </Row>
-      <Row>
-        <Col className="text-center">
-          <Button variant="primary" type="submit" className="full-width">
-            <Icon.Save color="white" size={18} className="me-3" />
+          </div>
+          <small className="text-muted">{t("settings.appearanceHint")}</small>
+        </div>
+
+        <div className="settings-card settings-card-save">
+          <Button variant="primary" type="submit">
+            <Icon.Save size={16} className="me-2" />
             {t("common.save")}
           </Button>
-        </Col>
-      </Row>
-      <Row>
-        <Col className="text-center">
-          <Alert variant="info" className="mt-2 px-3 py-1 mb-0 opacity-75">
-            {t("settings.addRemoveInfo")}
-          </Alert>
-        </Col>
-      </Row>
-      <Container fluid className="d-flex flex-wrap align-items-center  py-2">
+          <small className="text-muted">{t("settings.saveHint")}</small>
+        </div>
+      </div>
+
+      <div className="settings-section-title">{t("settings.fileTypes")}</div>
+      <Alert variant="info" className="px-3 py-2 mb-3 opacity-75">
+        {t("settings.addRemoveInfo")}
+      </Alert>
+      <div className="settings-grid mb-4">
         {Object.keys(fileTypes).map((key) =>
-          key === "default" ? null : (
-            <React.Fragment key={key}>
-              <Card style={{ width: "23.5rem" }} className="p-0 m-2">
-                <Card.Body>
-                  <Card.Title>
-                    {getFileIcon(fileTypes[key].icon, fileTypes[key].color)}
-                    {key}
-                  </Card.Title>
-                  <Card.Text>{filestypes(key)}</Card.Text>
-                </Card.Body>
-              </Card>
-            </React.Fragment>
-          )
+          key === "default" ? null : categoryCard(key)
         )}
-      </Container>
-      <Container
-        fluid
-        className="d-flex align-items-center justify-content-center py-2"
-      ></Container>
+      </div>
     </form>
   );
 };

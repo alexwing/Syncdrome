@@ -51,6 +51,11 @@ const de: Dict = {
     extensionExistsIn: "Die Erweiterung existiert bereits in ",
     errorSavingConfig: "Fehler beim Speichern der Konfiguration",
     selectFolder: "Wählen Sie einen Ordner",
+    fileTypes: "Dateitypen",
+    folderHint: "Ordner, in dem die Kataloge gespeichert werden. Ein Cloud-Ordner bietet sich an.",
+    appearanceHint: "Wird sofort angewendet, kein Speichern nötig.",
+    saveHint: "Speichert den Ordner und die Dateitypen.",
+    chipHint: "Klick: Medien ein/aus · ✕: Erweiterung entfernen",
   },
   home: {
     searchPlaceholder: "Datei oder Ordner zum Suchen eingeben",
