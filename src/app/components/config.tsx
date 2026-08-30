@@ -13,6 +13,8 @@ import {
   TypeAlert,
 } from "../models/Interfaces";
 import AlertMessage from "../components/AlertMessage";
+import ConfirmDialog from "../components/ConfirmDialog";
+import FileTypeModal, { FileTypeDraft } from "../components/FileTypeModal";
 import * as Icon from "react-bootstrap-icons";
 import { open } from "@tauri-apps/plugin-dialog";
 
@@ -29,6 +31,10 @@ const Config = () => {
   } as AlertModel);
   const [showAlert, setShowAlert] = useState(false);
   const [loadedConfig, setLoadedConfig] = useState({} as Settings);
+  const [typeModal, setTypeModal] = useState<
+    { mode: "add" } | { mode: "edit"; key: string } | null
+  >(null);
+  const [deleteTypeKey, setDeleteTypeKey] = useState<string | null>(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -171,6 +177,41 @@ const Config = () => {
     setNewExtension({ key, ext: "" });
   };
 
+  const saveType = (draft: FileTypeDraft) => {
+    if (!typeModal) return;
+    if (typeModal.mode === "add") {
+      setFileTypes({
+        ...fileTypes,
+        [draft.name]: {
+          icon: draft.icon,
+          color: draft.color,
+          extensions: [],
+          media: [],
+        },
+      });
+    } else {
+      // Renombrar reconstruyendo el objeto para conservar el orden de las claves
+      setFileTypes(
+        Object.fromEntries(
+          Object.entries(fileTypes).map(([k, v]) =>
+            k === typeModal.key
+              ? [draft.name, { ...v, icon: draft.icon, color: draft.color }]
+              : [k, v]
+          )
+        ) as FileTypes
+      );
+    }
+    setTypeModal(null);
+  };
+
+  const deleteType = () => {
+    if (!deleteTypeKey) return;
+    const next = { ...fileTypes };
+    delete next[deleteTypeKey];
+    setFileTypes(next);
+    setDeleteTypeKey(null);
+  };
+
   const categoryCard = (key: string) => {
     const type = fileTypes[key];
     return (
@@ -180,6 +221,20 @@ const Config = () => {
           <span className="text-capitalize">{key}</span>
           <span className="settings-card-count">
             {type.extensions.length} ext · {type.media.length} media
+          </span>
+          <span className="settings-card-tools">
+            <Icon.PencilSquare
+              size={14}
+              role="button"
+              title={t("settings.editType")}
+              onClick={() => setTypeModal({ mode: "edit", key })}
+            />
+            <Icon.Trash
+              size={14}
+              role="button"
+              title={t("settings.deleteType")}
+              onClick={() => setDeleteTypeKey(key)}
+            />
           </span>
         </div>
         <div className="d-flex gap-2">
@@ -306,7 +361,18 @@ const Config = () => {
         </div>
       </div>
 
-      <div className="settings-section-title">{t("settings.fileTypes")}</div>
+      <div className="d-flex align-items-center justify-content-between">
+        <div className="settings-section-title">{t("settings.fileTypes")}</div>
+        <Button
+          variant="outline-secondary"
+          size="sm"
+          type="button"
+          onClick={() => setTypeModal({ mode: "add" })}
+        >
+          <Icon.PlusLg size={14} className="me-2" />
+          {t("settings.addType")}
+        </Button>
+      </div>
       <Alert variant="info" className="px-3 py-2 mb-3 opacity-75">
         {t("settings.addRemoveInfo")}
       </Alert>
@@ -315,6 +381,34 @@ const Config = () => {
           key === "default" ? null : categoryCard(key)
         )}
       </div>
+
+      {typeModal && (
+        <FileTypeModal
+          show={true}
+          initial={
+            typeModal.mode === "edit"
+              ? {
+                  name: typeModal.key,
+                  icon: fileTypes[typeModal.key].icon,
+                  color: fileTypes[typeModal.key].color,
+                }
+              : undefined
+          }
+          takenNames={Object.keys(fileTypes).filter(
+            (k) => typeModal.mode !== "edit" || k !== typeModal.key
+          )}
+          onSave={saveType}
+          onHide={() => setTypeModal(null)}
+        />
+      )}
+      <ConfirmDialog
+        title={t("settings.deleteType")}
+        message={t("settings.confirmDeleteType", { name: deleteTypeKey || "" })}
+        subMessage={t("settings.deleteTypeNote")}
+        show={deleteTypeKey !== null}
+        handleCancel={() => setDeleteTypeKey(null)}
+        handleOK={deleteType}
+      />
     </form>
   );
 };
