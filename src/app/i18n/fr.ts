@@ -202,6 +202,9 @@ const fr: Dict = {
     volume: "Volume",
     selectFile: "Sélectionnez un fichier",
     noResults: "Aucun favori trouvé",
+    dropHere: "Déposer ici",
+    dragFolderOrFile: "Glissez un fichier ou un dossier ici pour l'ajouter aux favoris",
+    bookmarkAdded: "Favori ajouté",
   },
   about: {
     title: "À propos",

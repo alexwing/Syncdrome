@@ -1,20 +1,28 @@
-use std::{fs, path::{Path}, str};
+use std::{fs, path::Path, str};
 use serde_json::json;
 use chrono::{DateTime, Local};
-use std::ffi::{OsString, OsStr};
+use std::ffi::OsStr;
+#[cfg(windows)]
+use std::ffi::OsString;
+#[cfg(windows)]
 use std::os::windows::ffi::OsStrExt;
+#[cfg(windows)]
 use winapi::um::fileapi::GetVolumeInformationW;
+#[cfg(windows)]
 use winapi::shared::minwindef::{DWORD, MAX_PATH};
+#[cfg(windows)]
 use winapi::um::winnt::ULARGE_INTEGER;
+#[cfg(windows)]
 use winapi::um::fileapi::GetDiskFreeSpaceExW;
+#[cfg(windows)]
 use winapi::um::shellapi::ShellExecuteW;
+#[cfg(windows)]
 use winapi::um::winuser::SW_SHOW;
+#[cfg(windows)]
 use std::ptr::null_mut;
 
+#[cfg(windows)]
 pub fn get_space_disk(drive_letter: &str) -> (u64, u64) {
-    use std::os::windows::ffi::OsStrExt;
-    use std::ffi::OsStr;
-    
     let drive = format!("{}\\", drive_letter);
     let wide: Vec<u16> = OsStr::new(&drive).encode_wide().chain(Some(0)).collect();
 
@@ -34,6 +42,11 @@ pub fn get_space_disk(drive_letter: &str) -> (u64, u64) {
             return (free, total);
         }
     }
+    (0, 0)
+}
+
+#[cfg(not(windows))]
+pub fn get_space_disk(_drive_letter: &str) -> (u64, u64) {
     (0, 0)
 }
 
@@ -72,6 +85,11 @@ pub fn get_volume_name(drive_letter: &str) -> String {
     } else {
         "".to_string()
     }
+}
+
+#[cfg(not(windows))]
+pub fn get_volume_name(_drive_letter: &str) -> String {
+    "".to_string()
 }
 
 pub fn get_drive_sync(volume_name: &str, folder: &str) -> bool {
@@ -232,6 +250,50 @@ pub fn get_drives_info(config_folder: &str, connected: &serde_json::Value) -> se
     serde_json::Value::Array(combined)
 }
 
+#[cfg(not(windows))]
+pub fn get_drives_info(config_folder: &str, connected: &serde_json::Value) -> serde_json::Value {
+    let mut drives = vec![];
+
+    if let Ok(entries) = std::fs::read_dir(config_folder) {
+        for entry in entries.flatten() {
+            let fname = entry.file_name().into_string().unwrap_or_default();
+            if fname.ends_with(".txt") {
+                let vol = fname.trim_end_matches(".txt");
+                let sync_date = get_drive_sync_date(vol, config_folder);
+                let (only_media, saved_size, saved_free) = get_drive_options(vol, config_folder);
+                drives.push(serde_json::json!({
+                    "connected": false,
+                    "letter": "",
+                    "name": vol,
+                    "freeSpace": saved_free,
+                    "size": saved_size,
+                    "sync": true,
+                    "syncDate": sync_date,
+                    "onlyMedia": only_media
+                }));
+            }
+        }
+    }
+
+    let mut combined = if let Some(arr) = connected.as_array() {
+        let mut clon = arr.clone();
+        for d in drives {
+            clon.push(d);
+        }
+        clon
+    } else {
+        drives
+    };
+
+    combined.sort_by(|a, b| {
+        let a_name = a["name"].as_str().unwrap_or("");
+        let b_name = b["name"].as_str().unwrap_or("");
+        a_name.cmp(b_name)
+    });
+
+    serde_json::Value::Array(combined)
+}
+
 // Recibe el mapa de categorías (config.extensions) y devuelve todas las
 // extensiones marcadas como media. OJO: antes descendía por una clave
 // "extensions" inexistente y devolvía siempre una lista vacía, con lo que una
@@ -296,6 +358,11 @@ pub fn get_drive_connected(drive_name: &str) -> String {
     drive_letter
 }
 
+#[cfg(not(windows))]
+pub fn get_drive_connected(_drive_name: &str) -> String {
+    "".to_string()
+}
+
 pub fn get_name_from_file(file: &str) -> String {
     // Elimina .txt, etc.
     file.trim_end_matches(".txt").to_string()
@@ -327,6 +394,7 @@ pub fn normalize_windows_path(path: &str) -> String {
     }
 }
 
+#[cfg(windows)]
 pub fn open_file(path: &str) -> Result<(), std::io::Error> {
     let path_str = normalize_windows_path(path);
     println!("DEBUG: Abriendo archivo: {}", path_str);
@@ -354,6 +422,15 @@ pub fn open_file(path: &str) -> Result<(), std::io::Error> {
     Ok(())
 }
 
+#[cfg(not(windows))]
+pub fn open_file(_path: &str) -> Result<(), std::io::Error> {
+    Err(std::io::Error::new(
+        std::io::ErrorKind::Unsupported,
+        "Abrir archivos no está disponible en modo offline móvil",
+    ))
+}
+
+#[cfg(windows)]
 pub fn open_folder(path: &str) -> Result<(), std::io::Error> {
     let path_str = normalize_windows_path(path);
     println!("DEBUG: Abriendo carpeta: {}", path_str);
@@ -379,6 +456,14 @@ pub fn open_folder(path: &str) -> Result<(), std::io::Error> {
     }
 
     Ok(())
+}
+
+#[cfg(not(windows))]
+pub fn open_folder(_path: &str) -> Result<(), std::io::Error> {
+    Err(std::io::Error::new(
+        std::io::ErrorKind::Unsupported,
+        "Abrir carpetas no está disponible en modo offline móvil",
+    ))
 }
 
 pub fn get_extensions_by_type(extensions: &[&str], config: &serde_json::Value) -> Vec<String> {

@@ -1,3 +1,68 @@
-.confirmDialog .modal-header, .confirmDialog .modal-footer {
-    border: 0px;
+.confirmDialog .modal-content {
+  border-radius: 10px;
+  border: none;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+}
+
+.confirmDialog .modal-header {
+  border-bottom: 0px;
+  padding: 16px 20px 10px;
+  display: flex;
+  align-items: center;
+}
+
+.confirmDialog .modal-header .modal-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.confirmDialog .confirm-icon {
+  color: var(--PrimaryColor, #007bff);
+}
+
+.confirmDialog .modal-body {
+  padding: 10px 20px 16px;
+  font-size: 0.95rem;
+}
+
+.confirmDialog .confirm-dialog-submessage {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background-color: rgba(220, 53, 69, 0.08);
+  border-left: 4px solid #dc3545;
+  color: #b02a37;
+  font-size: 0.88rem;
+  font-style: italic;
+  word-break: break-all;
+}
+
+.confirmDialog .modal-footer {
+  border-top: 0px;
+  padding: 10px 20px 18px;
+}
+
+/* ==========================================================================
+   Dark Mode Overrides
+   ========================================================================== */
+
+[data-bs-theme="dark"] .confirmDialog .modal-content {
+  background-color: #2b2b2b;
+  color: #e6e6e6;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+}
+
+[data-bs-theme="dark"] .confirmDialog .confirm-icon {
+  color: var(--PrimaryColorLight, #60cdff);
+}
+
+[data-bs-theme="dark"] .confirmDialog .confirm-dialog-submessage {
+  background-color: rgba(255, 107, 107, 0.12);
+  border-left-color: #ff6b6b;
+  color: #ff9999;
 }

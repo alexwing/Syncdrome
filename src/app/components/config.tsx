@@ -98,8 +98,7 @@ const Config = () => {
       show={showAlert}
       alertMessage={alert}
       onHide={() => setShowAlert(false)}
-      autoClose={2000}
-      ok={true}
+      autoClose={2500}
     />
   );
 

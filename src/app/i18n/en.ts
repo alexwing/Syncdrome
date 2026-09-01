@@ -199,6 +199,9 @@ const en = {
     volume: "Volume",
     selectFile: "Select a file",
     noResults: "No bookmarks found",
+    dropHere: "Drop here",
+    dragFolderOrFile: "Drag a file or folder here to add it as a bookmark",
+    bookmarkAdded: "Bookmark added",
   },
   about: {
     title: "About",

@@ -1,0 +1,209 @@
+/* Syncdrome Alert & Toast Notification Styles */
+
+/* ==========================================================================
+   Toast Tips (Success / Info messages in top-right corner)
+   ========================================================================== */
+
+.syncdrome-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 1090;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.syncdrome-toast {
+  pointer-events: auto;
+  min-width: 320px;
+  max-width: 440px;
+  background-color: #ffffff;
+  color: #212529;
+  border-radius: 8px;
+  padding: 14px 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-left: 4px solid var(--toast-accent, #28a745);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+  animation: syncdrome-toast-slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.syncdrome-toast:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.syncdrome-toast.toast-success {
+  --toast-accent: #28a745;
+}
+
+.syncdrome-toast.toast-info {
+  --toast-accent: #17a2b8;
+}
+
+.syncdrome-toast.toast-warning {
+  --toast-accent: #ffc107;
+}
+
+.syncdrome-toast.toast-danger {
+  --toast-accent: #dc3545;
+}
+
+.syncdrome-toast-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.syncdrome-toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.syncdrome-toast-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  color: #1a1a1a;
+  margin-bottom: 3px;
+}
+
+.syncdrome-toast-message {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: #555555;
+  word-break: break-word;
+}
+
+.syncdrome-toast-close {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: #888888;
+  padding: 2px;
+  margin: -4px -4px 0 0;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.syncdrome-toast-close:hover {
+  color: #212529;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.syncdrome-toast-frozen-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #6c757d;
+  margin-top: 6px;
+}
+
+@keyframes syncdrome-toast-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   Centered Attention Modals (Warning / Error messages)
+   ========================================================================== */
+
+.syncdrome-alert-modal .modal-content {
+  border-radius: 10px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.syncdrome-alert-modal .modal-header {
+  padding: 14px 18px;
+  align-items: center;
+  border-bottom: none;
+}
+
+.syncdrome-alert-modal .modal-header.bg-danger {
+  background-color: #dc3545 !important;
+  color: #ffffff;
+}
+
+.syncdrome-alert-modal .modal-header.bg-warning {
+  background-color: #ffc107 !important;
+  color: #212529;
+}
+
+.syncdrome-alert-modal .modal-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.syncdrome-alert-modal .modal-body {
+  padding: 20px 22px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.syncdrome-alert-modal .modal-footer {
+  padding: 10px 18px 16px;
+  border-top: none;
+}
+
+/* ==========================================================================
+   Dark Mode Overrides
+   ========================================================================== */
+
+[data-bs-theme="dark"] .syncdrome-toast {
+  background-color: #2b2b2b;
+  color: #e6e6e6;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .syncdrome-toast-title {
+  color: #ffffff;
+}
+
+[data-bs-theme="dark"] .syncdrome-toast-message {
+  color: #b0b0b0;
+}
+
+[data-bs-theme="dark"] .syncdrome-toast-close {
+  color: #aaaaaa;
+}
+
+[data-bs-theme="dark"] .syncdrome-toast-close:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .syncdrome-toast-frozen-badge {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #9aa0a6;
+}
+
+[data-bs-theme="dark"] .syncdrome-alert-modal .modal-content {
+  background-color: #2b2b2b;
+  color: #e6e6e6;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+}

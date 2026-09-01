@@ -18,6 +18,9 @@ pub struct FileItem {
     // Direct children count from the catalog tree: works offline too.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub items: Option<usize>,
+    // "synced" | "missing" | "unsynced"
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -82,36 +85,40 @@ pub fn change_file_system(filename: String) -> Result<(), String> {
     let config = load_config().map_err(|e| e.to_string())?;
     let config_folder = config.folder;
 
-    let file_with_extension = if filename.to_lowercase().ends_with(".txt") {
-        format!("{}\\{}", config_folder, filename)
+    let target_fname = if filename.to_lowercase().ends_with(".txt") {
+        filename.clone()
     } else {
-        format!("{}\\{}.txt", config_folder, filename)
+        format!("{}.txt", filename)
     };
 
-    println!("DEBUG: final file_with_extension: {}", file_with_extension);
+    let file_path = std::path::Path::new(&config_folder).join(&target_fname);
+    println!("DEBUG: final file_path: {:?}", file_path);
 
     // Leer archivo y construir estructura
-    let data = std::fs::read_to_string(&file_with_extension)
+    let data = std::fs::read_to_string(&file_path)
         .map_err(|e| format!("Error leyendo archivo: {}", e))?;
     let new_fs = build_file_system(&data);
 
     let mut fs_data = FILE_SYSTEM.lock().unwrap();
     *fs_data = new_fs;
 
-    // Resolver la letra de unidad si el volumen está conectado ahora mismo,
+    // Resolver la letra de unidad si el volumen está conectado ahora mismo (solo Windows),
     // para poder devolver metadatos en vivo (tamaño/fecha) y previsualizar.
-    let volume = if filename.to_lowercase().ends_with(".txt") {
-        filename[..filename.len() - 4].to_string()
-    } else {
-        filename.clone()
-    };
     let mut letter = String::new();
-    for l in 'A'..='Z' {
-        let dl = format!("{}:", l);
-        let name = crate::utils::get_volume_name(&dl);
-        if !name.is_empty() && name.eq_ignore_ascii_case(&volume) {
-            letter = dl;
-            break;
+    #[cfg(windows)]
+    {
+        let volume = if filename.to_lowercase().ends_with(".txt") {
+            filename[..filename.len() - 4].to_string()
+        } else {
+            filename.clone()
+        };
+        for l in 'A'..='Z' {
+            let dl = format!("{}:", l);
+            let name = crate::utils::get_volume_name(&dl);
+            if !name.is_empty() && name.eq_ignore_ascii_case(&volume) {
+                letter = dl;
+                break;
+            }
         }
     }
     println!("DEBUG: change_file_system - drive letter: '{}'", letter);
@@ -161,59 +168,134 @@ pub fn navigate(
     println!("DEBUG: path_parts después del comando: {:?}", path_parts);
 
     let fs_data = FILE_SYSTEM.lock().unwrap();
-    let mut current_node = &*fs_data;
-
-    // Navegar por el árbol con las partes del path
+    let mut cat_curr = Some(&*fs_data);
     for part in &path_parts {
-        match current_node.children.get(part) {
-            Some(next_node) => current_node = next_node,
-            None => return Err(format!("Ruta inválida: {}", part)),
+        if let Some(node) = cat_curr {
+            cat_curr = node.children.get(part);
+        } else {
+            cat_curr = None;
+            break;
         }
     }
+    let catalog_node = cat_curr;
 
-    let mut items: Vec<FileItem> = current_node.children.iter()
-        .map(|(k, v)| FileItem {
-            name: k.clone(),
-            kind: if v.is_file { "file".to_string() } else { "directory".to_string() },
-            size: None,
-            modified: None,
-            items: if v.is_file { None } else { Some(v.children.len()) },
-        })
-        .collect();
+    let mut items: Vec<FileItem> = Vec::new();
 
-    // Con la unidad conectada, completar con metadatos reales del sistema de
-    // archivos (corrigiendo el tipo: los catálogos antiguos marcan como archivo
-    // las carpetas vacías) y autorizar la carpeta en el asset protocol.
     if !drive.is_empty() {
-        let base = if path_parts.is_empty() {
+        // Unidad conectada: escanear sistema de archivos real y comparar con catálogo
+        let base_str = if path_parts.is_empty() {
             format!("{}\\", drive.trim_end_matches('\\'))
         } else {
             format!("{}\\{}", drive.trim_end_matches('\\'), path_parts.join("\\"))
         };
-        for item in items.iter_mut() {
-            let full = format!("{}\\{}", base.trim_end_matches('\\'), item.name);
-            if let Ok(md) = std::fs::metadata(&full) {
-                if md.is_dir() && item.kind == "file" {
-                    item.kind = "directory".to_string();
-                    item.items = None;
+        let base_path = std::path::Path::new(&base_str);
+
+        if base_path.exists() && base_path.is_dir() {
+            let mut seen_in_disk = std::collections::HashSet::new();
+
+            if let Ok(entries) = std::fs::read_dir(base_path) {
+                for entry in entries.flatten() {
+                    let file_name = entry.file_name().to_string_lossy().to_string();
+                    let ft = entry.file_type().ok();
+                    let is_dir = ft.as_ref().map(|t| t.is_dir()).unwrap_or(false);
+                    let md = entry.metadata().ok();
+                    let size = if !is_dir { md.as_ref().map(|m| m.len()) } else { None };
+                    let modified = md.as_ref()
+                        .and_then(|m| m.modified().ok())
+                        .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+                        .map(|d| d.as_millis() as u64);
+
+                    let in_catalog = if let Some(cat_node) = catalog_node {
+                        cat_node.children.get(&file_name).is_some()
+                    } else {
+                        false
+                    };
+
+                    let status = if in_catalog {
+                        "synced".to_string()
+                    } else {
+                        "unsynced".to_string()
+                    };
+
+                    let items_count = if is_dir {
+                        if let Some(cat_node) = catalog_node {
+                            cat_node.children.get(&file_name).map(|c| c.children.len())
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    };
+
+                    seen_in_disk.insert(file_name.clone());
+
+                    items.push(FileItem {
+                        name: file_name,
+                        kind: if is_dir { "directory".to_string() } else { "file".to_string() },
+                        size,
+                        modified,
+                        items: items_count,
+                        status: Some(status),
+                    });
                 }
-                if md.is_file() {
-                    item.size = Some(md.len());
-                }
-                if let Ok(t) = md.modified() {
-                    if let Ok(d) = t.duration_since(std::time::UNIX_EPOCH) {
-                        item.modified = Some(d.as_millis() as u64);
+            }
+
+            // Archivos/Carpetas que estaban en catálogo pero ya no existen en disco (missing)
+            if let Some(cat_node) = catalog_node {
+                for (cat_name, cat_child) in &cat_node.children {
+                    if !seen_in_disk.contains(cat_name) {
+                        items.push(FileItem {
+                            name: cat_name.clone(),
+                            kind: if cat_child.is_file { "file".to_string() } else { "directory".to_string() },
+                            size: None,
+                            modified: None,
+                            items: if cat_child.is_file { None } else { Some(cat_child.children.len()) },
+                            status: Some("missing".to_string()),
+                        });
                     }
                 }
             }
+
+            use tauri::Manager;
+            let _ = app
+                .asset_protocol_scope()
+                .allow_directory(base_path, false);
+        } else {
+            // Si la ruta física no existe en disco pero sí en el catálogo (carpeta borrada)
+            if let Some(cat_node) = catalog_node {
+                for (cat_name, cat_child) in &cat_node.children {
+                    items.push(FileItem {
+                        name: cat_name.clone(),
+                        kind: if cat_child.is_file { "file".to_string() } else { "directory".to_string() },
+                        size: None,
+                        modified: None,
+                        items: if cat_child.is_file { None } else { Some(cat_child.children.len()) },
+                        status: Some("missing".to_string()),
+                    });
+                }
+            } else {
+                return Err(format!("Ruta no encontrada: {}", base_str));
+            }
         }
-        use tauri::Manager;
-        let _ = app
-            .asset_protocol_scope()
-            .allow_directory(std::path::Path::new(&base), false);
+    } else {
+        // Unidad desconectada: listar desde el árbol del catálogo
+        if let Some(cat_node) = catalog_node {
+            items = cat_node.children.iter()
+                .map(|(k, v)| FileItem {
+                    name: k.clone(),
+                    kind: if v.is_file { "file".to_string() } else { "directory".to_string() },
+                    size: None,
+                    modified: None,
+                    items: if v.is_file { None } else { Some(v.children.len()) },
+                    status: Some("synced".to_string()),
+                })
+                .collect();
+        } else {
+            return Err("Ruta no encontrada en el catálogo".to_string());
+        }
     }
 
-    // Ordenar: directorios primero
+    // Ordenar: directorios primero, luego alfabéticamente
     items.sort_by(|a, b| {
         if a.kind == b.kind {
             a.name.to_lowercase().cmp(&b.name.to_lowercase())

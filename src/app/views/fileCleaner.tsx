@@ -99,11 +99,22 @@ const FileCleaner = () => {
     }
   };
 
-  const saveConfig = async (newConfig: Settings): Promise<any> => {
+  const saveConfig = async (
+    newConfig: Settings,
+    showToast = false
+  ): Promise<any> => {
     try {
       setConfig({ ...config, ...newConfig });
       newConfig = { ...config, ...newConfig } as Settings;
       const response = await Api.saveSettings(newConfig);
+      if (showToast) {
+        setAlert({
+          title: t("common.success"),
+          message: t("settings.configSaved"),
+          type: TypeAlert.success,
+        });
+        setShowAlert(true);
+      }
       return response;
     } catch (error) {
       setAlert({
@@ -459,13 +470,13 @@ const FileCleaner = () => {
       show={showAlert}
       alertMessage={alert}
       onHide={() => setShowAlert(false)}
-      autoClose={2000}
-      ok={true}
+      autoClose={2500}
     />
   );
 
   return (
     <Container className="container-scroll">
+      {showAlertMessage}
       <Breadcrumb className="mt-3">
         <Breadcrumb.Item href="/">{t("common.home")}</Breadcrumb.Item>
         <Breadcrumb.Item active>{t("fileCleaner.title")}</Breadcrumb.Item>
@@ -533,12 +544,16 @@ const FileCleaner = () => {
                 <Badge
                   bg="none"
                   className="cleaner-icon-btn"
+                  title={t("common.save")}
                   onClick={() =>
-                    saveConfig({
-                      ...config,
-                      pattern: pattern,
-                      defaultSubstitutions: substitutions,
-                    })
+                    saveConfig(
+                      {
+                        ...config,
+                        pattern: pattern,
+                        defaultSubstitutions: substitutions,
+                      },
+                      true
+                    )
                   }
                 >
                   <Icon.Save size={15} color="#6ea8fe" />

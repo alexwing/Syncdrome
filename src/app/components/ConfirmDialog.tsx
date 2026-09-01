@@ -24,44 +24,40 @@ function ConfirmDialog({
 }: ConfirmDialogProps): React.JSX.Element {
   const { t } = useTranslation();
   return (
-    <React.Fragment>
-      <Modal
-        show={show}
-        onHide={handleCancel}
-        centered
-        className="confirmDialog"
-        animation={false}
-      >
-        <Modal.Header>
-          <Modal.Title>
-            <Icon.PatchQuestion size={32} className="me-4" color="#007bff" />
-            {title}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {message}
-          {subMessage && (
-            <p
-              style={{ fontStyle: "italic", color: "darkred" }}
-              className="mt-3"
-            >
-              {subMessage}
-            </p>
-          )}
-        </Modal.Body>
+    <Modal
+      show={show}
+      onHide={handleCancel}
+      centered
+      className="confirmDialog"
+      animation={false}
+    >
+      <Modal.Header closeButton>
+        <Modal.Title className="modal-title">
+          <Icon.PatchQuestion size={28} className="me-3 confirm-icon" />
+          {title}
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p className="confirm-dialog-message mb-0">{message}</p>
+        {subMessage && (
+          <div className="confirm-dialog-submessage mt-3">
+            <Icon.ExclamationTriangleFill size={18} className="me-2 flex-shrink-0 mt-0.5" />
+            <span>{subMessage}</span>
+          </div>
+        )}
+      </Modal.Body>
 
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleOK} size="lg">
-            <Icon.Check size={32} className="me-2" />
-            {t("common.yes")}
-          </Button>
-          <Button variant="secondary" onClick={handleCancel} size="lg">
-            <Icon.X size={32} className="me-2" />
-            {t("common.no")}
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </React.Fragment>
+      <Modal.Footer>
+        <Button variant="primary" onClick={handleOK} size="lg">
+          <Icon.Check size={24} className="me-2" />
+          {t("common.yes")}
+        </Button>
+        <Button variant="secondary" onClick={handleCancel} size="lg">
+          <Icon.X size={24} className="me-2" />
+          {t("common.no")}
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 }
 export default ConfirmDialog;

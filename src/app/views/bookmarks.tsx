@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Breadcrumb, Card, Col, Form, Row } from "react-bootstrap";
 import { AlertModel, Bookmark, BookmarksByVolume, FileTypes, TypeAlert } from "../models/Interfaces";
-import React from "react";
 import * as Icon from "react-bootstrap-icons";
 import {
   Alert,
@@ -75,67 +74,145 @@ const bookmarks = () => {
       });
       setFile(file as string);
       if (file) {
-        console.log('Archivo seleccionado:', file);
         createBookmark(file as string);
-      } else {
-        console.log('No se seleccionó ningún archivo.');
       }
     } catch (error) {
       console.error('Error al abrir el diálogo:', error);
     }
   };
 
-  // Agrega un manejador de eventos para el evento de soltar en el contenedor adecuado
-  const handleDrop = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
+  const createBookmark = async (rawPath: string) => {
+    if (!rawPath || typeof rawPath !== "string") return;
+    const clean = rawPath.replace(/\//g, "\\").replace(/\\+$/, "");
+    if (!clean) return;
 
-    setDraggingOver(false);
+    // Extraer letra de unidad (ej. "C:" o "E:")
+    const match = clean.match(/^([a-zA-Z]:)/);
+    const letter = match ? match[1].toUpperCase() : clean.split("\\")[0].toUpperCase();
 
-    // Obtenemos la ruta del archivo soltado
-    const filePath = event.dataTransfer.files[0].path;
-    console.log("Ruta del archivo:", filePath);
+    try {
+      const drivesList = await Api.getDrives();
+      const drive = Array.isArray(drivesList)
+        ? drivesList.find(
+            (d: any) => d.letter && d.letter.toUpperCase() === letter
+          )
+        : null;
 
-    // Llama a la función para crear el marcador de libro con la ruta del archivo
-    createBookmark(filePath);
-  };
+      if (!drive || !drive.connected) {
+        setAlert({
+          title: t("common.error"),
+          message: t("sync.driveNotConnected"),
+          type: TypeAlert.danger,
+        });
+        setShowAlert(true);
+        return;
+      }
 
-  // Agrega un manejador de eventos para el evento de arrastrar sobre el contenedor
-  const handleDragOver = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setDraggingOver(true); // Establece el estado para indicar que se está arrastrando sobre la ventana
-  };
+      // Quitar letra de unidad al inicio (ej. "C:\Users\Docs\file.txt" -> "Users\Docs\file.txt")
+      const relativePart = clean.replace(/^[a-zA-Z]:\\?/, "");
+      const segments = relativePart.split("\\").filter(Boolean);
 
-  // Agrega un manejador de eventos para el evento de dejar de arrastrar sobre el contenedor
-  const handleDragLeave = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setDraggingOver(false); // Establece el estado para indicar que se ha dejado de arrastrar sobre la ventana
-  };
+      let name = "";
+      let folderPath = "";
 
-  const createBookmark = async (path) => {
-    const letter = path.split("\\")[0];
-    const drives = await Api.getDrives();
-    const drive = drives.find((drive) => drive.letter === letter);
-    if (!drive || !drive.connected) {
+      if (segments.length === 0) {
+        name = letter;
+        folderPath = "";
+      } else {
+        name = segments[segments.length - 1];
+        folderPath = segments.slice(0, -1).join("\\");
+      }
+
+      const bookmark: Bookmark = {
+        id: null,
+        name,
+        path: folderPath,
+        volume: drive.name,
+        description: "",
+      };
+
+      await Api.addBookmark(bookmark);
+      await loadBookmarks();
+      setAlert({
+        title: t("common.success"),
+        message: `${t("bookmarks.bookmarkAdded")}: ${name}`,
+        type: TypeAlert.success,
+      });
+      setShowAlert(true);
+    } catch (error) {
+      console.error("Error creating bookmark:", error);
       setAlert({
         title: t("common.error"),
-        message: t("sync.driveNotConnected"),
+        message: t("bookmarks.errorGetting"),
         type: TypeAlert.danger,
       });
       setShowAlert(true);
-      return;
     }
-    const bookmark = {
-      name: path.split("\\").pop(),
-      path: path.split("\\").slice(0, -1).join("\\").slice(3),
-      volume: drive.name,
-      description: "",
+  };
+
+  // Listener nativo de Tauri 2 para arrastrar archivos o carpetas sobre la ventana
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+
+    async function registerDragDrop() {
+      try {
+        const { getCurrentWebview } = await import("@tauri-apps/api/webview");
+        const unlistenFn = await getCurrentWebview().onDragDropEvent((event) => {
+          if (event.payload.type === "enter" || event.payload.type === "over") {
+            setDraggingOver(true);
+          } else if (event.payload.type === "drop") {
+            setDraggingOver(false);
+            if (event.payload.paths && event.payload.paths.length > 0) {
+              for (const droppedPath of event.payload.paths) {
+                createBookmark(droppedPath);
+              }
+            }
+          } else if (event.payload.type === "leave") {
+            setDraggingOver(false);
+          }
+        });
+        unlisten = unlistenFn;
+      } catch (err) {
+        console.warn("Could not register Tauri drag-drop listener:", err);
+      }
+    }
+
+    registerDragDrop();
+
+    return () => {
+      if (unlisten) {
+        unlisten();
+      }
     };
-    Api.addBookmark(bookmark).then(() => {
-      loadBookmarks();
-    });
+  }, []);
+
+  // Manejadores estándar de HTML5 Drag and Drop como fallback
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDraggingOver(false);
+
+    if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+      for (let i = 0; i < event.dataTransfer.files.length; i++) {
+        const itemFile = event.dataTransfer.files[i];
+        const filePath = (itemFile as any).path;
+        if (filePath) {
+          createBookmark(filePath);
+        }
+      }
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDraggingOver(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDraggingOver(false);
   };
 
   const loadBookmarks = async () => {
@@ -215,22 +292,129 @@ const bookmarks = () => {
   };
 
   // Marcador seleccionado (resuelto por id para sobrevivir a recargas)
-  const selectedBookmark = selectedId
-    ? BookmarksByVolume.flatMap((v) => v.bookmarks).find(
-        (b) => b.id === selectedId
-      )
-    : undefined;
+  const getDriveLetter = (volume: string, drives: any[]) => {
+    const drive = drives.find((drive: any) => drive.name === volume) as any;
+    return drive ? drive.letter : "";
+  };
+
+  const isConnect = (volume: String) => {
+    const driveLetter = drives.find(
+      (drive: any) => drive.name === volume
+    ) as any;
+    return driveLetter && driveLetter.connected;
+  };
+
+  // Open file in windows explorer
+  const onConnectedElementHandler = (bookmark: Bookmark) => {
+    const driveLetter = getDriveLetter(bookmark.volume, drives);
+    if (driveLetter) {
+      Api.openFile(bookmark.name, bookmark.path, driveLetter).then(
+        (res) => {
+          // console.log(res);
+        }
+      );
+    }
+  };
 
   // Volúmenes ordenados: conectados primero por letra, luego el resto por nombre
-  const sortedVolumes = [...BookmarksByVolumeFiltered].sort((a, b) => {
-    const da = drives.find((d: any) => d.name === a.volume) as any;
-    const db = drives.find((d: any) => d.name === b.volume) as any;
-    if (da?.connected && db?.connected)
-      return (da.letter || "").localeCompare(db.letter || "");
-    if (da?.connected) return -1;
-    if (db?.connected) return 1;
-    return a.volume.localeCompare(b.volume);
-  });
+  const sortedVolumes = useMemo(() => {
+    return [...BookmarksByVolumeFiltered].sort((a, b) => {
+      const da = drives.find((d: any) => d.name === a.volume) as any;
+      const db = drives.find((d: any) => d.name === b.volume) as any;
+      if (da?.connected && db?.connected)
+        return (da.letter || "").localeCompare(db.letter || "");
+      if (da?.connected) return -1;
+      if (db?.connected) return 1;
+      return a.volume.localeCompare(b.volume);
+    });
+  }, [BookmarksByVolumeFiltered, drives]);
+
+  // Lista plana de todos los marcadores en el orden exacto en que se muestran en pantalla
+  const flatBookmarks = useMemo(() => {
+    return sortedVolumes.flatMap((v) => v.bookmarks);
+  }, [sortedVolumes]);
+
+  // Marcador seleccionado (resuelto para actualizar la preview al instante)
+  const selectedBookmark = useMemo(() => {
+    return selectedId !== null
+      ? flatBookmarks.find((b) => b.id === selectedId)
+      : undefined;
+  }, [selectedId, flatBookmarks]);
+
+  // Navegación con cursores del teclado (Flechas Arriba / Abajo) entre unidades
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (showAddBookmarkModal || showConfirmDialog) return;
+
+      const target = e.target as HTMLElement | null;
+      const isInput =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable);
+
+      if (e.key === "ArrowDown") {
+        if (flatBookmarks.length === 0) return;
+        e.preventDefault();
+
+        if (isInput && target) {
+          target.blur();
+        }
+
+        const currentIndex = flatBookmarks.findIndex((b) => b.id === selectedId);
+        if (currentIndex === -1) {
+          setSelectedId(flatBookmarks[0].id);
+        } else if (currentIndex < flatBookmarks.length - 1) {
+          // Pasa al siguiente marcador (al terminar una unidad, pasa a la primera de la siguiente unidad)
+          setSelectedId(flatBookmarks[currentIndex + 1].id);
+        } else {
+          // Si está en el último de la última unidad, se queda en el último
+          setSelectedId(flatBookmarks[flatBookmarks.length - 1].id);
+        }
+      } else if (e.key === "ArrowUp") {
+        if (flatBookmarks.length === 0) return;
+        e.preventDefault();
+
+        if (isInput && target) {
+          target.blur();
+        }
+
+        const currentIndex = flatBookmarks.findIndex((b) => b.id === selectedId);
+        if (currentIndex === -1) {
+          setSelectedId(flatBookmarks[flatBookmarks.length - 1].id);
+        } else if (currentIndex > 0) {
+          // Pasa al marcador anterior (si es el primero de una unidad, pasa al último de la unidad anterior)
+          setSelectedId(flatBookmarks[currentIndex - 1].id);
+        } else {
+          setSelectedId(flatBookmarks[0].id);
+        }
+      } else if (e.key === "Escape") {
+        if (selectedId !== null) {
+          setSelectedId(null);
+        }
+      } else if (e.key === "Enter") {
+        if (!isInput && selectedBookmark) {
+          e.preventDefault();
+          if (isConnect(selectedBookmark.volume)) {
+            onConnectedElementHandler(selectedBookmark);
+          }
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [flatBookmarks, selectedId, selectedBookmark, showAddBookmarkModal, showConfirmDialog, drives]);
+
+  // Asegurar que el elemento seleccionado esté visible al desplazarse con el teclado
+  useEffect(() => {
+    if (selectedId !== null) {
+      const el = document.querySelector(`.explorer-row.selected`);
+      if (el) {
+        el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+  }, [selectedId]);
 
   const filterBookmarks = (BookmarksByVolume: BookmarksByVolume[]) => {
     if (search === "" || search === null) {
@@ -274,29 +458,6 @@ const bookmarks = () => {
 
   const handleCancel = () => {
     setShowConfirmDialog(false);
-  };
-
-  const getDriveLetter = (volume: string, drives: any[]) => {
-    const drive = drives.find((drive: any) => drive.name === volume) as any;
-    return drive ? drive.letter : "";
-  };
-  //open file in windows explorer
-  const onConnectedElementHandler = (bookmark: Bookmark) => {
-    const driveLetter = getDriveLetter(bookmark.volume, drives);
-    if (driveLetter) {
-      Api.openFile(bookmark.name, bookmark.path, driveLetter).then(
-        (res) => {
-          // console.log(res);
-        }
-      );
-    }
-  };
-
-  const isConnect = (volume: String) => {
-    const driveLetter = drives.find(
-      (drive: any) => drive.name === volume
-    ) as any;
-    return driveLetter && driveLetter.connected;
   };
 
   // Entradas del menú contextual de un marcador
@@ -425,7 +586,8 @@ const bookmarks = () => {
       show={showAlert}
       alertMessage={alert}
       onHide={() => setShowAlert(false)}
-      autoClose={2000} ok={undefined}    />
+      autoClose={2500}
+    />
   );
 
   //badge to show drive letter if volume in drives is connected
@@ -444,9 +606,12 @@ const bookmarks = () => {
       onDragLeave={handleDragLeave}
     >
       {draggingOver && (
-        <div className="d-flex flex-column justify-content-center align-items-center upload-area">
-          <p className="text-center fs-1 text-primary">Drop Here</p>
-          <Icon.ArrowUpCircle size={50} className="text-primary" />
+        <div className="bookmark-drop-overlay">
+          <div className="bookmark-drop-content">
+            <Icon.BookmarkPlusFill size={56} className="bookmark-drop-icon mb-3" />
+            <h3 className="fw-bold mb-2">{t("bookmarks.dropHere")}</h3>
+            <p className="text-muted mb-0">{t("bookmarks.dragFolderOrFile")}</p>
+          </div>
         </div>
       )}
       {showAlertMessage}
@@ -518,7 +683,10 @@ const bookmarks = () => {
         </div>
         {selectedBookmark && (
           <FilePreviewPanel
-            item={{ name: selectedBookmark.name, type: "file" }}
+            item={{
+              name: selectedBookmark.name,
+              type: getExtension(selectedBookmark.name) ? "file" : "directory",
+            }}
             currentPath={selectedBookmark.path}
             driveLetter={
               isConnect(selectedBookmark.volume)

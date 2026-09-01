@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Api from "../helpers/api";
 import {
   Accordion,
@@ -88,7 +88,8 @@ const Home = () => {
       show={showAlert}
       alertMessage={alert}
       onHide={() => setShowAlert(false)}
-      autoClose={2000} ok={undefined}    />
+      autoClose={2500}
+    />
   );
 
   // get config on load
@@ -96,6 +97,8 @@ const Home = () => {
   useEffect(() => {
     getConfig(setFileIconMappings, setAlert, setShowAlert);
   }, []);
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // set search input
   const handleInput = (e) => {
@@ -107,6 +110,7 @@ const Home = () => {
   const handleClearSearch = () => {
     setSearchTerm("");
     localStorage.removeItem("searchTerm");
+    searchInputRef.current?.focus();
   };
 
   // get all files and folders on load
@@ -141,32 +145,32 @@ const Home = () => {
   };
 
 
-  //print count of files as  <Badge>
-  const getFilesLength = (files) => {
-    const length = files.length;
+  // Print count of files as explorer-style count
+  const getFilesLength = (filesList: any[]) => {
+    const length = filesList?.length || 0;
     if (length > 0) {
       return (
-        <Badge
-          bg="secondary"
-          style={{
-            width: "50px",
-          }}
-        >
-          {length}
-        </Badge>
+        <span className="folder-count ms-2 me-2">
+          {length} {t("explorer.elementsShort")}
+        </span>
       );
     }
+    return null;
   };
-
 
   const openFolderBadge = (folder: string, driveLetter: any) => {
     if (driveLetter) {
       return (
         <Badge
           bg="none"
-          onClick={(e) => callOpenFolder(folder, driveLetter, e, setAlert, setShowAlert)}
+          style={{ cursor: "pointer" }}
+          onClick={(e) => {
+            e.stopPropagation();
+            callOpenFolder(folder, driveLetter, e, setAlert, setShowAlert);
+          }}
+          title={t("explorer.openFolder")}
         >
-          <Icon.Folder2Open size={18} color="green" />
+          <Icon.BoxArrowUpRight size={13} color="green" />
         </Badge>
       );
     }
@@ -177,14 +181,16 @@ const Home = () => {
   };
 
   // Volúmenes ordenados: conectados primero por letra, luego el resto por nombre
-  const sortedVolumes = Object.keys(files).sort((a, b) => {
-    const ca = (files[a] as any)?.connected;
-    const cb = (files[b] as any)?.connected;
-    if (ca && cb) return String(ca).localeCompare(String(cb));
-    if (ca) return -1;
-    if (cb) return 1;
-    return a.localeCompare(b);
-  });
+  const sortedVolumes = useMemo(() => {
+    return Object.keys(files).sort((a, b) => {
+      const ca = (files[a] as any)?.connected;
+      const cb = (files[b] as any)?.connected;
+      if (ca && cb) return String(ca).localeCompare(String(cb));
+      if (ca) return -1;
+      if (cb) return 1;
+      return a.localeCompare(b);
+    });
+  }, [files]);
 
   // Entradas del menú contextual para un resultado de búsqueda
   const folderCtxEntries = (m: {
@@ -373,27 +379,48 @@ const updateFilesWithBookmark = (
       <img src="/assets/icon.png" alt="logo" className="logo" />
         <h1>{t("nav.title")}</h1>
       </div>
-      <div className="container text-center pb-3">
+      <div className="container pb-3">
         <form className="search" onSubmit={handleSearch}>
-          <input
-            value={searchTerm}
-            onChange={handleInput}
-            type="search"
-            placeholder={t("home.searchPlaceholder")}
-          />
-          <ExtensionSelect
-            fileExtension={fileIconMappings}
-            className="my-3"
-            onValuesChange={onExtSelectChange}
-            values={extSelected}
-          />
-          <Button variant="primary" type="submit" size="lg" className="me-2">
-            <Icon.Search size={20} className="me-2" />
-            {t("common.search")}
-          </Button>
-          <Button variant="secondary" size="lg" onClick={handleClearSearch}>
-            {t("common.clear")}
-          </Button>
+          <div className="search-input-wrapper">
+            <Icon.Search size={18} className="search-input-icon" />
+            <input
+              ref={searchInputRef}
+              value={searchTerm}
+              onChange={handleInput}
+              type="text"
+              className="search-input-field"
+              placeholder={t("home.searchPlaceholder")}
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                className="search-clear-btn"
+                onClick={handleClearSearch}
+                title={t("common.clear")}
+                aria-label={t("common.clear")}
+              >
+                <Icon.XCircleFill size={18} />
+              </button>
+            )}
+          </div>
+
+          <div className="search-actions-row">
+            <div className="search-filter-col">
+              <ExtensionSelect
+                fileExtension={fileIconMappings}
+                onValuesChange={onExtSelectChange}
+                values={extSelected}
+              />
+            </div>
+            <Button
+              variant="primary"
+              type="submit"
+              className="search-submit-btn"
+            >
+              <Icon.Search size={16} className="me-2" />
+              {t("common.search")}
+            </Button>
+          </div>
         </form>
       </div>
       <div className="container  pb-3">
@@ -449,9 +476,10 @@ const updateFilesWithBookmark = (
                           <Accordion.Item
                             eventKey={index2.toString()}
                             key={index2}
+                            className="folder-accordion-item"
                           >
                             <Accordion.Header
-                              className="d-flex justify-content-between folder-header"
+                              className="folder-header"
                               onContextMenu={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -463,17 +491,32 @@ const updateFilesWithBookmark = (
                                 });
                               }}
                             >
-                              <Icon.FolderFill
-                                size={20}
-                                className="me-2"
-                                color="DarkOrange"
-                              />
-                              <span className="folder-header-text">{key2}</span>
-                              {getFilesLength(files[key].content[key2])}
-                              {files[key].connected &&
-                                openFolderBadge(key2, files[key].connected)}
+                              <div className="folder-header-content d-flex align-items-center w-100 me-2">
+                                <span className="folder-icon-wrapper me-2">
+                                  <Icon.FolderFill
+                                    size={18}
+                                    className="folder-icon-closed explorer-folder-icon"
+                                  />
+                                  <Icon.Folder2Open
+                                    size={18}
+                                    className="folder-icon-open explorer-folder-icon"
+                                  />
+                                </span>
+                                <span className="folder-name explorer-folder-link me-auto">
+                                  {key2}
+                                </span>
+                                {getFilesLength(files[key].content[key2])}
+                                {files[key].connected && (
+                                  <span
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="ms-1"
+                                  >
+                                    {openFolderBadge(key2, files[key].connected)}
+                                  </span>
+                                )}
+                              </div>
                             </Accordion.Header>
-                            <Accordion.Body>
+                            <Accordion.Body className="folder-accordion-body">
                               {files[key].content[key2].map((item: IFile) =>
                                 resultRow(item, key, key2)
                               )}

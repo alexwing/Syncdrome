@@ -202,6 +202,10 @@ const Navigator = () => {
       setSelectedItem(item);
       return;
     }
+    if (item.status === "missing") {
+      setSelectedItem(item);
+      return;
+    }
     if (currentPath.match(/\\$/)) {
       navigate("cd", `${currentPath}${item.name}`);
     } else {
@@ -210,7 +214,7 @@ const Navigator = () => {
   };
 
   const handleItemDoubleClick = (item: ExplorerItem) => {
-    if (item.type === "file" && isConnected) {
+    if (item.type === "file" && isConnected && item.status !== "missing") {
       openFileEvent(item.name, cleanRelPath(currentPath), driveLetter);
     }
   };
@@ -248,8 +252,7 @@ const Navigator = () => {
       show={showAlert}
       alertMessage={alert}
       onHide={() => setShowAlert(false)}
-      autoClose={2000}
-      ok={undefined}
+      autoClose={2500}
     />
   );
 
@@ -321,6 +324,7 @@ const Navigator = () => {
   // Entradas del menú contextual según el tipo de elemento
   const ctxEntries = (item: ExplorerItem): ContextMenuItem[] => {
     const isDir = item.type === "directory";
+    const isMissing = item.status === "missing";
     const rel = cleanRelPath(currentPath);
     const common: ContextMenuItem[] = [
       "divider",
@@ -340,12 +344,13 @@ const Navigator = () => {
         {
           label: t("explorer.open"),
           icon: <Icon.FolderFill size={13} className="me-2" />,
+          disabled: isMissing,
           onClick: () => handleItemClick(item),
         },
         {
           label: t("explorer.showInFolder"),
           icon: <Icon.Folder2Open size={13} className="me-2" />,
-          disabled: !isConnected,
+          disabled: !isConnected || isMissing,
           onClick: () =>
             driveLetter &&
             Api.openFolder(rel ? `${rel}\\${item.name}` : item.name, driveLetter),
@@ -357,13 +362,13 @@ const Navigator = () => {
       {
         label: t("explorer.open"),
         icon: <Icon.BoxArrowUpRight size={13} className="me-2" />,
-        disabled: !isConnected,
+        disabled: !isConnected || isMissing,
         onClick: () => openFileEvent(item.name, rel, driveLetter),
       },
       {
         label: t("explorer.showInFolder"),
         icon: <Icon.Folder2Open size={13} className="me-2" />,
-        disabled: !isConnected,
+        disabled: !isConnected || isMissing,
         onClick: () => driveLetter && Api.openFolder(rel, driveLetter),
       },
       "divider",
@@ -389,14 +394,113 @@ const Navigator = () => {
     const folders = visibleItems.filter((i) => i.type === "directory").length;
     const files = visibleItems.length - folders;
     const bytes = visibleItems.reduce((acc, i) => acc + (i.size || 0), 0);
-    return { folders, files, bytes };
-  }, [visibleItems]);
+    const synced = visibleItems.filter((i) => i.status === "synced" || (!i.status && isConnected)).length;
+    const unsynced = visibleItems.filter((i) => i.status === "unsynced").length;
+    const missing = visibleItems.filter((i) => i.status === "missing").length;
+    return { folders, files, bytes, synced, unsynced, missing };
+  }, [visibleItems, isConnected]);
+
+  // Navegación con cursores del teclado (Flechas Arriba / Abajo, Enter, Backspace)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (bookmarkModalItem || isChangingDrive || isLoading) return;
+
+      const target = e.target as HTMLElement | null;
+      const isInput =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable);
+
+      if (e.key === "ArrowDown") {
+        if (visibleItems.length === 0) return;
+        e.preventDefault();
+
+        if (isInput && target) {
+          target.blur();
+        }
+
+        const currentIndex = visibleItems.findIndex((i) => i.name === selectedItem?.name);
+        if (currentIndex === -1) {
+          setSelectedItem(visibleItems[0]);
+        } else if (currentIndex < visibleItems.length - 1) {
+          setSelectedItem(visibleItems[currentIndex + 1]);
+        } else {
+          setSelectedItem(visibleItems[visibleItems.length - 1]);
+        }
+      } else if (e.key === "ArrowUp") {
+        if (visibleItems.length === 0) return;
+        e.preventDefault();
+
+        if (isInput && target) {
+          target.blur();
+        }
+
+        const currentIndex = visibleItems.findIndex((i) => i.name === selectedItem?.name);
+        if (currentIndex === -1) {
+          setSelectedItem(visibleItems[visibleItems.length - 1]);
+        } else if (currentIndex > 0) {
+          setSelectedItem(visibleItems[currentIndex - 1]);
+        } else {
+          setSelectedItem(visibleItems[0]);
+        }
+      } else if (e.key === "Escape") {
+        if (selectedItem !== null) {
+          setSelectedItem(null);
+        }
+      } else if (e.key === "Enter") {
+        if (!isInput && selectedItem) {
+          e.preventDefault();
+          if (selectedItem.type === "directory") {
+            if (currentPath.match(/\\$/)) {
+              navigate("cd", `${currentPath}${selectedItem.name}`);
+            } else {
+              navigate("cd", `${currentPath}\\${selectedItem.name}`);
+            }
+          } else if (isConnected) {
+            openFileEvent(selectedItem.name, cleanRelPath(currentPath), driveLetter);
+          }
+        }
+      } else if (e.key === "Backspace" && !isInput) {
+        if (pathParts.length > 0) {
+          e.preventDefault();
+          navigate("cd ..", currentPath);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [visibleItems, selectedItem, bookmarkModalItem, isChangingDrive, isLoading, isConnected, currentPath, pathParts, driveLetter]);
+
+  // Auto-scroll para mantener visible el elemento seleccionado
+  useEffect(() => {
+    if (selectedItem) {
+      const el = document.querySelector(`.explorer-row.selected`);
+      if (el) {
+        el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+  }, [selectedItem]);
 
   const explorerRow = (item: ExplorerItem) => {
     const isDir = item.type === "directory";
     const ext = isDir ? "" : getExtension(item.name);
     const bookmark = isDir ? undefined : getFileBookmark(item.name);
-    const isSelected = selectedItem?.name === item.name && !isDir;
+    const isSelected = selectedItem?.name === item.name;
+    const isMissing = item.status === "missing";
+    const isUnsynced = item.status === "unsynced";
+
+    const nameClass = isDir
+      ? classNames("explorer-name explorer-folder-link", {
+          "explorer-item-missing": isMissing,
+        })
+      : classNames("explorer-name", {
+          "explorer-item-missing": isMissing,
+          "explorer-item-unsynced": isUnsynced,
+          "explorer-file-link": !isMissing && !isUnsynced,
+        });
+
     return (
       <div
         key={item.name}
@@ -406,24 +510,34 @@ const Navigator = () => {
         onContextMenu={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          if (!isDir) setSelectedItem(item);
+          setSelectedItem(item);
           setCtxMenu({ ...clampMenuPosition(e), item });
         }}
       >
         <span className="explorer-icon">
           {isDir ? (
-            <Icon.FolderFill size={16} className="explorer-folder-icon" />
+            <Icon.FolderFill
+              size={16}
+              className={classNames("explorer-folder-icon", {
+                "opacity-50 text-danger": isMissing,
+              })}
+            />
           ) : (
-            getFileIcon(ext, fileIconMappings).icon
+            <span className={classNames({ "opacity-50": isMissing })}>
+              {getFileIcon(ext, fileIconMappings).icon}
+            </span>
           )}
         </span>
         <span className="explorer-cell-name">
           <span
-            className={classNames(
-              "explorer-name",
-              isDir ? "explorer-folder-link" : "explorer-file-link"
-            )}
-            title={item.name}
+            className={nameClass}
+            title={
+              isMissing
+                ? `${item.name} (Faltante / No encontrado en disco)`
+                : isUnsynced
+                ? `${item.name} (No sincronizado)`
+                : item.name
+            }
           >
             {item.name}
           </span>
@@ -459,7 +573,7 @@ const Navigator = () => {
               onAddBookmark={updateFilesWithBookmark}
             />
           )}
-          {!isDir && isConnected && (
+          {!isDir && isConnected && !isMissing && (
             <Badge
               bg="none"
               style={{ cursor: "pointer" }}
@@ -470,7 +584,7 @@ const Navigator = () => {
               <Icon.BoxArrowUpRight size={13} color="green" />
             </Badge>
           )}
-          {isDir && isConnected && (
+          {isDir && isConnected && !isMissing && (
             <Badge
               bg="none"
               style={{ cursor: "pointer" }}
@@ -512,29 +626,6 @@ const Navigator = () => {
             {connectedDrives.map(driveCard)}
           </div>
         )}
-        <Dropdown>
-          <Dropdown.Toggle variant="success" id="dropdown-basic">
-            {selectedDrive ? selectedDrive : t("explorer.selectDrive")}
-          </Dropdown.Toggle>
-
-          <Dropdown.Menu>
-            {drives.map((drive, index) => (
-              <Dropdown.Item
-                key={index}
-                onClick={() =>
-                  handleDriveSelect({ target: { value: drive.name } })
-                }
-                style={{
-                  fontWeight: drive.connected ? "bold" : "normal",
-                  color: drive.connected ? "green" : "inherit",
-                }}
-              >
-                <Icon.Hdd className="me-2" />
-                {drive.name}
-              </Dropdown.Item>
-            ))}
-          </Dropdown.Menu>
-        </Dropdown>
         {isChangingDrive && (
           <div className="loading-icon">
             <Spinner
@@ -546,15 +637,69 @@ const Navigator = () => {
             />
           </div>
         )}
-        {!isChangingDrive && selectedDrive && (
+        {!isChangingDrive && (
           <>
             <div className="explorer-toolbar">
-              <Breadcrumb className="explorer-breadcrumb bg-body-tertiary m-0 flex-grow-1">
+              <Breadcrumb className="explorer-breadcrumb bg-body-tertiary m-0 flex-grow-1 align-items-center">
+                <div className="explorer-drive-dropdown-wrapper">
+                  <Dropdown>
+                    <Dropdown.Toggle
+                      as="button"
+                      className="explorer-drive-select-toggle"
+                      id="explorer-drive-select"
+                    >
+                      <Icon.HddFill
+                        size={15}
+                        className="me-1.5"
+                        color={isConnected ? "#16ab9c" : "#888888"}
+                      />
+                      <span className="explorer-drive-name">
+                        {selectedDrive ? selectedDrive : t("explorer.selectDrive")}
+                      </span>
+                      <Icon.ChevronDown size={11} className="ms-1.5 opacity-75" />
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu className="explorer-drive-dropdown-menu">
+                      {drives.map((drive, index) => (
+                        <Dropdown.Item
+                          key={index}
+                          onClick={() =>
+                            handleDriveSelect({ target: { value: drive.name } })
+                          }
+                          active={selectedDrive === drive.name}
+                          className="d-flex align-items-center justify-content-between"
+                          style={{
+                            fontWeight: drive.connected ? "600" : "normal",
+                          }}
+                        >
+                          <span className="d-flex align-items-center">
+                            <Icon.HddFill
+                              size={15}
+                              className="me-2"
+                              color={drive.connected ? "#16ab9c" : "#888888"}
+                            />
+                            <span>
+                              {drive.letter ? `${drive.letter} ` : ""}
+                              {drive.name}
+                            </span>
+                          </span>
+                          {drive.connected && (
+                            <Badge bg="success" className="ms-2 small">
+                              {drive.letter}
+                            </Badge>
+                          )}
+                        </Dropdown.Item>
+                      ))}
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </div>
+
                 <Breadcrumb.Item
                   onClick={() => navigate("cd ..", "")}
                   className="p-0 m-0"
+                  title={t("common.home")}
                 >
-                  <Icon.HouseDoorFill className="me-2" />
+                  <Icon.HouseDoorFill className="me-1" />
                 </Breadcrumb.Item>
                 {pathParts.map((part, index) => (
                   <Breadcrumb.Item
@@ -630,6 +775,18 @@ const Navigator = () => {
                       {isConnected && totals.bytes > 0
                         ? ` · ${formatBytes(totals.bytes)} ${t("explorer.inThisView")}`
                         : ""}
+                      {isConnected && (totals.unsynced > 0 || totals.missing > 0) && (
+                        <span className="ms-2 opacity-75">
+                          ({totals.synced} sync
+                          {totals.unsynced > 0 && ` · ${totals.unsynced} no sync`}
+                          {totals.missing > 0 && (
+                            <span className="text-danger fw-semibold">
+                              {` · ${totals.missing} faltantes`}
+                            </span>
+                          )}
+                          )
+                        </span>
+                      )}
                     </span>
                     <span>
                       <span

@@ -11,78 +11,87 @@ use std::{fs, path::Path, path::PathBuf};
  */
 #[tauri::command]
 pub fn execute_node(drive_letter: String) -> Value {
-    println!(
-        "DEBUG: Iniciando execute_node con la unidad: {}",
-        drive_letter
-    );
-    let config = match load_config() {
-        Ok(cfg) => cfg,
-        Err(e) => return json!({ "error": e }),
-    };
-    // Obtener nombre de volumen y si está en modo onlyMedia
-    let volume_name = get_volume_name(&drive_letter);
-    let (only_media, _, _) = get_drive_options(&volume_name, &config.folder);
-    // Extensiones
-    let exts = if only_media {
-        get_extensions(&config.extensions)
-    } else {
-        vec![]
-    };
-    println!(
-        "DEBUG: volume_name={volume_name}, only_media={only_media}, exts={:?}",
-        exts
-    );
-    // Recorrer la unidad de forma nativa (Unicode-safe, sin code pages)
-    let root = PathBuf::from(format!("{}\\", drive_letter));
-    if fs::read_dir(&root).is_err() {
-        return json!({ "success": false, "error": "Invalid drive letter" });
+    #[cfg(not(windows))]
+    {
+        let _ = drive_letter;
+        return json!({ "success": false, "error": "La indexación de unidades físicas solo está disponible en la versión de escritorio" });
     }
 
-    let list = list_drive_entries(&root)
-        .into_iter()
-        .filter(|l| !l.to_lowercase().contains("$recycle.bin") && !l.trim().is_empty())
-        .collect::<Vec<_>>()
-        .join("\n");
+    #[cfg(windows)]
+    {
+        println!(
+            "DEBUG: Iniciando execute_node con la unidad: {}",
+            drive_letter
+        );
+        let config = match load_config() {
+            Ok(cfg) => cfg,
+            Err(e) => return json!({ "error": e }),
+        };
+        // Obtener nombre de volumen y si está en modo onlyMedia
+        let volume_name = get_volume_name(&drive_letter);
+        let (only_media, _, _) = get_drive_options(&volume_name, &config.folder);
+        // Extensiones
+        let exts = if only_media {
+            get_extensions(&config.extensions)
+        } else {
+            vec![]
+        };
+        println!(
+            "DEBUG: volume_name={volume_name}, only_media={only_media}, exts={:?}",
+            exts
+        );
+        // Recorrer la unidad de forma nativa (Unicode-safe, sin code pages)
+        let root = PathBuf::from(format!("{}\\", drive_letter));
+        if fs::read_dir(&root).is_err() {
+            return json!({ "success": false, "error": "Invalid drive letter" });
+        }
 
-    // Salvaguarda: con onlyMedia activo pero sin extensiones media configuradas,
-    // no filtrar nada (un filtro vacío eliminaría todos los archivos del catálogo).
-    if only_media && exts.is_empty() {
-        println!("WARN: onlyMedia activo pero sin extensiones media configuradas; no se filtra");
-    }
-    let filtered_list = if only_media && !exts.is_empty() {
-        // Filtrar extensiones
-        list.lines()
-            .filter(|line| {
-                if line.ends_with('\\') {
-                    // Es carpeta (marcada explícitamente)
-                    true
-                } else if line.contains('.') {
-                    let ext = line.split('.').last().unwrap_or("").to_lowercase();
-                    exts.contains(&ext)
-                } else {
-                    // Es carpeta
-                    true
-                }
-            })
+        let list = list_drive_entries(&root)
+            .into_iter()
+            .filter(|l| !l.to_lowercase().contains("$recycle.bin") && !l.trim().is_empty())
             .collect::<Vec<_>>()
-            .join("\n")
-    } else {
-        list
-    };
+            .join("\n");
 
-    // Guardar en vol.txt
-    let file_path = Path::new(&config.folder).join(format!("{}.txt", volume_name));
-    println!("DEBUG: Guardando listado en: {}", file_path.display());
-    if fs::write(&file_path, filtered_list).is_ok() {
-        // Actualizar drives.json con nuevo size/freeSpace
-        let (free, size) = get_space_disk(&drive_letter);
-        write_size(&volume_name, &config.folder, size, free);
-        json!({
-            "success": true,
-            "message": format!("File list in {} saved. Lines: {}", volume_name, file_path.display()),
-        })
-    } else {
-        json!({ "success": false, "error": "Failed to write file" })
+        // Salvaguarda: con onlyMedia activo pero sin extensiones media configuradas,
+        // no filtrar nada (un filtro vacío eliminaría todos los archivos del catálogo).
+        if only_media && exts.is_empty() {
+            println!("WARN: onlyMedia activo pero sin extensiones media configuradas; no se filtra");
+        }
+        let filtered_list = if only_media && !exts.is_empty() {
+            // Filtrar extensiones
+            list.lines()
+                .filter(|line| {
+                    if line.ends_with('\\') {
+                        // Es carpeta (marcada explícitamente)
+                        true
+                    } else if line.contains('.') {
+                        let ext = line.split('.').last().unwrap_or("").to_lowercase();
+                        exts.contains(&ext)
+                    } else {
+                        // Es carpeta
+                        true
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join("\n")
+        } else {
+            list
+        };
+
+        // Guardar en vol.txt
+        let file_path = Path::new(&config.folder).join(format!("{}.txt", volume_name));
+        println!("DEBUG: Guardando listado en: {}", file_path.display());
+        if fs::write(&file_path, filtered_list).is_ok() {
+            // Actualizar drives.json con nuevo size/freeSpace
+            let (free, size) = get_space_disk(&drive_letter);
+            write_size(&volume_name, &config.folder, size, free);
+            json!({
+                "success": true,
+                "message": format!("File list in {} saved. Lines: {}", volume_name, file_path.display()),
+            })
+        } else {
+            json!({ "success": false, "error": "Failed to write file" })
+        }
     }
 }
 
@@ -129,34 +138,39 @@ pub fn get_drives() -> Value {
     };
     println!("Iniciando get_drives...");
 
-    // Enumerar unidades de forma nativa (Unicode-safe, sin wmic/code pages)
     let mut drives_list = vec![];
-    for letter in 'A'..='Z' {
-        let drive_letter = format!("{}:", letter);
-        let (free, size) = get_space_disk(&drive_letter);
-        if size > 0 {
-            let drive_name = get_volume_name(&drive_letter);
-            let mut sync = false;
-            let mut sync_date = String::new();
-            if !drive_name.is_empty() {
-                sync = crate::utils::get_drive_sync(&drive_name, &config.folder);
-                if sync {
-                    sync_date = crate::utils::get_drive_sync_date(&drive_name, &config.folder);
+
+    #[cfg(windows)]
+    {
+        // Enumerar unidades de forma nativa (Unicode-safe, sin wmic/code pages)
+        for letter in 'A'..='Z' {
+            let drive_letter = format!("{}:", letter);
+            let (free, size) = get_space_disk(&drive_letter);
+            if size > 0 {
+                let drive_name = get_volume_name(&drive_letter);
+                let mut sync = false;
+                let mut sync_date = String::new();
+                if !drive_name.is_empty() {
+                    sync = crate::utils::get_drive_sync(&drive_name, &config.folder);
+                    if sync {
+                        sync_date = crate::utils::get_drive_sync_date(&drive_name, &config.folder);
+                    }
                 }
+                let (only_media, _, _) = crate::utils::get_drive_options(&drive_name, &config.folder);
+                drives_list.push(json!({
+                    "connected": true,
+                    "letter": drive_letter,
+                    "name": drive_name,
+                    "freeSpace": free,
+                    "size": size,
+                    "sync": sync,
+                    "syncDate": sync_date,
+                    "onlyMedia": only_media
+                }));
             }
-            let (only_media, _, _) = crate::utils::get_drive_options(&drive_name, &config.folder);
-            drives_list.push(json!({
-                "connected": true,
-                "letter": drive_letter,
-                "name": drive_name,
-                "freeSpace": free,
-                "size": size,
-                "sync": sync,
-                "syncDate": sync_date,
-                "onlyMedia": only_media
-            }));
         }
     }
+
     println!("drives_list construido: {:?}", drives_list);
 
     let all_drives = get_drives_info(&config.folder, &json!(drives_list));

@@ -1,38 +1,14 @@
-import useEffect from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "../context/languageContext";
-import { NavBar, NavBarThemeSwitch, NavBarLink } from "../vendor/winui";
-// import { ThemeContext } from "../context/themeContext";
-import Api from "../helpers/api";
-// import { Settings } from "../models/Interfaces";
+import { NavBar, NavBarLink } from "../vendor/winui";
+import { isMobile } from "../helpers/platform";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
-  /*const { theme, setLightTheme, setDarkTheme } = useContext(ThemeContext);
-  const [config, setConfig] = useState({
-    folder: "",
-    node_env: "",
-    extensions: {},
-    defaultSubstitutions: [],
-    pattern: "",
-  } as Settings);
+  const mobile = isMobile();
 
-  const setTheme = () => {
-    if (theme === "light") {
-      setDarkTheme();
-    } else {
-      setLightTheme();
-    }
-  };
-
-  useEffect(() => {
-    Api.getSettings().then((response:any) => {
-      setConfig(response);
-    });
-  }, []);
-*/
   const navigateTo = (path: string) => {
     if (location.pathname !== path) {
       navigate(path);
@@ -63,13 +39,15 @@ const Navbar = () => {
           navigateTo("/explorer");
         }}
       />
-      <NavBarLink
-        text={t("nav.sync")}
-        icon={<i className="icons10-sync"></i>}
-        onClick={() => {
-          navigateTo("/sync");
-        }}
-      />
+      {!mobile && (
+        <NavBarLink
+          text={t("nav.sync")}
+          icon={<i className="icons10-sync"></i>}
+          onClick={() => {
+            navigateTo("/sync");
+          }}
+        />
+      )}
       <NavBarLink
         text={t("nav.bookmarks")}
         icon={<i className="icons10-bookmark"></i>}
@@ -77,20 +55,24 @@ const Navbar = () => {
           navigateTo("/bookmarks");
         }}
       />
-      <NavBarLink
-        text={t("nav.folderSync")}
-        icon={<i className="icons10-columns"></i>}
-        onClick={() => {
-          navigateTo("/folderSync");
-        }}
-      />
-      <NavBarLink
-        text={t("nav.fileCleaner")}
-        icon={<i className="icons10-file"></i>}
-        onClick={() => {
-          navigateTo("/fileCleaner");
-        }}
-      />
+      {!mobile && (
+        <NavBarLink
+          text={t("nav.folderSync")}
+          icon={<i className="icons10-columns"></i>}
+          onClick={() => {
+            navigateTo("/folderSync");
+          }}
+        />
+      )}
+      {!mobile && (
+        <NavBarLink
+          text={t("nav.fileCleaner")}
+          icon={<i className="icons10-file"></i>}
+          onClick={() => {
+            navigateTo("/fileCleaner");
+          }}
+        />
+      )}
       <NavBarLink
         text={t("nav.settings")}
         icon={<i className="icons10-settings"></i>}

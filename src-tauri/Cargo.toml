@@ -1,6 +1,6 @@
 [package]
 name = "syncdrome"
-version = "2.3.0"
+version = "2.4.0"
 description = "Create a catalog of all files on specified hard drives"
 authors = ["Alejandro Aranda"]
 edition = "2021"
@@ -28,9 +28,11 @@ tauri-plugin-log = "2.0.0-rc.2"
 rusqlite = { version = "0.32.1", features = ["bundled"] } 
 chrono = "0.4.39"
 encoding_rs = "0.8.35"
-winapi = { version = "0.3.9", features = ["fileapi", "winnt", "winuser", "shellapi"] }
 tokio = { version = "1.43.0", features = ["rt", "process"] }
 dirs = "5.0.1"
 regex = "1.11.1"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3.9", features = ["fileapi", "winnt", "winuser", "shellapi"] }
 
 

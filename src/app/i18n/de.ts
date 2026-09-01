@@ -204,6 +204,9 @@ const de: Dict = {
     volume: "Volume",
     selectFile: "Wählen Sie eine Datei",
     noResults: "Keine Lesezeichen gefunden",
+    dropHere: "Hier ablegen",
+    dragFolderOrFile: "Datei oder Ordner hierher ziehen, um ein Lesezeichen hinzuzufügen",
+    bookmarkAdded: "Lesezeichen hinzugefügt",
   },
   about: {
     title: "Über",

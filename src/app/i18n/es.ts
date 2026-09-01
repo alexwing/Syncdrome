@@ -200,6 +200,9 @@ const es: Dict = {
     volume: "Volumen",
     selectFile: "Selecciona un archivo",
     noResults: "No se encontraron marcadores",
+    dropHere: "Suelta aquí",
+    dragFolderOrFile: "Arrastra un archivo o carpeta aquí para añadirlo a marcadores",
+    bookmarkAdded: "Marcador añadido",
   },
   about: {
     title: "Acerca de",

@@ -12,32 +12,41 @@ pub struct LogFile {
 
 #[tauri::command]
 pub async fn sync_folders(source: String, target: String) -> Result<String, String> {
-    let log_path = std::env::temp_dir().join("syncTofolder.log");
-    println!("Iniciando sincronización de '{}' a '{}'", source, target);
-    
-    // Iniciamos el proceso de manera asíncrona
-    tokio::spawn(async move {
-        let output = Command::new("robocopy")
-            .arg(&source)
-            .arg(&target)
-            .arg("/MIR")
-            .arg("/R:3")
-            .arg("/W:10")
-            .arg(format!("/LOG:{}", log_path.display()))
-            .spawn();
+    #[cfg(not(windows))]
+    {
+        let _ = (source, target);
+        return Err("La sincronización de carpetas con robocopy solo está disponible en Windows".to_string());
+    }
 
-        match output {
-            Ok(mut child) => {
-                let status = child.wait().await;
-                println!("Proceso completado con estado: {:?}", status);
-            },
-            Err(e) => {
-                println!("Error al iniciar robocopy: {}", e);
+    #[cfg(windows)]
+    {
+        let log_path = std::env::temp_dir().join("syncTofolder.log");
+        println!("Iniciando sincronización de '{}' a '{}'", source, target);
+        
+        // Iniciamos el proceso de manera asíncrona
+        tokio::spawn(async move {
+            let output = Command::new("robocopy")
+                .arg(&source)
+                .arg(&target)
+                .arg("/MIR")
+                .arg("/R:3")
+                .arg("/W:10")
+                .arg(format!("/LOG:{}", log_path.display()))
+                .spawn();
+
+            match output {
+                Ok(mut child) => {
+                    let status = child.wait().await;
+                    println!("Proceso completado con estado: {:?}", status);
+                },
+                Err(e) => {
+                    println!("Error al iniciar robocopy: {}", e);
+                }
             }
-        }
-    });
+        });
 
-    Ok(String::from("Sincronización iniciada en segundo plano"))
+        Ok(String::from("Sincronización iniciada en segundo plano"))
+    }
 }
 
 #[tauri::command]

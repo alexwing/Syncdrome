@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { AppContainer, AppTheme } from "../vendor/winui";
 import Navbar from "../components/navbar";
 import { Routes, Route } from "react-router-dom";
@@ -12,11 +12,12 @@ import Settings from "../views/settings";
 import Sync from "../views/sync";
 import Explorer from "../views/Navigator";
 import KeepAliveRoutes from "../components/keepAliveRoutes";
+import { isMobile } from "../helpers/platform";
 
 // Working views keep their state (results, logs, running jobs) across tab
 // switches. Utility views (bookmarks, settings, help, about) remount on each
 // visit so they always show fresh data.
-const PERSISTENT_VIEWS = [
+const ALL_PERSISTENT_VIEWS = [
   { path: "/", element: <Home /> },
   { path: "/explorer", element: <Explorer /> },
   { path: "/sync", element: <Sync /> },
@@ -24,13 +25,23 @@ const PERSISTENT_VIEWS = [
   { path: "/fileCleaner", element: <FileCleaner /> },
 ];
 
+const MOBILE_PERSISTENT_VIEWS = [
+  { path: "/", element: <Home /> },
+  { path: "/explorer", element: <Explorer /> },
+];
+
 const AppLayout = () => {
+  const mobile = isMobile();
+  const persistentViews = useMemo(
+    () => (mobile ? MOBILE_PERSISTENT_VIEWS : ALL_PERSISTENT_VIEWS),
+    [mobile]
+  );
   return (
     <AppContainer>
       {/* Primary color only; light/dark is owned by ThemeProvider. */}
       <AppTheme color={"#16ab9c"} colorDarkMode={"#1ee6d1"} />
       <Navbar />
-      <KeepAliveRoutes routes={PERSISTENT_VIEWS}>
+      <KeepAliveRoutes routes={persistentViews}>
         <Routes>
           <Route path="/bookmarks" element={<Bookmarks />} />
           <Route path="/settings" element={<Settings />} />

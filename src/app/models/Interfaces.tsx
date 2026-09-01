@@ -36,7 +36,9 @@ export interface AlertMessageProps {
   show: boolean;
   alertMessage: AlertModel;
   onHide: () => void;
-  autoClose?: number;ok
+  autoClose?: number;
+  variant?: "toast" | "modal" | "auto";
+  placement?: "top-right" | "bottom-right";
 }
 
 export interface FileType {
@@ -119,6 +121,8 @@ export interface ExplorerItem {
   modified?: number;
   /** Nº de elementos directos (carpetas); disponible también sin conexión. */
   items?: number;
+  /** Estado de sincronización en unidades conectadas */
+  status?: "synced" | "missing" | "unsynced";
 }
 
 export interface NavigateResponse {
