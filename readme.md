@@ -151,15 +151,6 @@ This project is under the MIT License. See the LICENSE file for more details.
 
 You can access the Syncdrome repository on [GitHub](https://github.com/alexwing/Syncdrome).
 
-Code signing policy
--------------------
-
-Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
-
-Releases are built on GitHub-hosted runners and signed through SignPath, which
-verifies that the installer was built from this repository. See
-[CODE_SIGNING.md](CODE_SIGNING.md) for the team roles and how releases are
-produced, and [PRIVACY.md](PRIVACY.md) for the privacy policy.
 
 ### Contribute and Support
 
